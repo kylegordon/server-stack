@@ -1,0 +1,95 @@
+version: '3.4'
+
+services:
+
+  home-assistant:
+    image: homeassistant/home-assistant:0.88.1
+    #image: homeassistant/home-assistant:0.87.1
+    container_name: home-assistant
+    depends_on: 
+      - deconz
+      - eclipse-mosquitto
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:8123"]
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    network_mode: "host"
+    environment:
+      - PUID=200
+      - PGID=200
+    devices:
+      # - /dev/ttyUSB0:/dev/ttyUSB0
+      - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A1WRPEJT-if00-port0:/dev/ttyUSB0
+      - /dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0:/dev/zwave
+    ports:
+      - 8123:8123
+      - 8300:8300
+    volumes:
+      - /docker/home-assistant/config:/config
+      - /etc/localtime:/etc/localtime:ro
+
+    #logging:
+    #  driver: syslog
+    #  options:
+    #    syslog-address: "udp://172.24.32.13:514"
+
+  deconz:
+    #image: marthoc/deconz:amd64-2.05.58
+    image: marthoc/deconz:amd64-2.05.59
+    container_name: deconz
+    network_mode: host
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:8100/pwa/login.html"]
+      start_period: 60s 
+      interval: 30s 
+      timeout: 10s 
+      retries: 5
+    ports:
+      - 8100:8100
+      - 8143:8143
+      - 1900:1900
+      - 5900:5900
+    volumes:
+      - /docker/deCONZ/config:/root/.local/share/dresden-elektronik/deCONZ
+      - /docker/deCONZ/otau:/root/otau/
+    devices:
+      - /dev/serial/by-id/usb-FTDI_FT230X_Basic_UART_DO00KFKX-if00-port0:/dev/ttyUSB0
+    environment:
+      - DECONZ_WEB_PORT=8100
+      - DECONZ_WS_PORT=8143
+      - DEBUG_INFO=1
+      - DEBUG_APS=0
+      - DEBUG_ZCL=0
+      - DEBUG_ZDP=0
+      - DEBUG_OTAU=1
+      - DECONZ_VNC_MODE=1
+      - DECONZ_VNC_PASSWORD=${DECONZ_VNC_PASSWORD}
+
+  eclipse-mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: eclipse-mosquitto
+    restart: unless-stopped
+    ports:
+      - 1883:1883
+      - 9001:9001
+    volumes:
+        - /docker/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+        - /docker/mosquitto/data:/mosquitto/data
+        - /docker/mosquitto/log:/mosquitto/log
+
+  nodered:
+    restart: unless-stopped
+    image: nodered/node-red-docker:latest
+    container_name: node-red
+    ports:
+      - 1880:1880
+    environment:
+      TZ: Europe/London
+    volumes:
+      - /docker/node-red/data:/data
+      - /etc/localtime:/etc/localtime:ro
+
