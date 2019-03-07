@@ -36,7 +36,6 @@ services:
     #    syslog-address: "udp://172.24.32.13:514"
 
   deconz:
-    #image: marthoc/deconz:amd64-2.05.58
     image: marthoc/deconz:amd64-2.05.59
     container_name: deconz
     network_mode: host
