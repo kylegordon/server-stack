@@ -3,7 +3,7 @@ version: '3.4'
 services:
 
   home-assistant:
-    image: homeassistant/home-assistant:0.89.0
+    image: homeassistant/home-assistant:0.89.1
     container_name: home-assistant
     depends_on: 
       - deconz
