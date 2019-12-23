@@ -51,6 +51,20 @@ services:
     #  options:
     #    syslog-address: "udp://172.24.32.13:514"
 
+  esphome:
+    image: esphome/esphome:latest
+    container_name: esphome
+    network_mode: host
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:6052"]
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - /docker/home-assistant/config/esphome:/config
+
   deconz:
     image: marthoc/deconz:amd64-2.05.59
     container_name: deconz
