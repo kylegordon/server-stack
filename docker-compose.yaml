@@ -39,6 +39,7 @@ services:
       - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A1WRPEJT-if00-port0:/dev/ttyUSB0
       - /dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0:/dev/zwave
     ports:
+      - 80:8300
       - 8123:8123
       - 8300:8300
     volumes:
