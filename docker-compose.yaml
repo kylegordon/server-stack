@@ -66,7 +66,7 @@ services:
       - /docker/home-assistant/config/esphome:/config
 
   deconz:
-    image: marthoc/deconz:amd64-2.05.59
+    image: marthoc/deconz:latest
     container_name: deconz
     network_mode: host
     restart: unless-stopped
