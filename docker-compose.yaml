@@ -45,7 +45,6 @@ services:
     volumes:
       - /docker/home-assistant/config:/config
       - /etc/localtime:/etc/localtime:ro
-
     #logging:
     #  driver: syslog
     #  options:
@@ -115,6 +114,12 @@ services:
     container_name: node-red
     ports:
       - 1880:1880
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:1880"]
+      start_period: 60s 
+      interval: 30s 
+      timeout: 10s 
+      retries: 5
     environment:
       TZ: Europe/London
     volumes:
