@@ -126,3 +126,73 @@ services:
       - /docker/node-red/data:/data
       - /etc/localtime:/etc/localtime:ro
 
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=grafana"
+      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefixStrip: /grafana/"
+      - "traefik.port=3000"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.STSSeconds=315360000"
+      - "traefik.frontend.headers.browserXSSFilter=true"
+      - "traefik.frontend.headers.contentTypeNosniff=true"
+      - "traefik.frontend.headers.forceSTSHeader=true"
+      - "traefik.frontend.headers.SSLHost=viewpoint.house"
+      - "traefik.frontend.headers.STSIncludeSubdomains=true"
+      - "traefik.frontend.headers.STSPreload=true"
+      - "traefik.frontend.headers.frameDeny=true"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:3000"]
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      # http://docs.grafana.org/installation/configuration/#using-environment-variables
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,vonage-status-panel,grafana-influxdb-08-datasource,ryantxu-ajax-panel,raintank-worldping-app
+      - GF_SERVER_ROOT_URL=http://homeauto.vpn.glasgownet.com
+      - GF_SECURITY_ADMIN_PASSWORD=homeauto
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+    ports:
+      - 3000:3000
+    volumes:
+      - /docker/grafana:/var/lib/grafana/
+
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    restart: unless-stopped
+    volumes:
+      # Mount for influxdb data directory
+      - /var/lib/influxdb:/var/lib/influxdb
+      # Mount for influxdb configuration
+      - /docker/influxdb/config/:/etc/influxdb/
+      - /docker/influxdb/types.db:/usr/share/collectd/types.db
+    ports:
+      # The API for InfluxDB is served on port 8086
+      - "8086:8086"
+      - "8082:8082"
+
+  chronograf:
+    image: chronograf:latest
+    container_name: chronograf
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:3000"]
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      # Mount for chronograf database
+      - /docker/chronograf/data/:/var/lib/chronograf/
+    ports:
+      # The WebUI for Chronograf is served on port 8888
+      - "8888:8888"
+#    depends_on:
+#      - influxdb
