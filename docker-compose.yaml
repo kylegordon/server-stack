@@ -5,22 +5,22 @@ services:
   home-assistant:
     image: homeassistant/home-assistant:latest
     container_name: home-assistant
-    depends_on: 
+    depends_on:
       - deconz
       - eclipse-mosquitto
     restart: unless-stopped
     labels:
-      - "traefik.enable=true"
-      - "traefik.backend=sonarr"
-      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefix: /"
-      - "traefik.port=8989"
+      - "traefik.enable=false"
+      - "traefik.backend=home-assistant"
+      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefix: /hass"
+      - "traefik.port=8123"
       - "traefik.docker.network=traefik_proxy"
       - "traefik.frontend.headers.SSLRedirect=true"
       - "traefik.frontend.headers.STSSeconds=315360000"
       - "traefik.frontend.headers.browserXSSFilter=true"
       - "traefik.frontend.headers.contentTypeNosniff=true"
       - "traefik.frontend.headers.forceSTSHeader=true"
-      - "traefik.frontend.headers.SSLHost=example.com"
+      - "traefik.frontend.headers.SSLHost=viewpoint.house"
       - "traefik.frontend.headers.STSIncludeSubdomains=true"
       - "traefik.frontend.headers.STSPreload=true"
       - "traefik.frontend.headers.frameDeny=true"
@@ -146,7 +146,8 @@ services:
       - "traefik.frontend.headers.STSPreload=true"
       - "traefik.frontend.headers.frameDeny=true"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:3000"]
+      #test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:3000/api/health"]
+      test: ["CMD", "wget", "--spider", "-tries=1", "--quiet", "http://homeauto.vpn.glasgownet.com:3000/api/health"]
       start_period: 60s
       interval: 30s
       timeout: 10s
