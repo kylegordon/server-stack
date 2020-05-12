@@ -45,10 +45,10 @@ services:
     volumes:
       - /docker/home-assistant/config:/config
       - /etc/localtime:/etc/localtime:ro
-    #logging:
-    #  driver: syslog
-    #  options:
-    #    syslog-address: "udp://172.24.32.13:514"
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://172.24.32.13:514"
 
   esphome:
     image: esphome/esphome:latest
@@ -63,6 +63,10 @@ services:
       retries: 5
     volumes:
       - /docker/home-assistant/config/esphome:/config
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://172.24.32.13:514"
 
   deconz:
     image: marthoc/deconz:latest
@@ -95,6 +99,10 @@ services:
       - DEBUG_OTAU=1
       - DECONZ_VNC_MODE=1
       - DECONZ_VNC_PASSWORD=${DECONZ_VNC_PASSWORD}
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://172.24.32.13:514"
 
   eclipse-mosquitto:
     image: eclipse-mosquitto:latest
@@ -107,6 +115,10 @@ services:
         - /docker/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
         - /docker/mosquitto/data:/mosquitto/data
         - /docker/mosquitto/log:/mosquitto/log
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://172.24.32.13:514"
 
   nodered:
     restart: unless-stopped
@@ -125,6 +137,10 @@ services:
     volumes:
       - /docker/node-red/data:/data
       - /etc/localtime:/etc/localtime:ro
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://172.24.32.13:514"
 
   grafana:
     image: grafana/grafana:latest
@@ -163,6 +179,10 @@ services:
       - 3000:3000
     volumes:
       - /docker/grafana:/var/lib/grafana/
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://172.24.32.13:514"
 
   influxdb:
     image: influxdb:latest
@@ -178,6 +198,10 @@ services:
       # The API for InfluxDB is served on port 8086
       - "8086:8086"
       - "8082:8082"
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://172.24.32.13:514"
 
   chronograf:
     image: chronograf:latest
@@ -197,3 +221,8 @@ services:
       - "8888:8888"
 #    depends_on:
 #      - influxdb
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://172.24.32.13:514"
+
