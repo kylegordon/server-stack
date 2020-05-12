@@ -111,6 +111,20 @@ services:
       options:
         syslog-address: "udp://172.24.32.13:514"
 
+  facebox:
+    image: machinebox/facebox_noavx
+    container_name: facebox
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    environment:
+      - MB_KEY=${MB_KEY}
+      - MB_FACEBOX_DISABLE_RECOGNITION=false
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://172.24.32.13:514"
+
   eclipse-mosquitto:
     image: eclipse-mosquitto:latest
     container_name: eclipse-mosquitto
