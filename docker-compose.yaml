@@ -1,7 +1,14 @@
 version: '3.4'
 
-services:
+volumes:
+  influxdb_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/influxdb_data/"
 
+services:
   home-assistant:
     image: homeassistant/home-assistant:latest
     container_name: home-assistant
@@ -191,6 +198,7 @@ services:
     volumes:
       # Mount for influxdb data directory
       - /var/lib/influxdb:/var/lib/influxdb
+      # - influxdb_data:/var/lib/influxdb
       # Mount for influxdb configuration
       - /docker/influxdb/config/:/etc/influxdb/
       - /docker/influxdb/types.db:/usr/share/collectd/types.db
