@@ -225,4 +225,3 @@ services:
       driver: syslog
       options:
         syslog-address: "udp://172.24.32.13:514"
-
