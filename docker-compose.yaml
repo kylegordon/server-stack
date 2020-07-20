@@ -53,9 +53,9 @@ services:
       - /docker/home-assistant/config:/config
       - /etc/localtime:/etc/localtime:ro
     logging:
-      driver: syslog
+      driver: gelf
       options:
-        syslog-address: "udp://172.24.32.13:514"
+        gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
   esphome:
@@ -72,9 +72,9 @@ services:
     volumes:
       - /docker/home-assistant/config/esphome:/config
     logging:
-      driver: syslog
+      driver: gelf
       options:
-        syslog-address: "udp://172.24.32.13:514"
+        gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
   deconz:
@@ -109,9 +109,9 @@ services:
       - DECONZ_VNC_MODE=1
       - DECONZ_VNC_PASSWORD=${DECONZ_VNC_PASSWORD}
     logging:
-      driver: syslog
+      driver: gelf
       options:
-        syslog-address: "udp://172.24.32.13:514"
+        gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
   facebox:
@@ -124,9 +124,9 @@ services:
       - MB_KEY=${MB_KEY}
       - MB_FACEBOX_DISABLE_RECOGNITION=false
     logging:
-      driver: syslog
+      driver: gelf
       options:
-        syslog-address: "udp://172.24.32.13:514"
+        gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
   eclipse-mosquitto:
@@ -141,9 +141,9 @@ services:
         - /docker/mosquitto/data:/mosquitto/data
         - /docker/mosquitto/log:/mosquitto/log
     logging:
-      driver: syslog
+      driver: gelf
       options:
-        syslog-address: "udp://172.24.32.13:514"
+        gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
   nodered:
@@ -154,9 +154,9 @@ services:
       - 1880:1880
     healthcheck:
       test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:1880"]
-      start_period: 60s 
-      interval: 30s 
-      timeout: 10s 
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
       retries: 5
     environment:
       TZ: Europe/London
@@ -207,9 +207,9 @@ services:
     volumes:
       - /docker/grafana:/var/lib/grafana/
     logging:
-      driver: syslog
+      driver: gelf
       options:
-        syslog-address: "udp://172.24.32.13:514"
+        gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
   influxdb:
@@ -228,9 +228,9 @@ services:
       - "8086:8086"
       - "8082:8082"
     logging:
-      driver: syslog
+      driver: gelf
       options:
-        syslog-address: "udp://172.24.32.13:514"
+        gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
   chronograf:
