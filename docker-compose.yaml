@@ -241,6 +241,7 @@ services:
       # The API for InfluxDB is served on port 8086
       - "8086:8086"
       - "8082:8082"
+      - "25826:25826"
     logging:
       driver: gelf
       options:
