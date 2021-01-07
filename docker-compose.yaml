@@ -162,7 +162,7 @@ services:
 
   nodered:
     restart: unless-stopped
-    image: nodered/node-red-docker:latest
+    image: nodered/node-red:latest
     container_name: node-red
     ports:
       - 1880:1880
