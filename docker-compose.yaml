@@ -230,6 +230,8 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=homeauto
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      # - GF_SERVER_ROOT_URL=${DOMAIN_PROTOCOL}://${BASE_DOMAIN}/grafana/
+      # - GF_SERVER_DOMAIN=${BASE_DOMAIN}
     ports:
       - 3000:3000
     volumes:
