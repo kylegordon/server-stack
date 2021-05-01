@@ -50,10 +50,10 @@ services:
       # - /dev/ttyUSB0:/dev/ttyUSB0
       - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A1WRPEJT-if00-port0:/dev/ttyUSB0
       - /dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0:/dev/zwave
-    ports:
-      - 80:8300
-      - 8123:8123
-      - 8300:8300
+    #ports:
+    #  - 80:8300
+    #  - 8123:8123
+    #  - 8300:8300
     volumes:
       - /docker/home-assistant/config:/config
       - /etc/localtime:/etc/localtime:ro
@@ -85,7 +85,6 @@ services:
   deconz:
     image: marthoc/deconz:latest
     container_name: deconz
-    network_mode: host
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://viewpoint.house:8100/pwa/login.html"]
@@ -93,11 +92,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    ports:
-      - 8100:8100
-      - 8143:8143
-      - 1900:1900
-      - 5900:5900
+    network_mode: host
+    #ports:
+    #  - 8100:8100
+    #  - 8143:8143
+    #  - 1900:1900
+    #  - 5900:5900
     volumes:
       - /docker/deCONZ/config:/root/.local/share/dresden-elektronik/deCONZ
       - /docker/deCONZ/otau:/root/otau/
