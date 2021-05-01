@@ -88,7 +88,7 @@ services:
     network_mode: host
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:8100/pwa/login.html"]
+      test: ["CMD", "curl", "-f", "http://viewpoint.house:8100/pwa/login.html"]
       start_period: 60s
       interval: 30s
       timeout: 10s
