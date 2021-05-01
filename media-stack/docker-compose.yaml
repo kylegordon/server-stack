@@ -1,0 +1,393 @@
+version: '3.4'
+
+# https://github.com/HaoZeke/starDock_compose/blob/master/docker-compose.yml
+# https://www.smarthomebeginner.com/traefik-reverse-proxy-tutorial-for-docker/#Traefik_Docker_Compose_Examples
+#
+
+services:
+
+#   traefik:
+#     image: traefik:1.7
+#     command: --web --docker --docker.watch --docker.domain=viewpoint.house \
+#              --docker.exposedbydefault=false \
+#              --api
+
+# #    command: --web --docker --docker.watch --docker.domain=viewpoint.house \
+# #             --docker.exposedbydefault=false --acme.domains=viewpoint.house \
+# #             --api
+#     container_name: traefik
+#     hostname: traefik
+#     networks:
+#       - traefik_proxy
+#     ports:
+#       - "82:82"
+#       - "443:443"
+#       - "8081:8080"
+#     volumes:
+#       - /var/run/docker.sock:/var/run/docker.sock:ro
+#       - /docker/traefik/acme.json:/acme.json
+#       - /docker/traefik/traefik.toml:/etc/traefik/traefik.toml
+#       - /docker/traefik/.htpasswd:/etc/traefik/.htpasswd:ro
+#     labels:
+#       traefik.enable: "true"
+#       traefik.frontend.rule: "Host:monitor.viewpoint.house"
+#       traefik.port: "8080"
+#       traefik.frontend.auth.basic: "${HTPASSWD}"
+#     restart: unless-stopped
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - /docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+      - /docker/nginx/www/:/var/www
+      - /docker/nginx/logs:/logs
+    ports:
+      - 88:80
+      - 8443:443
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=nginx"
+      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefix: /test/"
+      - "traefik.port=80"
+      - "traefik.backend.healthcheck.path=/"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.STSSeconds=315360000"
+      - "traefik.frontend.headers.browserXSSFilter=true"
+      - "traefik.frontend.headers.contentTypeNosniff=true"
+      - "traefik.frontend.headers.forceSTSHeader=true"
+      - "traefik.frontend.headers.SSLHost=viewpoint.house"
+      - "traefik.frontend.headers.STSIncludeSubdomains=true"
+      - "traefik.frontend.headers.STSPreload=true"
+      - "traefik.frontend.headers.frameDeny=true"
+
+  nzbget:
+    image: linuxserver/nzbget:latest
+    container_name: nzbget
+    restart: unless-stopped
+    environment:
+      - NZBGET_TRACK=stable
+      - PUID=200
+      - PGID=200
+    ports:
+      - 0.0.0.0:6789:6789
+    volumes:
+      - /docker/nzbget/config:/config
+      - /docker/nzbget/data:/downloads
+      - /media/store/downloads/nzbs/intermediate:/intermediate
+      - /media/store/downloads:/complete
+      - /media/store/downloads/tmp:/downloads/tmp
+
+  sonarr:
+    image: linuxserver/sonarr:preview
+    container_name: sonarr
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://viewpoint.house:8989"]
+      start_period: 60s 
+      interval: 30s 
+      timeout: 10s 
+      retries: 5
+    networks:
+      - traefik_proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=sonarr"
+      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefix: /sonarr/"
+      - "traefik.port=8989"
+      - "traefik.backend.healthcheck.path=/"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.STSSeconds=315360000"
+      - "traefik.frontend.headers.browserXSSFilter=true"
+      - "traefik.frontend.headers.contentTypeNosniff=true"
+      - "traefik.frontend.headers.forceSTSHeader=true"
+      - "traefik.frontend.headers.SSLHost=viewpoint.house"
+      - "traefik.frontend.headers.STSIncludeSubdomains=true"
+      - "traefik.frontend.headers.STSPreload=true"
+      - "traefik.frontend.headers.frameDeny=true"
+    environment:
+      - PUID=200
+      - PGID=200
+    ports:
+      - 8989:8989
+#    expose:
+#      - 8989
+    volumes:
+      - /docker/sonarr/config:/config
+      - complete:/complete
+      - complete:/downloads/complete
+      - tv:/tv
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://viewpoint.house:7878"]
+      start_period: 60s 
+      interval: 30s 
+      timeout: 10s 
+      retries: 5
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=radarr"
+      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefix: /radarr/"
+      - "traefik.port=7878"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.STSSeconds=315360000"
+      - "traefik.frontend.headers.browserXSSFilter=true"
+      - "traefik.frontend.headers.contentTypeNosniff=true"
+      - "traefik.frontend.headers.forceSTSHeader=true"
+      - "traefik.frontend.headers.SSLHost=viewpoint.house"
+      - "traefik.frontend.headers.STSIncludeSubdomains=true"
+      - "traefik.frontend.headers.STSPreload=true"
+      - "traefik.frontend.headers.frameDeny=true"
+    environment:
+      - PUID=200
+      - PGID=200
+    ports:
+      - 7878:7878
+#    expose:
+#      - 7878
+    volumes:
+      - /docker/radarr/config:/config
+      - complete:/complete
+      - movies:/movies
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+
+#  headphones:
+#    image: linuxserver/headphones:latest
+#    container_name: headphones
+#    restart: unless-stopped
+#    environment:
+#      - PUID=200
+#      - PGID=200
+#    ports:
+#      - 8181:8181
+#    volumes:
+#      - /docker/headphones/config:/config
+#      - music:/music
+#      - complete:/downloads
+
+# Airsonic
+#  airsonic:
+#    image: airsonic/airsonic:latest
+#    container_name: airsonic
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:4040"]
+#      start_period: 60s 
+#      interval: 30s 
+#      timeout: 10s 
+#      retries: 5
+#    networks:
+#      - traefik_proxy
+#    #network_mode: "host"
+#    restart: unless-stopped
+#    ports:
+#      - 4040:4040
+#      - 32469:32469
+#      - 32400:32400
+#      - 5353:5353
+#      - 1900:1900
+  #  expose:
+  #     - 4040
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.backend=airsonic"
+#      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefix:/airsonic/"
+#      - "traefik.port=4040"
+#      - "traefik.backend.healthcheck.path=/"
+#      - "traefik.docker.network=traefik_proxy"
+#      - "traefik.frontend.headers.SSLRedirect=true"
+#      - "traefik.frontend.headers.STSSeconds=315360000"
+#      - "traefik.frontend.headers.browserXSSFilter=true"
+#      - "traefik.frontend.headers.contentTypeNosniff=true"
+#      - "traefik.frontend.headers.forceSTSHeader=true"
+#      - "traefik.frontend.headers.SSLHost=viewpoint.house"
+#      - "traefik.frontend.headers.STSIncludeSubdomains=true"
+#      - "traefik.frontend.headers.STSPreload=true"
+#      - "traefik.frontend.headers.frameDeny=true"
+#    volumes:
+#      #- /docker/airsonic/config:/config
+#      - /docker/airsonic/data:/airsonic/data
+#      - music:/airsonic/music
+#      - music_playlists:/airsonic/playlists
+#      - podcasts:/airsonic/podcasts
+#      #- media:/media
+
+  hydra:
+    image: linuxserver/hydra:latest
+    container_name: hydra
+    restart: unless-stopped
+    environment:
+      - PUID=200
+      - PGID=200
+    ports:
+      - 5075:5075
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://viewpoint.house:5075"]
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - /docker/nzbhydra/config:/config
+      - /docker/nzbhydra/downloads:/downloads/
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+
+#  lidarr:
+#    image: linuxserver/lidarr
+#    container_name: lidarr
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Europe/London
+#      - UMASK_SET=022 #optional
+#    volumes:
+#      - </path/to/appdata/config>:/config
+#      - </path/to/music>:/music
+#      - </path/to/downloads>:/downloads
+#    ports:
+#      - 8686:8686
+#    restart: unless-stopped
+
+  lazylibrarian:
+    image: linuxserver/lazylibrarian
+    container_name: lazylibrarian
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://viewpoint.house:5299/home"]
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+    networks:
+      - traefik_proxy
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=lazylibrarian"
+      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefix:/lazylibrarian/"
+      - "traefik.http.middlewares.test-stripprefix.stripprefix.prefixes=/lazylibrarian"
+      - "traefik.port=5299"
+      - "traefik.backend.healthcheck.path=/home/"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=false"
+      - "traefik.frontend.headers.STSSeconds=315360000"
+      - "traefik.frontend.headers.browserXSSFilter=true"
+      - "traefik.frontend.headers.contentTypeNosniff=true"
+      - "traefik.frontend.headers.forceSTSHeader=true"
+      - "traefik.frontend.headers.SSLHost=viewpoint.house"
+      - "traefik.frontend.headers.STSIncludeSubdomains=true"
+      - "traefik.frontend.headers.STSPreload=true"
+      - "traefik.frontend.headers.frameDeny=true"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - DOCKER_MODS=linuxserver/calibre-web:calibre #optional
+    volumes:
+      - /docker/lazylibrarian/config:/config
+      - complete:/downloads
+      - /media/store/ebooks:/ebooks
+      - /media/store/Audio Books:/audiobooks
+      - /media/store/home/bagpuss/Arduino_Books:/alternate
+    ports:
+      - 5299:5299
+    restart: unless-stopped
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    #user: 1000:1000
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - /docker/jellyfin/config:/config
+      - /docker/jellyfin/cache:/cache
+      - tv:/media/tv
+      - movies:/media/movies
+      - music:/media/music
+      - /media/store/ebooks:/ebooks
+      - /media/store/Audio Books:/audiobooks
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://viewpoint.house:8096/web/index.html"]
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+
+
+volumes:
+  complete:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/downloads/"
+
+  tv:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/tv/"
+
+  movies:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/movies/"
+
+  music:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/music/"
+
+  podcasts:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/podcasts/"
+
+  music_playlists:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/music_playlists/"
+
+
+networks:
+    traefik_proxy:
+      driver: bridge
