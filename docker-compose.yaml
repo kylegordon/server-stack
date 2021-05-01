@@ -291,3 +291,36 @@ services:
       options:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
+
+  # telegraf:
+  #   image: telegraf:latest
+  #   container_name: telegraf
+  #   # links:
+  #   #   - influxdb
+  #   ports:
+  #     - "8094:8094"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - /var/run/utmp:/var/run/utmp:ro
+  #     - /docker/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+  #   # environment:
+  #   #   INPUT_DOCKER_ENABLED: "true"
+  #   #   INPUT_LISTENER_ENABLED: "true"
+  #   #   INPUT_CPU_ENABLED: "false"
+  #   #   INPUT_DISK_ENABLED: "false"
+  #   #   # DISK_IGNOREFS: '["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]'
+  #   #   INPUT_DISKIO_ENABLED: "false"
+  #   #   INPUT_KERNEL_ENABLED: "false"
+  #   #   INPUT_MEM_ENABLED: "false"
+  #   #   INPUT_PROCESS_ENABLED: "false"
+  #   #   INPUT_SWAP_ENABLED: "true"
+  #   #   INPUT_SYSTEM_ENABLED: "true"
+  #   #   INPUT_NETSTAT_ENABLED: "true"
+  #   #   INPUT_NET_ENABLED: "false"
+  #   #   OUTPUT_INFLUXDB_ENABLED: "true"
+  #   #   INFLUXDB_URL: "http://172.24.32.13:8086"
+  #   logging:
+  #     driver: gelf
+  #     options:
+  #       gelf-address: "udp://172.24.32.13:12201"
+  #       tag: "{{.Name}}"
