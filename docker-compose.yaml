@@ -32,7 +32,7 @@ services:
       - "traefik.frontend.headers.STSPreload=true"
       - "traefik.frontend.headers.frameDeny=true"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:8123"]
+      test: ["CMD", "curl", "-f", "http://viewpoint.house:8123"]
       start_period: 60s
       interval: 30s
       timeout: 10s
@@ -64,7 +64,7 @@ services:
     network_mode: host
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:6052"]
+      test: ["CMD", "curl", "-f", "http://viewpoint.house:6052"]
       start_period: 60s
       interval: 30s
       timeout: 10s
@@ -124,6 +124,12 @@ services:
       - "8182:8082"
       - "8183:8083"
       - "8765:8765"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://viewpoint.house:8765"]
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
     volumes:
       - /docker/motioneye/etc:/etc/motioneye
       - /media/store/cctv/motioneye:/var/lib/motioneye
@@ -167,7 +173,7 @@ services:
     ports:
       - 1880:1880
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:1880"]
+      test: ["CMD", "curl", "-f", "http://viewpoint.house:1880"]
       start_period: 60s
       interval: 30s
       timeout: 10s
@@ -204,7 +210,7 @@ services:
       - "traefik.frontend.headers.frameDeny=true"
     healthcheck:
       #test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:3000/api/health"]
-      test: ["CMD", "wget", "--spider", "-tries=1", "--quiet", "http://homeauto.vpn.glasgownet.com:3000/api/health"]
+      test: ["CMD", "wget", "--spider", "-tries=1", "--quiet", "http://viewpoint.house:3000/api/health"]
       start_period: 60s
       interval: 30s
       timeout: 10s
@@ -242,6 +248,12 @@ services:
       - "8086:8086"
       - "8082:8082"
       - "25826:25826"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://viewpoint.house:8086"]
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
     logging:
       driver: gelf
       options:
@@ -253,7 +265,7 @@ services:
     container_name: chronograf
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:3000"]
+      test: ["CMD", "curl", "-f", "http://viewpoint.house:3000"]
       start_period: 60s
       interval: 30s
       timeout: 10s
