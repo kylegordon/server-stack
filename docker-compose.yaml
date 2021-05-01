@@ -189,9 +189,9 @@ services:
       - /docker/node-red/data:/data
       - /etc/localtime:/etc/localtime:ro
     logging:
-      driver: syslog
+      driver: gelf
       options:
-        syslog-address: "udp://172.24.32.13:514"
+        gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
   grafana:
@@ -287,7 +287,7 @@ services:
 #    depends_on:
 #      - influxdb
     logging:
-      driver: syslog
+      driver: gelf
       options:
-        syslog-address: "udp://172.24.32.13:514"
+        gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
