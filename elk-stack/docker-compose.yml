@@ -1,0 +1,311 @@
+version: '3.4'
+services:
+
+  cerebro:
+    image: lmenezes/cerebro
+    container_name: cerebro
+    restart: unless-stopped
+    ports:
+      - 9000:9000
+    networks:
+      - elastic
+
+  elastichq:
+    image: elastichq/elasticsearch-hq
+    container_name: elastichq
+    restart: unless-stopped
+    ports:
+      - 5001:5000
+    networks:
+      - elastic
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.12.0
+    container_name: logstash
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /docker/logstash/config/logstash.yml
+        target: /usr/share/logstash/config/logstash.yml
+        read_only: true
+      - type: bind
+        source: /docker/logstash/config/pipelines.yml
+        target: /usr/share/logstash/config/pipelines.yml
+        read_only: true
+      - type: bind
+        source: /docker/logstash/config/pipelines
+        target: /usr/share/logstash/pipelines
+        read_only: true
+    ports:
+      # Specifying IP as otherwise clashes with check_mk on 127.0.0.1:5000
+      - "172.24.32.13:5000:5000/tcp"
+      - "172.24.32.13:5000:5000/udp"
+      - "9600:9600"
+      - "514:5514/tcp"
+      - "514:5514/udp"
+      - "515:515/tcp"
+      - "515:515/udp"
+      - "4739:4739/udp"
+      - "4739:4739/tcp"
+      - "12201:12201/tcp"
+      - "12201:12201/udp"
+      - "4000:4000"
+    #healthcheck:
+    #  test: logstash test config
+    #  interval: 30s
+    #  timeout: 15s
+    #  retries: 5
+    networks:
+      - elastic
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.12.0
+    container_name: filebeat
+    restart: unless-stopped
+    user: root #To read the docker socket
+    volumes:
+      - type: bind
+        source: /docker/filebeat/config/filebeat.yml
+        target: /usr/share/filebeat/filebeat.yml
+        read_only: true
+    healthcheck:
+      test: filebeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
+    ports:
+      - "2055:2055/udp"
+      - "2055:2055/tcp"
+    networks:
+      - elastic
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+
+  auditbeat:
+    image: docker.elastic.co/beats/auditbeat:7.12.0
+    container_name: auditbeat
+    restart: unless-stopped
+    user: root #To read the docker socket
+    cap_add:
+      - AUDIT_CONTROL
+      - AUDIT_READ
+    command: auditbeat -e -strict.perms=false
+    pid: "host" # Set the required permissions with pid and cap_add for Auditbeat
+    volumes:
+      - type: bind
+        source: /docker/auditbeat/config/auditbeat.yml
+        target: /usr/share/auditbeat/auditbeat.yml
+        read_only: true
+    healthcheck:
+      test: auditbeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
+    networks:
+      - elastic
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:7.12.0
+    container_name: apm-server
+    restart: unless-stopped
+    depends_on:
+      - es01
+      - es02
+      - es03
+      - kibana01
+    cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
+    cap_drop: ["ALL"]
+    ports:
+    - 8200:8200
+    networks:
+    - elastic
+    command: >
+       apm-server -e
+         -E apm-server.rum.enabled=true
+         -E setup.kibana.host=kibana01:5601
+         -E setup.template.settings.index.number_of_replicas=0
+         -E apm-server.kibana.enabled=true
+         -E apm-server.kibana.host=kibana01:5601
+         -E output.elasticsearch.hosts='["es01:9200", "es02:9200", "es03:9200"]'
+    healthcheck:
+      interval: 10s
+      retries: 12
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8200/
+
+
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
+    container_name: es01
+    restart: unless-stopped
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es02,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - cluster.routing.allocation.disk.watermark.low=97%
+      - cluster.routing.allocation.disk.watermark.high=98%
+      - cluster.routing.allocation.disk.watermark.flood_stage=99%
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elastic
+
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
+    container_name: es02
+    restart: unless-stopped
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - cluster.routing.allocation.disk.watermark.low=97%
+      - cluster.routing.allocation.disk.watermark.high=98%
+      - cluster.routing.allocation.disk.watermark.flood_stage=99%
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data02:/usr/share/elasticsearch/data
+    ports:
+      - 9201:9200
+    networks:
+      - elastic
+
+  es03:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
+    container_name: es03
+    restart: unless-stopped
+    environment:
+      - node.name=es03
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02,es03
+      - cluster.routing.allocation.disk.watermark.low=97%
+      - cluster.routing.allocation.disk.watermark.high=98%
+      - cluster.routing.allocation.disk.watermark.flood_stage=99%
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data03:/usr/share/elasticsearch/data
+    ports:
+      - 9202:9200
+    networks:
+      - elastic
+
+  es04:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
+    container_name: es04
+    restart: unless-stopped
+    environment:
+      - node.name=es04
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02,es03
+      - cluster.routing.allocation.disk.watermark.low=97%
+      - cluster.routing.allocation.disk.watermark.high=98%
+      - cluster.routing.allocation.disk.watermark.flood_stage=99%
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data04:/usr/share/elasticsearch/data
+    ports:
+      - 9203:9200
+    networks:
+      - elastic
+
+
+  kibana01:
+    image: docker.elastic.co/kibana/kibana:7.12.0
+    container_name: kibana
+    restart: unless-stopped
+    ports:
+      - 5601:5601
+    environment:
+      ELASTICSEARCH_URL: http://es01:9200
+      ELASTICSEARCH_HOSTS: http://es01:9200
+    networks:
+      - elastic
+
+  # metricbeat:
+  #   image: docker.elastic.co/beats/metricbeat:7.12.0
+  #   container_name: metricbeat
+  #   command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
+  #   restart: unless-stopped
+  #   environment: 
+  #     - ELASTICSEARCH_HOSTS: '["http://es01:9200","http://es02:9200","http://es03:9200"]'
+  #     - KIBANA_HOST: "http://kibana01:5601"
+  #   volumes:
+  #     # - type: bind
+  #     #   source: /docker/metricbeat/config/metricbeat.yml
+  #     #   target: /usr/share/metricbeat/metricbeat.yml
+  #     #   read_only: true
+  #     - /proc:/hostfs/proc:ro
+  #     - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+  #     - /:/hostfs:ro
+  #  networks:
+  #    - elastic
+  #  healthcheck:
+  #    test: metricbeat test config
+  #    interval: 30s
+  #    timeout: 15s
+  #    retries: 5
+
+volumes:
+  data01:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/elasticsearch/data01/"
+  data02:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/elasticsearch/data02/"
+  data03:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/elasticsearch/data03/"
+  data04:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/junk/elasticsearch/data04/"
+
+
+
+networks:
+  elastic:
+    driver: bridge
