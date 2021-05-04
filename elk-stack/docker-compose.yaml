@@ -20,7 +20,7 @@ services:
       - elastic
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:7.12.0
+    image: docker.elastic.co/logstash/logstash:7.12.1
     container_name: logstash
     restart: unless-stopped
     volumes:
@@ -59,7 +59,7 @@ services:
       - elastic
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:7.12.0
+    image: docker.elastic.co/beats/filebeat:7.12.1
     container_name: filebeat
     restart: unless-stopped
     user: root #To read the docker socket
@@ -85,7 +85,7 @@ services:
         tag: "{{.Name}}"
 
   auditbeat:
-    image: docker.elastic.co/beats/auditbeat:7.12.0
+    image: docker.elastic.co/beats/auditbeat:7.12.1
     container_name: auditbeat
     restart: unless-stopped
     user: root #To read the docker socket
@@ -113,7 +113,7 @@ services:
         tag: "{{.Name}}"
 
   apm-server:
-    image: docker.elastic.co/apm/apm-server:7.12.0
+    image: docker.elastic.co/apm/apm-server:7.12.1
     container_name: apm-server
     restart: unless-stopped
     depends_on:
@@ -142,7 +142,7 @@ services:
 
 
   es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
     container_name: es01
     restart: unless-stopped
     environment:
@@ -167,7 +167,7 @@ services:
       - elastic
 
   es02:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
     container_name: es02
     restart: unless-stopped
     environment:
@@ -192,7 +192,7 @@ services:
       - elastic
 
   es03:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
     container_name: es03
     restart: unless-stopped
     environment:
@@ -217,7 +217,7 @@ services:
       - elastic
 
   es04:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
     container_name: es04
     restart: unless-stopped
     environment:
@@ -243,7 +243,7 @@ services:
 
 
   kibana01:
-    image: docker.elastic.co/kibana/kibana:7.12.0
+    image: docker.elastic.co/kibana/kibana:7.12.1
     container_name: kibana
     restart: unless-stopped
     ports:
@@ -255,7 +255,7 @@ services:
       - elastic
 
   # metricbeat:
-  #   image: docker.elastic.co/beats/metricbeat:7.12.0
+  #   image: docker.elastic.co/beats/metricbeat:7.12.1
   #   container_name: metricbeat
   #   command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
   #   restart: unless-stopped
