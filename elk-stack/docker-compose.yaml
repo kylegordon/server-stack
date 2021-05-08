@@ -119,7 +119,6 @@ services:
     depends_on:
       - es01
       - es02
-      - es03
       - kibana01
     cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
     cap_drop: ["ALL"]
@@ -134,7 +133,7 @@ services:
          -E setup.template.settings.index.number_of_replicas=0
          -E apm-server.kibana.enabled=true
          -E apm-server.kibana.host=kibana01:5601
-         -E output.elasticsearch.hosts='["es01:9200", "es02:9200", "es03:9200"]'
+         -E output.elasticsearch.hosts='["es01:9200", "es02:9200"]'
     healthcheck:
       interval: 10s
       retries: 12
@@ -173,8 +172,8 @@ services:
     environment:
       - node.name=es02
       - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es01,es03
-      - cluster.initial_master_nodes=es01,es02,es03
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02
       - cluster.routing.allocation.disk.watermark.low=97%
       - cluster.routing.allocation.disk.watermark.high=98%
       - cluster.routing.allocation.disk.watermark.flood_stage=99%
@@ -190,57 +189,6 @@ services:
       - 9201:9200
     networks:
       - elastic
-
-  es03:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
-    container_name: es03
-    restart: unless-stopped
-    environment:
-      - node.name=es03
-      - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es01,es02
-      - cluster.initial_master_nodes=es01,es02,es03
-      - cluster.routing.allocation.disk.watermark.low=97%
-      - cluster.routing.allocation.disk.watermark.high=98%
-      - cluster.routing.allocation.disk.watermark.flood_stage=99%
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - data03:/usr/share/elasticsearch/data
-    ports:
-      - 9202:9200
-    networks:
-      - elastic
-
-  es04:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
-    container_name: es04
-    restart: unless-stopped
-    environment:
-      - node.name=es04
-      - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es01,es02
-      - cluster.initial_master_nodes=es01,es02,es03
-      - cluster.routing.allocation.disk.watermark.low=97%
-      - cluster.routing.allocation.disk.watermark.high=98%
-      - cluster.routing.allocation.disk.watermark.flood_stage=99%
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - data04:/usr/share/elasticsearch/data
-    ports:
-      - 9203:9200
-    networks:
-      - elastic
-
 
   kibana01:
     image: docker.elastic.co/kibana/kibana:7.12.1
@@ -284,26 +232,13 @@ volumes:
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/elasticsearch/data01/"
+      device: ":/media/sata_ssd/elasticsearch/data01/"
   data02:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/elasticsearch/data02/"
-  data03:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/elasticsearch/data03/"
-  data04:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/junk/elasticsearch/data04/"
-
+      device: ":/media/sata_ssd/elasticsearch/data02/"
 
 
 networks:
