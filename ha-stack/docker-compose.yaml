@@ -128,6 +128,7 @@ services:
       - "8181:8081"
       - "8182:8082"
       - "8183:8083"
+      - "8184:8084"
       - "8765:8765"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://viewpoint.house:8765"]
