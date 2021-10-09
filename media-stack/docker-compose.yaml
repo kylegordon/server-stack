@@ -62,6 +62,21 @@ services:
       - "traefik.frontend.headers.STSPreload=true"
       - "traefik.frontend.headers.frameDeny=true"
 
+  ## Deploy this later, when ready
+  # piwigo:
+  #   image: lscr.io/linuxserver/piwigo
+  #   container_name: piwigo
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/London
+  #   volumes:
+  #     - </path/to/appdata/config>:/config
+  #     - </path/to/appdata/gallery>:/gallery
+  #   ports:
+  #     - 80:80
+  #   restart: unless-stopped
+
   nzbget:
     image: linuxserver/nzbget:latest
     container_name: nzbget
