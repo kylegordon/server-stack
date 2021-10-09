@@ -14,6 +14,8 @@ volumes:
       o: addr=172.24.32.5,rw
       device: ":/media/sata_ssd/influxdb2/"
 
+  uptime-kuma:
+
 # networks:
 #     traefik_proxy:
 #       external: true
@@ -211,6 +213,14 @@ services:
       - /docker/double-take/storage:/.storage
     ports:
       - 3001:3000
+
+  uptime-kuma:
+    image: louislam/uptime-kuma
+    container_name: uptime-kuma
+    volumes:
+      - uptime-kuma:/app/data
+    ports:
+      - 3002:3001
 
   grafana:
     image: grafana/grafana:latest
