@@ -182,53 +182,6 @@ services:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
-
-# Airsonic
-#  airsonic:
-#    image: airsonic/airsonic:latest
-#    container_name: airsonic
-#    healthcheck:
-#      test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:4040"]
-#      start_period: 60s 
-#      interval: 30s 
-#      timeout: 10s 
-#      retries: 5
-#    networks:
-#      - traefik_proxy
-#    #network_mode: "host"
-#    restart: unless-stopped
-#    ports:
-#      - 4040:4040
-#      - 32469:32469
-#      - 32400:32400
-#      - 5353:5353
-#      - 1900:1900
-  #  expose:
-  #     - 4040
-#    labels:
-#      - "traefik.enable=true"
-#      - "traefik.backend=airsonic"
-#      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefix:/airsonic/"
-#      - "traefik.port=4040"
-#      - "traefik.backend.healthcheck.path=/"
-#      - "traefik.docker.network=traefik_proxy"
-#      - "traefik.frontend.headers.SSLRedirect=true"
-#      - "traefik.frontend.headers.STSSeconds=315360000"
-#      - "traefik.frontend.headers.browserXSSFilter=true"
-#      - "traefik.frontend.headers.contentTypeNosniff=true"
-#      - "traefik.frontend.headers.forceSTSHeader=true"
-#      - "traefik.frontend.headers.SSLHost=viewpoint.house"
-#      - "traefik.frontend.headers.STSIncludeSubdomains=true"
-#      - "traefik.frontend.headers.STSPreload=true"
-#      - "traefik.frontend.headers.frameDeny=true"
-#    volumes:
-#      #- /docker/airsonic/config:/config
-#      - /docker/airsonic/data:/airsonic/data
-#      - music:/airsonic/music
-#      - music_playlists:/airsonic/playlists
-#      - podcasts:/airsonic/podcasts
-#      #- media:/media
-
   hydra:
     image: linuxserver/hydra:latest
     container_name: hydra
