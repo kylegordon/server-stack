@@ -119,27 +119,6 @@ services:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
-  motioneye:
-    image: ccrisan/motioneye:master-amd64
-    container_name: motioneye
-    restart: unless-stopped
-    # The list below is a port for each camera, and motioneye UI on 8765
-    ports:
-      - "8181:8081"
-      - "8182:8082"
-      - "8183:8083"
-      - "8184:8084"
-      - "8765:8765"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://viewpoint.house:8765"]
-      start_period: 60s
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    volumes:
-      - /docker/motioneye/etc:/etc/motioneye
-      - /media/store/cctv/motioneye:/var/lib/motioneye
-
   facebox:
     image: machinebox/facebox_noavx
     container_name: facebox
