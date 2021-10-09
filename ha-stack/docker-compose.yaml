@@ -1,12 +1,6 @@
 version: '3.4'
 
 volumes:
-#   influxdb_data:
-#     driver: local
-#     driver_opts:
-#       type: nfs4
-#       o: addr=172.24.32.5,rw
-#       device: ":/srv/nfs4/store/influxdb_data/"
   influxdb2:
     driver: local
     driver_opts:
