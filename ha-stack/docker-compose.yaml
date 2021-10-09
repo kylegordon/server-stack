@@ -62,6 +62,7 @@ services:
     #  - 8300:8300
     volumes:
       - /docker/home-assistant/config:/config
+      - /media/store/cctv/frigate:/media/frigate_cctv
       - /etc/localtime:/etc/localtime:ro
     logging:
       driver: gelf
@@ -179,6 +180,37 @@ services:
       options:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
+
+  frigate:
+    container_name: frigate
+    privileged: true # this may not be necessary for all setups
+    restart: unless-stopped
+    image: blakeblackshear/frigate:stable-amd64
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+      - /dev/dri/card0 # for intel hwaccel, needs to be updated for your hardware
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /docker/frigate/config/config.yml:/config/config.yml:ro
+      - /media/store/cctv/frigate:/media/frigate
+      - type: tmpfs # Optional: 1GB of memory, reduces SSD/SD Card wear
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
+    ports:
+      - "4999:5000"
+      - "1935:1935" # RTMP feeds
+    environment:
+      FRIGATE_RTSP_PASSWORD: "password"
+
+  double-take:
+    container_name: double-take
+    image: jakowenko/double-take
+    restart: unless-stopped
+    volumes:
+      - /docker/double-take/storage:/.storage
+    ports:
+      - 3001:3000
 
   grafana:
     image: grafana/grafana:latest
