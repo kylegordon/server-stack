@@ -1,12 +1,18 @@
 version: '3.4'
 
 volumes:
-  influxdb_data:
+#   influxdb_data:
+#     driver: local
+#     driver_opts:
+#       type: nfs4
+#       o: addr=172.24.32.5,rw
+#       device: ":/srv/nfs4/store/influxdb_data/"
+  influxdb2:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/influxdb_data/"
+      device: ":/media/sata_ssd/influxdb2/"
 
 # networks:
 #     traefik_proxy:
@@ -229,7 +235,7 @@ services:
     volumes:
       # Mount for influxdb data directory
       - /var/lib/influxdb:/var/lib/influxdb
-      # - influxdb_data:/var/lib/influxdb
+      - influxdb2:/home/influxdb/.influxdbv2
       # Mount for influxdb configuration
       - /docker/influxdb/config/:/etc/influxdb/
       - /docker/influxdb/types.db:/usr/share/collectd/types.db
