@@ -20,7 +20,7 @@ services:
       - elastic
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:7.12.1
+    image: docker.elastic.co/logstash/logstash:7.14.0
     container_name: logstash
     restart: unless-stopped
     volumes:
@@ -59,7 +59,7 @@ services:
       - elastic
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:7.12.1
+    image: docker.elastic.co/beats/filebeat:7.14.0
     container_name: filebeat
     restart: unless-stopped
     user: root #To read the docker socket
@@ -85,7 +85,7 @@ services:
         tag: "{{.Name}}"
 
   auditbeat:
-    image: docker.elastic.co/beats/auditbeat:7.12.1
+    image: docker.elastic.co/beats/auditbeat:7.14.0
     container_name: auditbeat
     restart: unless-stopped
     user: root #To read the docker socket
@@ -113,7 +113,7 @@ services:
         tag: "{{.Name}}"
 
   apm-server:
-    image: docker.elastic.co/apm/apm-server:7.12.1
+    image: docker.elastic.co/apm/apm-server:7.14.0
     container_name: apm-server
     restart: unless-stopped
     depends_on:
@@ -141,7 +141,7 @@ services:
 
 
   es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
     container_name: es01
     restart: unless-stopped
     environment:
@@ -166,7 +166,7 @@ services:
       - elastic
 
   es02:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
     container_name: es02
     restart: unless-stopped
     environment:
