@@ -347,9 +347,9 @@ services:
       - /media/store/ebooks:/ebooks
       - /media/store/Audio Books:/audiobooks
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://viewpoint.house:8096/web/index.html"]
+      test: ["CMD", "apt", "install", "-y", "curl", "curl", "-f", "http://viewpoint.house:8096/web/index.html"]
       start_period: 60s
-      interval: 30s
+      interval: 300s
       timeout: 10s
       retries: 5
     logging:
