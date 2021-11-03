@@ -181,6 +181,8 @@ services:
     container_name: frigate
     privileged: true # this may not be necessary for all setups
     restart: unless-stopped
+    depends_on:
+      - eclipse-mosquitto
     image: blakeblackshear/frigate:stable-amd64
     devices:
       - /dev/bus/usb:/dev/bus/usb
@@ -203,6 +205,9 @@ services:
     container_name: double-take
     image: jakowenko/double-take
     restart: unless-stopped
+    depends_on:
+      - eclipse-mosquitto
+      - frigate
     volumes:
       - /docker/double-take/storage:/.storage
     ports:
@@ -211,6 +216,7 @@ services:
   uptime-kuma:
     image: louislam/uptime-kuma
     container_name: uptime-kuma
+    restart: unless-stopped
     volumes:
       - uptime-kuma:/app/data
     ports:
@@ -272,6 +278,7 @@ services:
       # Mount for influxdb data directory
       - /var/lib/influxdb:/var/lib/influxdb
       - influxdb2:/home/influxdb/.influxdbv2
+      - influxdb2:/var/lib/influxdb2
       # Mount for influxdb configuration
       - /docker/influxdb/config/:/etc/influxdb/
       - /docker/influxdb/types.db:/usr/share/collectd/types.db
