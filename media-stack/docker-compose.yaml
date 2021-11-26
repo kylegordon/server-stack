@@ -109,7 +109,7 @@ services:
       test: ["CMD", "curl", "-f", "http://viewpoint.house:8989"]
       start_period: 60s 
       interval: 30s 
-      timeout: 10s 
+      timeout: 10s
       retries: 5
     networks:
       - traefik_proxy
@@ -156,9 +156,9 @@ services:
     container_name: radarr
     healthcheck:
       test: ["CMD", "curl", "-f", "http://viewpoint.house:7878"]
-      start_period: 60s 
-      interval: 30s 
-      timeout: 10s 
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
       retries: 5
     restart: unless-stopped
     labels:
@@ -250,7 +250,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-
     networks:
       - traefik_proxy
     restart: unless-stopped
@@ -341,7 +340,6 @@ services:
       options:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
-
 
 volumes:
   complete:
