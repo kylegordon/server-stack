@@ -7,7 +7,7 @@ volumes:
       type: nfs4
       o: addr=172.24.32.5,rw
       device: ":/media/sata_ssd/influxdb2/"
-
+  flame_data:
   uptime-kuma:
 
 # networks:
@@ -16,6 +16,16 @@ volumes:
 #       # name: traefik_proxy
 
 services:
+  flame:
+    image: pawelmalak/flame
+    container_name: flame
+    restart: unless-stopped
+    volumes:
+      - flame_data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "82:5005"
+
   home-assistant:
     image: homeassistant/home-assistant:latest
     container_name: home-assistant
@@ -38,6 +48,11 @@ services:
       - "traefik.frontend.headers.STSIncludeSubdomains=true"
       - "traefik.frontend.headers.STSPreload=true"
       - "traefik.frontend.headers.frameDeny=true"
+      - flame.type=application # "app" works too
+      - flame.name=Home Assistant
+      - flame.url=http://viewpoint.house:8123
+      - flame.icon=home-assistant # Optional, default is "docker"
+      # - flame.icon=custom to make changes in app. ie: custom icon upload
     healthcheck:
       test: ["CMD", "curl", "-f", "http://viewpoint.house:8123"]
       start_period: 60s
@@ -71,6 +86,11 @@ services:
     container_name: esphome
     network_mode: host
     restart: unless-stopped
+    labels:
+      - flame.type=application # "app" works too
+      - flame.name=ESPHome
+      - flame.url=http://viewpoint.house:6052
+      - flame.icon=chip
     healthcheck:
       test: ["CMD", "curl", "-f", "http://viewpoint.house:6052"]
       start_period: 60s
@@ -101,6 +121,11 @@ services:
     #  - 8143:8143
     #  - 1900:1900
     #  - 5900:5900
+    labels:
+      - flame.type=application # "app" works too
+      - flame.name=deconz
+      - flame.url=http://viewpoint.house:8100
+      - flame.icon=lightbulb-outline
     volumes:
       - /docker/deCONZ/config:/root/.local/share/dresden-elektronik/deCONZ
       - /docker/deCONZ/otau:/root/otau/
@@ -128,6 +153,10 @@ services:
     restart: unless-stopped
     ports:
       - 8080:8080
+    labels:
+      - flame.type=application # "app" works too
+      - flame.name=Facebox
+      - flame.url=http://viewpoint.house:8080
     environment:
       - MB_KEY=${MB_KEY}
       - MB_FACEBOX_DISABLE_RECOGNITION=false
@@ -144,6 +173,11 @@ services:
     ports:
       - 1883:1883
       - 9001:9001
+    labels:
+      - flame.type=application # "app" works too
+      - flame.name=Eclipse Mosquitto
+      - flame.url=http://viewpoint.house:9001
+      - flame.icon=envelope-outline
     volumes:
         - /docker/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
         - /docker/mosquitto/data:/mosquitto/data
@@ -160,6 +194,10 @@ services:
     container_name: node-red
     ports:
       - 1880:1880
+    labels:
+      - flame.type=application # "app" works too
+      - flame.name=Node-Red
+      - flame.url=http://viewpoint.house:1880
     healthcheck:
       test: ["CMD", "curl", "-f", "http://viewpoint.house:1880"]
       start_period: 60s
@@ -198,6 +236,16 @@ services:
     ports:
       - "4999:5000"
       - "1935:1935" # RTMP feeds
+    labels:
+      - flame.type=application # "app" works too
+      - flame.name=Frigate
+      - flame.url=http://viewpoint.house:4999
+      - flame.url=cctv
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
     environment:
       FRIGATE_RTSP_PASSWORD: "password"
 
@@ -212,6 +260,15 @@ services:
       - /docker/double-take/storage:/.storage
     ports:
       - 3001:3000
+    labels:
+      - flame.type=application # "app" works too
+      - flame.name=Double Take
+      - flame.url=http://viewpoint.house:3001
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://72.24.32.13:12201"
+        tag: "{{.Name}}"
 
   uptime-kuma:
     image: louislam/uptime-kuma
@@ -221,6 +278,16 @@ services:
       - uptime-kuma:/app/data
     ports:
       - 3002:3001
+    # network_mode: "host"
+    labels:
+      - flame.type=application # "app" works too
+      - flame.name=Uptime Kuma
+      - flame.url=http://viewpoint.house:3002
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://72.24.32.13:12201"
+        tag: "{{.Name}}"
 
   grafana:
     image: grafana/grafana:latest
@@ -244,6 +311,10 @@ services:
       - "traefik.frontend.headers.STSIncludeSubdomains=true"
       - "traefik.frontend.headers.STSPreload=true"
       - "traefik.frontend.headers.frameDeny=true"
+      - flame.type=application # "app" works too
+      - flame.name=Grafana
+      - flame.url=http://viewpoint.house:3000
+      - flame.icon=chart-line
     healthcheck:
       #test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:3000/api/health"]
       test: ["CMD", "wget", "--spider", "-tries=1", "--quiet", "http://viewpoint.house:3000/api/health"]
@@ -287,6 +358,10 @@ services:
       - "8086:8086"
       - "8082:8082"
       - "25826:25826"
+    labels:
+      - flame.type=application # "app" works too
+      - flame.name=InfluxDB
+      - flame.url=http://viewpoint.house:8086
     healthcheck:
       test: ["CMD", "curl", "-f", "http://viewpoint.house:8086"]
       start_period: 60s
@@ -317,6 +392,10 @@ services:
       - "8888:8888"
 #    depends_on:
 #      - influxdb
+    labels:
+      - flame.type=application # "app" works too
+      - flame.name=Chronograf
+      - flame.url=http://viewpoint.house:8888
     logging:
       driver: gelf
       options:
