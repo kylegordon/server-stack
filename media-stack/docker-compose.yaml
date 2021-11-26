@@ -61,6 +61,9 @@ services:
       - "traefik.frontend.headers.STSIncludeSubdomains=true"
       - "traefik.frontend.headers.STSPreload=true"
       - "traefik.frontend.headers.frameDeny=true"
+      - flame.type=application # "app" works too
+      - flame.name=Nginx (88)
+      - flame.url=http://viewpoint.house:88
 
   ## Deploy this later, when ready
   # piwigo:
@@ -93,6 +96,10 @@ services:
       - /media/store/downloads/nzbs/intermediate:/intermediate
       - /media/store/downloads:/complete
       - /media/store/downloads/tmp:/downloads/tmp
+    labels:
+      - flame.type=application # "app" works too
+      - flame.name=NZBGet
+      - flame.url=http://viewpoint.house:6789
 
   sonarr:
     image: linuxserver/sonarr:preview
@@ -122,6 +129,10 @@ services:
       - "traefik.frontend.headers.STSIncludeSubdomains=true"
       - "traefik.frontend.headers.STSPreload=true"
       - "traefik.frontend.headers.frameDeny=true"
+      - flame.type=application # "app" works too
+      - flame.name=Sonarr
+      - flame.url=http://viewpoint.house:8989
+      - flame.icon=television
     environment:
       - PUID=200
       - PGID=200
@@ -165,6 +176,10 @@ services:
       - "traefik.frontend.headers.STSIncludeSubdomains=true"
       - "traefik.frontend.headers.STSPreload=true"
       - "traefik.frontend.headers.frameDeny=true"
+      - flame.type=application # "app" works too
+      - flame.name=Radarr
+      - flame.url=http://viewpoint.house:7878
+      - flame.icon=movie-open-outline
     environment:
       - PUID=200
       - PGID=200
@@ -197,6 +212,10 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    labels:
+      - flame.type=application # "app" works too
+      - flame.name=Hydra
+      - flame.url=http://viewpoint.house:5075
     volumes:
       - /docker/nzbhydra/config:/config
       - /docker/nzbhydra/downloads:/downloads/
@@ -252,6 +271,10 @@ services:
       - "traefik.frontend.headers.STSIncludeSubdomains=true"
       - "traefik.frontend.headers.STSPreload=true"
       - "traefik.frontend.headers.frameDeny=true"
+      - flame.type=application # "app" works too
+      - flame.name=LazyLibrarian
+      - flame.url=http://viewpoint.house:5299
+      - flame.icon=book-open-outline
     environment:
       - PUID=1000
       - PGID=1000
@@ -286,6 +309,27 @@ services:
       - music:/media/music
       - /media/store/ebooks:/ebooks
       - /media/store/Audio Books:/audiobooks
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=jellyfin"
+      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefix:/jellyfin/"
+      - "traefik.http.middlewares.test-stripprefix.stripprefix.prefixes=/jellyfin"
+      - "traefik.port=8096"
+      - "traefik.backend.healthcheck.path=/system/players"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=false"
+      - "traefik.frontend.headers.STSSeconds=315360000"
+      - "traefik.frontend.headers.browserXSSFilter=true"
+      - "traefik.frontend.headers.contentTypeNosniff=true"
+      - "traefik.frontend.headers.forceSTSHeader=true"
+      - "traefik.frontend.headers.SSLHost=viewpoint.house"
+      - "traefik.frontend.headers.STSIncludeSubdomains=true"
+      - "traefik.frontend.headers.STSPreload=true"
+      - "traefik.frontend.headers.frameDeny=true"
+      - flame.type=application # "app" works too
+      - flame.name=Jellyfin
+      - flame.url=http://viewpoint.house:8096
+      - flame.icon=play-network-outline
     healthcheck:
       test: ["CMD", "apt", "install", "-y", "curl", "curl", "-f", "http://viewpoint.house:8096/web/index.html"]
       start_period: 60s
