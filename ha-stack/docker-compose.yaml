@@ -40,19 +40,8 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.backend=home-assistant"
-      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefix: /hass"
-      - "traefik.port=8123"
-      # - "traefik.docker.network=traefik_proxy"
-      - "traefik.frontend.headers.SSLRedirect=false"
-      - "traefik.frontend.headers.STSSeconds=315360000"
-      - "traefik.frontend.headers.browserXSSFilter=true"
-      - "traefik.frontend.headers.contentTypeNosniff=true"
-      - "traefik.frontend.headers.forceSTSHeader=true"
-      - "traefik.frontend.headers.SSLHost=viewpoint.house"
-      - "traefik.frontend.headers.STSIncludeSubdomains=true"
-      - "traefik.frontend.headers.STSPreload=true"
-      - "traefik.frontend.headers.frameDeny=true"
+      - "traefik.http.routers.esphome.rule=Host(`viewpoint.house`)"
+      - "traefik.http.routers.esphome.entrypoints=web"
       - flame.type=application # "app" works too
       - flame.name=Home Assistant
       - flame.url=http://viewpoint.house:8123
@@ -92,6 +81,9 @@ services:
     network_mode: host
     restart: unless-stopped
     labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.esphome.rule=Host(`esphome.viewpoint.house`)"
+      - "traefik.http.routers.esphome.entrypoints=web"
       - flame.type=application # "app" works too
       - flame.name=ESPHome
       - flame.url=http://viewpoint.house:6052
@@ -127,6 +119,9 @@ services:
     #  - 1900:1900
     #  - 5900:5900
     labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.deconz.rule=Host(`deconz.viewpoint.house`)"
+      - "traefik.http.routers.deconz.entrypoints=web"
       - flame.type=application # "app" works too
       - flame.name=deconz
       - flame.url=http://viewpoint.house:8100
@@ -221,6 +216,9 @@ services:
     ports:
       - 1880:1880
     labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nodered.rule=Host(`nodered.viewpoint.house`)"
+      - "traefik.http.routers.nodered.entrypoints=web"
       - flame.type=application # "app" works too
       - flame.name=Node-Red
       - flame.url=http://viewpoint.house:1880
@@ -263,6 +261,9 @@ services:
       - "4999:5000"
       - "1935:1935" # RTMP feeds
     labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frigate.rule=Host(`cctv.viewpoint.house`)"
+      - "traefik.http.routers.frigate.entrypoints=web"
       - flame.type=application # "app" works too
       - flame.name=Frigate
       - flame.url=http://viewpoint.house:4999
@@ -306,6 +307,9 @@ services:
       - 3002:3001
     # network_mode: "host"
     labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frigate.rule=Host(`uptime.viewpoint.house`)"
+      - "traefik.http.routers.frigate.entrypoints=web"
       - flame.type=application # "app" works too
       - flame.name=Uptime Kuma
       - flame.url=http://viewpoint.house:3002
@@ -323,20 +327,8 @@ services:
     #   - traefik_proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.backend=grafana"
-      # - "traefik.frontend.rule=Host:viewpoint.house; PathPrefixStrip: /grafana/"
-      # - "traefik.frontend.rule": Host:${BASE_DOMAIN};PathPrefix:/grafana;PathPrefixStrip:/grafana
-      - "traefik.port=3000"
-      # - "traefik.docker.network=traefik_proxy"
-      - "traefik.frontend.headers.SSLRedirect=false"
-      - "traefik.frontend.headers.STSSeconds=315360000"
-      - "traefik.frontend.headers.browserXSSFilter=true"
-      - "traefik.frontend.headers.contentTypeNosniff=true"
-      - "traefik.frontend.headers.forceSTSHeader=true"
-      - "traefik.frontend.headers.SSLHost=viewpoint.house"
-      - "traefik.frontend.headers.STSIncludeSubdomains=true"
-      - "traefik.frontend.headers.STSPreload=true"
-      - "traefik.frontend.headers.frameDeny=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.viewpoint.house`)"
+      - "traefik.http.routers.grafana.entrypoints=web"
       - flame.type=application # "app" works too
       - flame.name=Grafana
       - flame.url=http://viewpoint.house:3000
@@ -385,6 +377,9 @@ services:
       - "8082:8082"
       - "25826:25826"
     labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.influxdb.rule=Host(`influxdb.viewpoint.house`)"
+      - "traefik.http.routers.influxdb.entrypoints=web"
       - flame.type=application # "app" works too
       - flame.name=InfluxDB
       - flame.url=http://viewpoint.house:8086
@@ -419,6 +414,9 @@ services:
 #    depends_on:
 #      - influxdb
     labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.chronograf.rule=Host(`chronograf.viewpoint.house`)"
+      - "traefik.http.routers.chronograf.entrypoints=web"
       - flame.type=application # "app" works too
       - flame.name=Chronograf
       - flame.url=http://viewpoint.house:8888

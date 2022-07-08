@@ -34,20 +34,8 @@ services:
       - 8443:443
     labels:
       - "traefik.enable=true"
-      - "traefik.backend=nginx"
-      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefix: /test/"
-      - "traefik.port=80"
-      - "traefik.backend.healthcheck.path=/"
-      - "traefik.docker.network=traefik_proxy"
-      - "traefik.frontend.headers.SSLRedirect=true"
-      - "traefik.frontend.headers.STSSeconds=315360000"
-      - "traefik.frontend.headers.browserXSSFilter=true"
-      - "traefik.frontend.headers.contentTypeNosniff=true"
-      - "traefik.frontend.headers.forceSTSHeader=true"
-      - "traefik.frontend.headers.SSLHost=viewpoint.house"
-      - "traefik.frontend.headers.STSIncludeSubdomains=true"
-      - "traefik.frontend.headers.STSPreload=true"
-      - "traefik.frontend.headers.frameDeny=true"
+      - "traefik.http.routers.frigate.rule=Host(`web.viewpoint.house`)"
+      - "traefik.http.routers.frigate.entrypoints=web"
       - flame.type=application # "app" works too
       - flame.name=Nginx (88)
       - flame.url=http://viewpoint.house:88
@@ -84,6 +72,9 @@ services:
       - /media/store/downloads:/complete
       - /media/store/downloads/tmp:/downloads/tmp
     labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nzbget.rule=Host(`nzbget.viewpoint.house`)"
+      - "traefik.http.routers.nzbget.entrypoints=web"
       - flame.type=application # "app" works too
       - flame.name=NZBGet
       - flame.url=http://viewpoint.house:6789
@@ -102,20 +93,9 @@ services:
       - traefik_proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.backend=sonarr"
-      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefix: /sonarr/"
-      - "traefik.port=8989"
-      - "traefik.backend.healthcheck.path=/"
-      - "traefik.docker.network=traefik_proxy"
-      - "traefik.frontend.headers.SSLRedirect=true"
-      - "traefik.frontend.headers.STSSeconds=315360000"
-      - "traefik.frontend.headers.browserXSSFilter=true"
-      - "traefik.frontend.headers.contentTypeNosniff=true"
-      - "traefik.frontend.headers.forceSTSHeader=true"
-      - "traefik.frontend.headers.SSLHost=viewpoint.house"
-      - "traefik.frontend.headers.STSIncludeSubdomains=true"
-      - "traefik.frontend.headers.STSPreload=true"
-      - "traefik.frontend.headers.frameDeny=true"
+      - "traefik.http.routers.sonarr.rule=Host(`tv.viewpoint.house`)"
+      - "traefik.http.routers.sonarr.entrypoints=web"
+      - "traefik.http.services.sonarr.loadbalancer.healthcheck.port=8989"
       - flame.type=application # "app" works too
       - flame.name=Sonarr
       - flame.url=http://viewpoint.house:8989
@@ -150,19 +130,8 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.backend=radarr"
-      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefix: /radarr/"
-      - "traefik.port=7878"
-      - "traefik.docker.network=traefik_proxy"
-      - "traefik.frontend.headers.SSLRedirect=true"
-      - "traefik.frontend.headers.STSSeconds=315360000"
-      - "traefik.frontend.headers.browserXSSFilter=true"
-      - "traefik.frontend.headers.contentTypeNosniff=true"
-      - "traefik.frontend.headers.forceSTSHeader=true"
-      - "traefik.frontend.headers.SSLHost=viewpoint.house"
-      - "traefik.frontend.headers.STSIncludeSubdomains=true"
-      - "traefik.frontend.headers.STSPreload=true"
-      - "traefik.frontend.headers.frameDeny=true"
+      - "traefik.http.routers.radarr.rule=Host(`movies.viewpoint.house`)"
+      - "traefik.http.routers.radarr.entrypoints=web"
       - flame.type=application # "app" works too
       - flame.name=Radarr
       - flame.url=http://viewpoint.house:7878
@@ -200,6 +169,9 @@ services:
       timeout: 10s
       retries: 5
     labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.hydra.rule=Host(`hydra.viewpoint.house`)"
+      - "traefik.http.routers.hydra.entrypoints=web"
       - flame.type=application # "app" works too
       - flame.name=Hydra
       - flame.url=http://viewpoint.house:5075
@@ -242,21 +214,8 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.backend=lazylibrarian"
-      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefix:/lazylibrarian/"
-      - "traefik.http.middlewares.test-stripprefix.stripprefix.prefixes=/lazylibrarian"
-      - "traefik.port=5299"
-      - "traefik.backend.healthcheck.path=/home/"
-      - "traefik.docker.network=traefik_proxy"
-      - "traefik.frontend.headers.SSLRedirect=false"
-      - "traefik.frontend.headers.STSSeconds=315360000"
-      - "traefik.frontend.headers.browserXSSFilter=true"
-      - "traefik.frontend.headers.contentTypeNosniff=true"
-      - "traefik.frontend.headers.forceSTSHeader=true"
-      - "traefik.frontend.headers.SSLHost=viewpoint.house"
-      - "traefik.frontend.headers.STSIncludeSubdomains=true"
-      - "traefik.frontend.headers.STSPreload=true"
-      - "traefik.frontend.headers.frameDeny=true"
+      - "traefik.http.routers.books.rule=Host(`books.viewpoint.house`)"
+      - "traefik.http.routers.books.entrypoints=web"
       - flame.type=application # "app" works too
       - flame.name=LazyLibrarian
       - flame.url=http://viewpoint.house:5299
@@ -297,21 +256,8 @@ services:
       - /media/store/Audio Books:/audiobooks
     labels:
       - "traefik.enable=true"
-      - "traefik.backend=jellyfin"
-      - "traefik.frontend.rule=Host:viewpoint.house; PathPrefix:/jellyfin/"
-      - "traefik.http.middlewares.test-stripprefix.stripprefix.prefixes=/jellyfin"
-      - "traefik.port=8096"
-      - "traefik.backend.healthcheck.path=/system/players"
-      - "traefik.docker.network=traefik_proxy"
-      - "traefik.frontend.headers.SSLRedirect=false"
-      - "traefik.frontend.headers.STSSeconds=315360000"
-      - "traefik.frontend.headers.browserXSSFilter=true"
-      - "traefik.frontend.headers.contentTypeNosniff=true"
-      - "traefik.frontend.headers.forceSTSHeader=true"
-      - "traefik.frontend.headers.SSLHost=viewpoint.house"
-      - "traefik.frontend.headers.STSIncludeSubdomains=true"
-      - "traefik.frontend.headers.STSPreload=true"
-      - "traefik.frontend.headers.frameDeny=true"
+      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.viewpoint.house`)"
+      - "traefik.http.routers.jellyfin.entrypoints=web"
       - flame.type=application # "app" works too
       - flame.name=Jellyfin
       - flame.url=http://viewpoint.house:8096
