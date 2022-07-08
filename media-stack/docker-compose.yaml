@@ -22,29 +22,6 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     restart: unless-stopped
 
-# #    command: --web --docker --docker.watch --docker.domain=viewpoint.house \
-# #             --docker.exposedbydefault=false --acme.domains=viewpoint.house \
-# #             --api
-#     container_name: traefik
-#     hostname: traefik
-#     networks:
-#       - traefik_proxy
-#     ports:
-#       - "82:82"
-#       - "443:443"
-#       - "8081:8080"
-#     volumes:
-#       - /var/run/docker.sock:/var/run/docker.sock:ro
-#       - /docker/traefik/acme.json:/acme.json
-#       - /docker/traefik/traefik.toml:/etc/traefik/traefik.toml
-#       - /docker/traefik/.htpasswd:/etc/traefik/.htpasswd:ro
-#     labels:
-#       traefik.enable: "true"
-#       traefik.frontend.rule: "Host:monitor.viewpoint.house"
-#       traefik.port: "8080"
-#       traefik.frontend.auth.basic: "${HTPASSWD}"
-#     restart: unless-stopped
-
   nginx:
     image: nginx:latest
     container_name: nginx
