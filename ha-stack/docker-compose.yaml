@@ -318,6 +318,34 @@ services:
       options:
         gelf-address: "udp://72.24.32.13:12201"
         tag: "{{.Name}}"
+  unifi-controller:
+    image: lscr.io/linuxserver/unifi-controller
+    container_name: unifi-controller
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - MEM_LIMIT=1024 #optional
+      - MEM_STARTUP=1024 #optional
+    volumes:
+      - /docker/unifi-controller:/config
+    ports:
+      - 8444:8443
+      - 3478:3478/udp
+      - 10001:10001/udp
+      - 8080:8080
+      #- 1900:1900/udp #optional
+      #- 8843:8843 #optional
+      #- 8880:8880 #optional
+      #- 6789:6789 #optional
+      - 5514:5514/udp #optional
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.unifi-controller.rule=Host(`unifi.viewpoint.house`)"
+      - "traefik.http.routers.unifi-controller.entrypoints=web"
+      - flame.type=application # "app" works too
+      - flame.name=Unifi Controller
+      - flame.url=http://viewpoint.house:8444
+    restart: unless-stopped
 
   grafana:
     image: grafana/grafana:latest
