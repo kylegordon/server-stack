@@ -22,23 +22,23 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     restart: unless-stopped
 
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    volumes:
-      - /docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
-      - /docker/nginx/www/:/var/www
-      - /docker/nginx/logs:/logs
-    ports:
-      - 88:80
-      - 8443:443
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frigate.rule=Host(`web.viewpoint.house`)"
-      - "traefik.http.routers.frigate.entrypoints=web"
-      - flame.type=application # "app" works too
-      - flame.name=Nginx (88)
-      - flame.url=http://viewpoint.house:88
+  # nginx:
+  #   image: nginx:latest
+  #   container_name: nginx
+  #   volumes:
+  #     - /docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+  #     - /docker/nginx/www/:/var/www
+  #     - /docker/nginx/logs:/logs
+  #   ports:
+  #     - 88:80
+  #     - 8443:443
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.frigate.rule=Host(`web.viewpoint.house`)"
+  #     - "traefik.http.routers.frigate.entrypoints=web"
+  #     - flame.type=application # "app" works too
+  #     - flame.name=Nginx (88)
+  #     - flame.url=http://viewpoint.house:88
 
   ## Deploy this later, when ready
   # piwigo:
