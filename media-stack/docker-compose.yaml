@@ -78,6 +78,7 @@ services:
       - flame.type=application # "app" works too
       - flame.name=NZBGet
       - flame.url=http://viewpoint.house:6789
+      - com.centurylinklabs.watchtower.enable=true
 
   sonarr:
     image: linuxserver/sonarr:preview
@@ -100,6 +101,7 @@ services:
       - flame.name=Sonarr
       - flame.url=http://viewpoint.house:8989
       - flame.icon=television
+      - com.centurylinklabs.watchtower.enable=true
     environment:
       - PUID=200
       - PGID=200
@@ -136,6 +138,7 @@ services:
       - flame.name=Radarr
       - flame.url=http://viewpoint.house:7878
       - flame.icon=movie-open-outline
+      - com.centurylinklabs.watchtower.enable=true
     environment:
       - PUID=200
       - PGID=200
@@ -175,6 +178,7 @@ services:
       - flame.type=application # "app" works too
       - flame.name=Hydra
       - flame.url=http://viewpoint.house:5075
+      - com.centurylinklabs.watchtower.enable=true
     volumes:
       - /docker/nzbhydra/config:/config
       - /docker/nzbhydra/downloads:/downloads/
@@ -220,6 +224,7 @@ services:
       - flame.name=LazyLibrarian
       - flame.url=http://viewpoint.house:5299
       - flame.icon=book-open-outline
+      - com.centurylinklabs.watchtower.enable=true
     environment:
       - PUID=1000
       - PGID=1000
@@ -262,6 +267,7 @@ services:
       - flame.name=Jellyfin
       - flame.url=http://viewpoint.house:8096
       - flame.icon=play-network-outline
+      - com.centurylinklabs.watchtower.enable=true
     healthcheck:
       test: ["CMD", "apt", "install", "-y", "curl", "curl", "-f", "http://viewpoint.house:8096/web/index.html"]
       start_period: 60s
