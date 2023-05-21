@@ -94,6 +94,8 @@ services:
       - flame.name=Home Assistant
       - flame.url=http://viewpoint.house:8123
       - flame.icon=home-assistant # Optional, default is "docker"
+      - com.centurylinklabs.watchtower.lifecycle.pre-check=exit 0
+      - com.centerylinklabs.watchtower.enable=false
       # - flame.icon=custom to make changes in app. ie: custom icon upload
     healthcheck:
       test: ["CMD", "curl", "-f", "http://viewpoint.house:8123"]
@@ -349,12 +351,7 @@ services:
       - flame.type=application # "app" works too
       - flame.name=Frigate
       - flame.url=http://viewpoint.house:4999
-      - flame.url=cctv
-    logging:
-      driver: gelf
-      options:
-        gelf-address: "udp://172.24.32.13:12201"
-        tag: "{{.Name}}"
+      - com.centurylinklabs.watchtower.enable=true
     environment:
       FRIGATE_RTSP_PASSWORD: "password"
 
@@ -581,11 +578,15 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER=smtp.gmail.com
-      - WATCHTOWER_NOTIFICATION_EMAIL_FROM=watchtower@glasgownet.com
-      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT=587
-      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER=systems@glasgownet.com
-      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD=ooshooM5
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_SCHEDULE=0 0 2 * * *
+      - WATCHTOWER_NOTIFICATIONS=${WATCHTOWER_NOTIFICATIONS}
+      - WATCHTOWER_NOTIFICATION_EMAIL_FROM=${WATCHTOWER_NOTIFICATION_EMAIL_FROM}
+      - WATCHTOWER_NOTIFICATION_EMAIL_TO=${WATCHTOWER_NOTIFICATION_EMAIL_TO}
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER=${WATCHTOWER_NOTIFICATION_EMAIL_SERVER}
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER=${WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER}
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT=${WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT}
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD=${WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD}
     labels:
       - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
