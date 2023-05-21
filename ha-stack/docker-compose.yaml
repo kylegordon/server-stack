@@ -15,12 +15,43 @@ volumes:
   zwave-config:
     name: zwave-config
 
-# networks:
-#     traefik_proxy:
-#       external: true
-#       # name: traefik_proxy
+  pihole_etc:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/pihole/etc/"
+  pihole_dnsmasq:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/pihole/dnsmasq/"
 
 services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
+    # network_mode: "host"
+    ports:
+     - "172.24.32.13:53:53/tcp"
+     - "172.24.32.13:53:53/udp"
+     # - "67:67/udp" # Only required if you are using Pi-hole as your DHCP server
+     - "84:80/tcp"
+    environment:
+      TZ: 'Europe/London'
+      DNSMASQ_LISTENING: 'all'
+      # WEBPASSWORD: 'set a secure password here or it will be random'
+    # Volumes store your data between container upgrades
+    volumes:
+      - 'pihole_etc:/etc/pihole'
+      - 'pihole_dnsmasq:/etc/dnsmasq.d'
+    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+    cap_add:
+      - CAP_NET_BIND_SERVICE
+    #   - NET_ADMIN # Required if you are using Pi-hole as your DHCP server, else not needed
+    restart: unless-stopped
   flame:
     image: pawelmalak/flame
     container_name: flame
