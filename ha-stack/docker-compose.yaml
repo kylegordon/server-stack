@@ -28,6 +28,18 @@ volumes:
       o: addr=172.24.32.5,rw
       device: ":/srv/nfs4/docker_nfs/pihole/dnsmasq/"
 
+  whisper:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/whisper/"
+  piper:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/piper"
 services:
   pihole:
     container_name: pihole
@@ -110,6 +122,38 @@ services:
       options:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
+
+  whisper:
+    container_name: whisper
+    #  command: --model medium --language nl
+    command: --model medium-int8 --language en-gb
+    image: rhasspy/wyoming-whisper
+    # network_mode: host
+    volumes:
+      - whisper:/data
+    environment:
+      - TZ=Europe/London
+    restart: unless-stopped
+    ports:
+      - 10300:10300
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+  piper:
+    container_name: piper
+    image: rhasspy/wyoming-piper
+    #  command: --voice nl-nathalie-x-low
+    command: --voice en-gb-southern_english_female-low
+    # network_mode: host
+    volumes:
+      - piper:/data
+    environment:
+      - TZ=Europe/London
+    restart: unless-stopped
+    ports:
+      - 10200:10200
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
 
   esphome:
     image: esphome/esphome:latest
