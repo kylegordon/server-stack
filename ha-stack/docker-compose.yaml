@@ -1,7 +1,4 @@
-version: '3.4'
-
-networks:
-  zwave:
+version: '3.6'
 
 volumes:
   influxdb2:
@@ -9,11 +6,26 @@ volumes:
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/media/sata_ssd/influxdb2/"
-  flame_data:
+      device: ":/srv/nfs4/influxdb/"
+
   uptime-kuma:
-  zwave-config:
-    name: zwave-config
+  netdataconfig:
+  netdatalib:
+  netdatacache:
+  scrutiny_config:
+
+  warrior_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/archiveteamWarrior/data/"
+  warrior_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/archiveteamWarrior/config/"
 
   pihole_etc:
     driver: local
@@ -40,22 +52,40 @@ volumes:
       type: nfs4
       o: addr=172.24.32.5,rw
       device: ":/srv/nfs4/docker_nfs/piper"
+
+networks:
+    traefik_proxy:
+      external: true
+      name: frontend_traefik_proxy
+
+    homeautomation:
+      name: homeautomation
+
 services:
   pihole:
     container_name: pihole
     image: pihole/pihole:latest
     # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
-    # network_mode: "host"
     ports:
      - "172.24.32.13:53:53/tcp"
      - "172.24.32.13:53:53/udp"
      # - "67:67/udp" # Only required if you are using Pi-hole as your DHCP server
-     - "84:80/tcp"
+    #  - "84:80/tcp"
+    networks:
+      - traefik_proxy
     environment:
-      TZ: 'Europe/London'
-      DNSMASQ_LISTENING: 'all'
-      # WEBPASSWORD: 'set a secure password here or it will be random'
+      - TZ='Europe/London'
+      - DNSMASQ_LISTENING='all'
+      # - WEBPASSWORD: 'set a secure password here or it will be random'
+      - WEBPASSWORD=${PIHOLE_WEBPASSWORD}
     # Volumes store your data between container upgrades
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.pihole.rule=Host(`pihole.viewpoint.house`)
+      - traefik.http.routers.pihole.entrypoints=web
+      - traefik.http.services.pihole.loadbalancer.server.port=80
+      - traefik.http.services.pihole.loadbalancer.healthcheck.path=/admin/login.php
+      - traefik.http.services.pihole.loadbalancer.healthcheck.port=80
     volumes:
       - 'pihole_etc:/etc/pihole'
       - 'pihole_dnsmasq:/etc/dnsmasq.d'
@@ -64,57 +94,83 @@ services:
       - CAP_NET_BIND_SERVICE
     #   - NET_ADMIN # Required if you are using Pi-hole as your DHCP server, else not needed
     restart: unless-stopped
-  flame:
-    image: pawelmalak/flame
-    container_name: flame
-    restart: unless-stopped
+
+  ldap:
+    image: minkwe/389ds:latest
+    hostname: ldap.viewpoint.house
+    container_name: ldap
     volumes:
-      - flame_data:/app/data
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /docker/ldap/data:/var/lib/dirsrv:Z
+      - /docker/ldap/config:/etc/dirsrv:Z
+      - /docker/ldap/logs:/var/log/dirsrv:Z
+      - /docker/ldap/certs:/certs:Z
+    environment:
+      - DIR_SUFFIX=${LDAP_DIR_SUFFIX}
+      - DIR_ADMIN_USERNAME=${LDAP_DIR_ADMIN_USERNAME}
+      - DIR_MANAGER_PASSWORD={LDAP_DIR_MANAGER_PASSWORD}
+      - DIR_ADMIN_UID{LDAP_DIR_ADMIN_UID}
+      - DIR_USERS_HOME=${LDAP_DIR_USERS_HOME}
     ports:
-      - "82:5005"
+      # Move this to Traefik TCP
+      - 389:389
+      - 636:636
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.flame.rule=Host(`viewpoint.house`)"
-      - "traefik.http.routers.flame.entrypoints=web"
       - com.centurylinklabs.watchtower.enable=true
 
   home-assistant:
-    image: homeassistant/home-assistant:latest
+    image: ghcr.io/home-assistant/home-assistant:latest
     container_name: home-assistant
     depends_on:
-      - deconz
+      - zigbee2mqtt
       - eclipse-mosquitto
     restart: unless-stopped
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.ha.rule=Host(`ha.viewpoint.house`)"
-      - "traefik.http.routers.ha.entrypoints=web"
+      # https://techoverflow.net/2022/03/27/how-to-fix-traefik-could-not-define-the-service-name-for-the-router-too-many-services/
+      - traefik.enable=true
+      - traefik.http.routers.ha.rule=Host(`viewpoint.house`) || Host(`172.24.32.13`)
+      - traefik.http.routers.ha.entrypoints=haweb
+      - traefik.http.routers.ha.service=ha
+      - traefik.http.services.ha.loadbalancer.server.port=8123
+      - traefik.http.services.ha.loadbalancer.healthcheck.path=/
+      - traefik.http.services.ha.loadbalancer.healthcheck.port=8123
+      - traefik.http.routers.ha_hue.rule=Host(`viewpoint.house`) || Host(`172.24.32.13`)
+      - traefik.http.routers.ha_hue.entrypoints=web
+      - traefik.http.routers.ha_hue.service=ha_hue
+      - traefik.http.services.ha_hue.loadbalancer.server.port=80
+      - traefik.http.services.ha_hue.loadbalancer.healthcheck.path=/api/
+      - traefik.http.services.ha_hue.loadbalancer.healthcheck.port=80
       - flame.type=application # "app" works too
       - flame.name=Home Assistant
       - flame.url=http://viewpoint.house:8123
       - flame.icon=home-assistant # Optional, default is "docker"
+      - homepage.group=Home Automation
+      - homepage.name=Home Assistant
+      - homepage.icon=mdi-home-assistant
+      - homepage.href=http://viewpoint.house:8123
+      - homepage.description=Home Assistant
       - com.centurylinklabs.watchtower.lifecycle.pre-check=exit 0
       - com.centerylinklabs.watchtower.enable=false
       # - flame.icon=custom to make changes in app. ie: custom icon upload
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://viewpoint.house:8123"]
+      test: ["CMD", "curl", "-f", "http://localhost:8123"]
       start_period: 60s
       interval: 30s
       timeout: 10s
       retries: 5
-    network_mode: "host"
+    networks:
+      - traefik_proxy
     environment:
       - PUID=200
       - PGID=200
     devices:
       # - /dev/ttyUSB0:/dev/ttyUSB0
-      - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A1WRPEJT-if00-port0:/dev/ttyUSB0
-      - /dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0:/dev/zwave
-    #ports:
-    #  - 80:8300
-    #  - 8123:8123
-    #  - 8300:8300
+      # Before udev fuckup - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A1WRPEJT-if00-port0:/dev/ttyUSB0
+      - /dev/serial/by-id/pci-RFXCOM_RFXtrx433_A1WRPEJT-if00-port0:/dev/ttyUSB0
+      # - /dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0:/dev/zwave
+      # - /dev/serial/by-id/usb-FTDI_FT230X_Basic_UART_DO00KFKX-if00-port0:/dev/conbee1
     volumes:
       - /docker/home-assistant/config:/config
       - /media/store/cctv/frigate:/media/frigate_cctv
@@ -129,7 +185,7 @@ services:
     container_name: whisper
     #  command: --model medium --language nl
     command: --model medium-int8 --language en-gb
-    image: rhasspy/wyoming-whisper
+    image: rhasspy/wyoming-whisper:latest
     # network_mode: host
     volumes:
       - whisper:/data
@@ -138,12 +194,15 @@ services:
     restart: unless-stopped
     ports:
       - 10300:10300
+    # healthcheck:
+      # test: ["CMD", "curl", "-f", "http://viewpoint.house:10300"]
+      # echo '{"type":"describe"}'|nc -w 1 localhost 10300
     labels:
       - com.centurylinklabs.watchtower.enable=true
 
   piper:
     container_name: piper
-    image: rhasspy/wyoming-piper
+    image: rhasspy/wyoming-piper:latest
     #  command: --voice nl-nathalie-x-low
     command: --voice en-gb-southern_english_female-low
     # network_mode: host
@@ -157,23 +216,43 @@ services:
     labels:
       - com.centurylinklabs.watchtower.enable=true
 
+  mdns-repeater:
+    image: monstrenyatko/mdns-repeater:latest
+    container_name: mdns-repeater
+    restart: unless-stopped
+    command: mdns-repeater-app -f eth0 br-a8ee464f47d2
+    network_mode: "host"
+
   esphome:
-    image: esphome/esphome:latest
+    image: ghcr.io/esphome/esphome:latest
     container_name: esphome
-    network_mode: host
+    depends_on:
+      - mdns-repeater
+    networks:
+      - traefik_proxy
+    # network_mode: host
+    # https://doc.traefik.io/traefik/providers/docker/#host-networking
     restart: unless-stopped
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.esphome.rule=Host(`esphome.viewpoint.house`)"
-      - "traefik.http.routers.esphome.entrypoints=web"
+      - traefik.enable=true
+      - traefik.http.routers.esphome.rule=Host(`esphome.viewpoint.house`)
+      - traefik.http.routers.esphome.entrypoints=web
+      - traefik.http.services.esphome.loadbalancer.server.port=6052
+      - traefik.http.services.esphome.loadbalancer.healthcheck.path=/
+      - traefik.http.services.esphome.loadbalancer.healthcheck.port=6052
       - flame.type=application # "app" works too
       - flame.name=ESPHome
-      - flame.url=http://viewpoint.house:6052
+      - flame.url=http://esphome.viewpoint.house
       - flame.icon=chip
+      - homepage.group=Home Automation
+      - homepage.name=ESPHome
+      - homepage.icon=mdi-chip
+      - homepage.href=http://esphome.viewpoint.house
+      - homepage.description=IOT Firmware Management
       - com.centurylinklabs.watchtower.enable=true
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://viewpoint.house:6052"]
-      start_period: 60s
+      test: ["CMD", "curl", "-f", "http://localhost:6052"]
+      start_period: 15s
       interval: 30s
       timeout: 10s
       retries: 5
@@ -185,90 +264,58 @@ services:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
-  deconz:
-    image: marthoc/deconz:latest
-    container_name: deconz
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    image: koenkk/zigbee2mqtt:latest
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://viewpoint.house:8100/pwa/login.html"]
-      start_period: 60s
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    network_mode: host
-    #ports:
-    #  - 8100:8100
-    #  - 8143:8143
-    #  - 1900:1900
-    #  - 5900:5900
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.deconz.rule=Host(`deconz.viewpoint.house`)"
-      - "traefik.http.routers.deconz.entrypoints=web"
-      - flame.type=application # "app" works too
-      - flame.name=deconz
-      - flame.url=http://viewpoint.house:8100
-      - flame.icon=lightbulb-outline
-    volumes:
-      - /docker/deCONZ/config:/root/.local/share/dresden-elektronik/deCONZ
-      - /docker/deCONZ/otau:/root/otau/
-    devices:
-      - /dev/serial/by-id/usb-FTDI_FT230X_Basic_UART_DO00KFKX-if00-port0:/dev/ttyUSB0
-    environment:
-      - DECONZ_WEB_PORT=8100
-      - DECONZ_WS_PORT=8143
-      - DEBUG_INFO=1
-      - DEBUG_APS=0
-      - DEBUG_ZCL=0
-      - DEBUG_ZDP=0
-      - DEBUG_OTAU=1
-      - DECONZ_VNC_MODE=1
-      - DECONZ_VNC_PASSWORD=${DECONZ_VNC_PASSWORD}
-    logging:
-      driver: gelf
-      options:
-        gelf-address: "udp://172.24.32.13:12201"
-        tag: "{{.Name}}"
-  zwavejs2mqtt:
-    container_name: zwavejs2mqtt
-    image: zwavejs/zwavejs2mqtt:latest
-    restart: unless-stopped
-    tty: true
-    stop_signal: SIGINT
-    environment:
-      - SESSION_SECRET=mysupersecretkey
-      # Uncomment if you want logs time and dates to match your timezone instead of UTC
-      # Available at https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-      #- TZ=America/New_York
     networks:
-      - zwave
-    devices:
-      # Do not use /dev/ttyUSBX serial devices, as those mappings can change over time.
-      # Instead, use the /dev/serial/by-id/X serial device for your Z-Wave stick.
-      - '/dev/serial/by-id/insert_stick_reference_here:/dev/zwave'
-    volumes:
-      - zwave-config:/usr/src/app/store
-    ports:
-      - '8091:8091' # port for web interface
-      - '3000:3000' # port for Z-Wave JS websocket server
-  facebox:
-    image: machinebox/facebox_noavx
-    container_name: facebox
-    restart: unless-stopped
-    ports:
-      - 8080:8080
+      - traefik_proxy
     labels:
+      - traefik.enable=true
+      - traefik.http.routers.z2m.rule=Host(`z2m.viewpoint.house`)
+      - traefik.http.routers.z2m.entrypoints=web
+      - traefik.http.services.z2m.loadbalancer.server.port=8080
+      - traefik.http.services.z2m.loadbalancer.healthcheck.path=/
+      - traefik.http.services.z2m.loadbalancer.healthcheck.port=8080
       - flame.type=application # "app" works too
-      - flame.name=Facebox
-      - flame.url=http://viewpoint.house:8080
+      - flame.group=Home Automation
+      - flame.name=zigbee2mqtt
+      - flame.url=http://z2m.viewpoint.house
+      - flame.icon=lightbulb-outline
+      - homepage.group=Home Automation
+      - homepage.name=Zigbee2MQTT
+      - homepage.icon=mdi-zigbee
+      - homepage.href=http://z2m.viewpoint.house
+      - homepage.description=Zigbee Management
+      - com.centurylinklabs.watchtower.enable=true
+    volumes:
+      - /docker/zigbee2mqtt/data:/app/data
+      - /run/udev:/run/udev:ro
     environment:
-      - MB_KEY=${MB_KEY}
-      - MB_FACEBOX_DISABLE_RECOGNITION=false
-    logging:
-      driver: gelf
-      options:
-        gelf-address: "udp://172.24.32.13:12201"
-        tag: "{{.Name}}"
+      - TZ=Europe/London
+      - DEBUG=zigbee-herdsman*
+    # devices:
+      # Make sure this matched your adapter location
+      # - /dev/serial/by-id/usb-FTDI_FT230X_Basic_UART_DO00KFKX-if00-port0:/dev/ttyACM0
+
+  # facebox:
+  #   image: machinebox/facebox_noavx
+  #   container_name: facebox
+  #   restart: unless-stopped
+  #   ports:
+  #     - 8080:8080
+  #   labels:
+  #     - flame.type=application # "app" works too
+  #     - flame.name=Facebox
+  #     - flame.url=http://viewpoint.house:8080
+  #   environment:
+  #     - MB_KEY=${MB_KEY}
+  #     - MB_FACEBOX_DISABLE_RECOGNITION=false
+  #   logging:
+  #     driver: gelf
+  #     options:
+  #       gelf-address: "udp://172.24.32.13:12201"
+  #       tag: "{{.Name}}"
 
   eclipse-mosquitto:
     image: eclipse-mosquitto:latest
@@ -278,10 +325,9 @@ services:
       - 1883:1883
       - 9001:9001
     labels:
-      - flame.type=application # "app" works too
-      - flame.name=Eclipse Mosquitto
-      - flame.url=http://viewpoint.house:9001
-      - flame.icon=envelope-outline
+      - com.centurylinklabs.watchtower.enable=true
+    networks:
+      - traefik_proxy
     volumes:
         - /docker/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
         - /docker/mosquitto/data:/mosquitto/data
@@ -296,22 +342,30 @@ services:
     restart: unless-stopped
     image: nodered/node-red:latest
     container_name: node-red
-    ports:
-      - 1880:1880
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.nodered.rule=Host(`nodered.viewpoint.house`)"
-      - "traefik.http.routers.nodered.entrypoints=web"
+      - traefik.enable=true
+      - traefik.http.routers.nodered.rule=Host(`nodered.viewpoint.house`)
+      - traefik.http.routers.nodered.entrypoints=web
+      - traefik.http.services.nodered.loadbalancer.server.port=1880
+      - traefik.http.services.nodered.loadbalancer.healthcheck.path=/
+      - traefik.http.services.nodered.loadbalancer.healthcheck.port=1880
       - flame.type=application # "app" works too
       - flame.name=Node-Red
-      - flame.url=http://viewpoint.house:1880
+      - flame.url=http://nodered.viewpoint.house
+      - flame.group=Home Automation
+      - homepage.group=Home Automation
+      - homepage.name=Node Red
+      - homepage.href=http://nodered.viewpoint.house
+      - homepage.description=MQTT Management
       - com.centurylinklabs.watchtower.enable=true
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://viewpoint.house:1880"]
-      start_period: 60s
+      test: ["CMD", "curl", "-f", "http://localhost:1880"]
+      start_period: 15s
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - traefik_proxy
     environment:
       TZ: Europe/London
     volumes:
@@ -327,9 +381,11 @@ services:
     container_name: frigate
     privileged: true # this may not be necessary for all setups
     restart: unless-stopped
+    networks:
+      - traefik_proxy
     depends_on:
       - eclipse-mosquitto
-    image: blakeblackshear/frigate:stable-amd64
+    image: ghcr.io/blakeblackshear/frigate:stable
     devices:
       - /dev/bus/usb:/dev/bus/usb
       - /dev/dri/card0 # for intel hwaccel, needs to be updated for your hardware
@@ -342,34 +398,64 @@ services:
         tmpfs:
           size: 1000000000
     ports:
-      - "4999:5000"
-      - "1935:1935" # RTMP feeds
+      # - "4999:5000"
+      - "1935:1935" # RTMP feeds - move to Traefik TCP
+    healthcheck:
+      test: ["CMD", "curl", "-sI", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 1s
+      retries: 10
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frigate.rule=Host(`cctv.viewpoint.house`)"
-      - "traefik.http.routers.frigate.entrypoints=web"
+      - traefik.enable=true
+      - traefik.http.routers.frigate.rule=Host(`cctv.viewpoint.house`)
+      - traefik.http.routers.frigate.entrypoints=web
+      - traefik.http.services.frigate.loadbalancer.server.port=5000
+      - traefik.http.services.frigate.loadbalancer.healthcheck.path=/
+      - traefik.http.services.frigate.loadbalancer.healthcheck.port=5000
       - flame.type=application # "app" works too
       - flame.name=Frigate
-      - flame.url=http://viewpoint.house:4999
+      - flame.url=http://cctv.viewpoint.house
+      - flame.icon=cctv
+      - homepage.group=Home Automation
+      - homepage.icon=mdi-cctv
+      - homepage.name=Frigate
+      - homepage.href=http://cctv.viewpoint.house
+      - homepage.description=CCTV
       - com.centurylinklabs.watchtower.enable=true
+    #logging:
+    #  driver: gelf
+    #  options:
+    #    gelf-address: "udp://172.24.32.13:12201"
+    #    tag: "{{.Name}}"
     environment:
-      FRIGATE_RTSP_PASSWORD: "password"
+      - FRIGATE_RTSP_PASSWORD=${FRIGATE_RTSP_PASSWORD}
 
   double-take:
     container_name: double-take
-    image: jakowenko/double-take
+    image: jakowenko/double-take:latest
+    networks:
+      - traefik_proxy
     restart: unless-stopped
     depends_on:
       - eclipse-mosquitto
       - frigate
     volumes:
       - /docker/double-take/storage:/.storage
-    ports:
-      - 3001:3000
     labels:
+      - traefik.enable=true
+      - traefik.http.routers.double-take.rule=Host(`double-take.viewpoint.house`)
+      - traefik.http.routers.double-take.entrypoints=web
+      - traefik.http.services.double-take.loadbalancer.server.port=3000
+      - traefik.http.services.double-take.loadbalancer.healthcheck.path=/
+      - traefik.http.services.double-take.loadbalancer.healthcheck.port=3000
       - flame.type=application # "app" works too
       - flame.name=Double Take
-      - flame.url=http://viewpoint.house:3001
+      - flame.url=http://double-take.viewpoint.house
+      - homepage.group=Home Automation
+      - homepage.icon=mdi-person
+      - homepage.name=Double-Take
+      - homepage.href=http://double-take.viewpoint.house
+      - homepage.description=Facial Recognition Service
       - com.centurylinklabs.watchtower.enable=true
     logging:
       driver: gelf
@@ -378,35 +464,75 @@ services:
         tag: "{{.Name}}"
 
   uptime-kuma:
-    image: louislam/uptime-kuma
+    image: louislam/uptime-kuma:latest
     container_name: uptime-kuma
     restart: unless-stopped
     volumes:
       - uptime-kuma:/app/data
-    ports:
-      - 3002:3001
-    # network_mode: "host"
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik_proxy
+    healthcheck:
+      test: ["CMD", "curl", "-sI", "http://localhost:3001/"]
+      interval: 30s
+      timeout: 1s
+      retries: 10
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.uptime.rule=Host(`uptime.viewpoint.house`)"
-      - "traefik.http.routers.uptime.entrypoints=web"
+      - traefik.enable=true
+      - traefik.http.routers.uptime.rule=Host(`uptime.viewpoint.house`)
+      - traefik.http.routers.uptime.entrypoints=web
+      - traefik.http.services.uptime.loadbalancer.server.port=3001
+      - traefik.http.services.uptime.loadbalancer.healthcheck.path=/
+      - traefik.http.services.uptime.loadbalancer.healthcheck.port=3001
+      # - traefik.port=3001
       - flame.type=application # "app" works too
       - flame.name=Uptime Kuma
-      - flame.url=http://viewpoint.house:3002
+      - flame.url=http://uptime.viewpoint.house
+      - homepage.group=Monitoring
+      - homepage.name=Uptime Kuma
+      - homepage.href=http://uptime.viewpoint.house
+      - homepage.description=Uptime Kuma
       - com.centurylinklabs.watchtower.enable=true
     logging:
       driver: gelf
       options:
         gelf-address: "udp://72.24.32.13:12201"
         tag: "{{.Name}}"
+
+  # scrutiny:
+  #   image: lscr.io/linuxserver/scrutiny:latest
+  #   container_name: scrutiny
+  #   cap_add:
+  #     - SYS_RAWIO
+  #     - SYS_ADMIN #optional
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/London
+  #     - SCRUTINY_API_ENDPOINT=http://localhost:8080
+  #     - SCRUTINY_WEB=true
+  #     - SCRUTINY_COLLECTOR=true
+  #   volumes:
+  #     - scrutiny_config:/config
+  #     - /run/udev:/run/udev:ro
+  #   ports:
+  #     - 8085:8080
+  #   devices:
+  #     - /dev/sda:/dev/sda
+  #     - /dev/sdb:/dev/sdb
+  #     - /dev/nvme1n1:/dev/nvme1n1
+  #   restart: unless-stopped
+
   unifi-controller:
-    image: lscr.io/linuxserver/unifi-controller
+    image: lscr.io/linuxserver/unifi-controller:latest
     container_name: unifi-controller
     environment:
       - PUID=1000
       - PGID=1000
       - MEM_LIMIT=1024 #optional
       - MEM_STARTUP=1024 #optional
+    networks:
+      - traefik_proxy
     volumes:
       - /docker/unifi-controller:/config
     ports:
@@ -420,47 +546,73 @@ services:
       #- 6789:6789 #optional
       - 5514:5514/udp #optional
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.unifi-controller.rule=Host(`unifi.viewpoint.house`)"
-      - "traefik.http.routers.unifi-controller.entrypoints=web"
+      - traefik.enable=true
+      - traefik.http.routers.unifi-controller.rule=Host(`unifi.viewpoint.house`)
+      - traefik.http.routers.unifi-controller.entrypoints=websecure
+      - traefik.http.routers.unifi-controller.tls=true
+      - traefik.http.services.unifi-controller.loadbalancer.server.port=8443
+      - traefik.http.services.unifi-controller.loadbalancer.server.scheme=https
+      # - traefik.http.services.unifi-controller.loadbalancer.healthcheck.path=/
+      # - traefik.http.services.unifi-controller.loadbalancer.healthcheck.port=8080
       - flame.type=application # "app" works too
       - flame.name=Unifi Controller
       - flame.url=https://viewpoint.house:8444
+      - homepage.group=Management
+      - homepage.name=Unifi Wifi
+      - homepage.icon=mdi-wifi
+      - homepage.href=https://unifi.viewpoint.house:8444
+      - homepage.description=Unifi Wireless Management
     restart: unless-stopped
+
+#  pialert:
+#    container_name: pialert
+#    network_mode: host
+#    restart: always
+#    volumes:
+#      - /docker/pialert/config:/home/pi/pialert/config
+#      - /docker/pialert/db/pialert.db:/home/pi/pialert/db/pialert.db
+#      - /docker/pialert/logs:/home/pi/pialert/log
+#    environment:
+#      - TZ=Europe/London
+#      - PORT=20211
+#      - HOST_USER_ID=1000
+#      - HOST_USER_GID=1000
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     restart: unless-stopped
-    # networks:
-    #   - traefik_proxy
+    networks:
+      - traefik_proxy
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.viewpoint.house`)"
-      - "traefik.http.routers.grafana.entrypoints=web"
+      - traefik.enable=true
+      - traefik.http.routers.grafana.rule=Host(`grafana.viewpoint.house`)
+      - traefik.http.routers.grafana.entrypoints=web
+      - traefik.http.services.grafana.loadbalancer.server.port=3000
       - flame.type=application # "app" works too
       - flame.name=Grafana
-      - flame.url=http://viewpoint.house:3000
+      - flame.url=http://grafana.viewpoint.house
       - flame.icon=chart-line
+      - homepage.group=Monitoring
+      - homepage.name=Grafana
+      - homepage.icon:mdi-chart-line
+      - homepage.href=http://grafana.viewpoint.house
+      - homepage.description=Grafana
       - com.centurylinklabs.watchtower.enable=true
     healthcheck:
-      #test: ["CMD", "curl", "-f", "http://homeauto.vpn.glasgownet.com:3000/api/health"]
-      test: ["CMD", "wget", "--spider", "-tries=1", "--quiet", "http://viewpoint.house:3000/api/health"]
-      start_period: 60s
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      # test: ["CMD", "wget", "--spider", "-tries=1", "--quiet", "http://172.24.32.13:3000/api/health"]
+      start_period: 15s
       interval: 30s
       timeout: 10s
       retries: 5
     environment:
       # http://docs.grafana.org/installation/configuration/#using-environment-variables
-      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,vonage-status-panel,grafana-influxdb-08-datasource,ryantxu-ajax-panel,raintank-worldping-app
-      - GF_SERVER_ROOT_URL=http://homeauto.vpn.glasgownet.com
-      - GF_SECURITY_ADMIN_PASSWORD=homeauto
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
-      # - GF_SERVER_ROOT_URL=${DOMAIN_PROTOCOL}://${BASE_DOMAIN}/grafana/
-      # - GF_SERVER_DOMAIN=${BASE_DOMAIN}
-    ports:
-      - 3000:3000
+      - GF_INSTALL_PLUGINS=${GF_INSTALL_PLUGINS}
+      - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+      - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED}
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=${GF_AUTH_ANONYMOUS_ORG_ROLE}
     volumes:
       - /docker/grafana:/var/lib/grafana/
     logging:
@@ -474,29 +626,39 @@ services:
     container_name: influxdb
     restart: unless-stopped
     volumes:
-      # Mount for influxdb data directory
-      - /var/lib/influxdb:/var/lib/influxdb
-      - influxdb2:/home/influxdb/.influxdbv2
+      # Mount for influxdb data directory - this is an LVM volume on homeauto
+      # - /var/lib/influxdb:/var/lib/influxdb # unused
+      # - influxdb2:/home/influxdb/.influxdbv2 # surplus
       - influxdb2:/var/lib/influxdb2
       # Mount for influxdb configuration
       - /docker/influxdb/config/:/etc/influxdb/
       - /docker/influxdb/types.db:/usr/share/collectd/types.db
+    networks:
+      - traefik_proxy
     ports:
       # The API for InfluxDB is served on port 8086
       - "8086:8086"
       - "8082:8082"
       - "25826:25826"
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.influxdb.rule=Host(`influxdb.viewpoint.house`)"
-      - "traefik.http.routers.influxdb.entrypoints=web"
+      - traefik.enable=true
+      - traefik.http.routers.influxdb.rule=Host(`influxdb.viewpoint.house`)
+      - traefik.http.routers.influxdb.entrypoints=web
+      - traefik.http.services.influxdb.loadbalancer.server.port=8086
+      - traefik.http.services.influxdb.loadbalancer.healthcheck.path=/health
+      - traefik.http.services.influxdb.loadbalancer.healthcheck.port=8086
       - flame.type=application # "app" works too
       - flame.name=InfluxDB
-      - flame.url=http://viewpoint.house:8086
+      - flame.url=http://influxdb.viewpoint.house
+      - homepage.group=Monitoring
+      - homepage.name=InfluxDB
+      - homepage.icon:mdi-chart-line
+      - homepage.href=http://influxdb.viewpoint.house
+      - homepage.description=InfluxDB
       - com.centurylinklabs.watchtower.enable=true
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://viewpoint.house:8086"]
-      start_period: 60s
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      start_period: 15s
       interval: 30s
       timeout: 10s
       retries: 5
@@ -510,27 +672,31 @@ services:
     image: chronograf:latest
     container_name: chronograf
     restart: unless-stopped
+    networks:
+      - traefik_proxy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://viewpoint.house:3000"]
-      start_period: 60s
+      test: ["CMD", "curl", "-f", "http://localhost:8888"]
+      start_period: 15s
       interval: 30s
       timeout: 10s
       retries: 5
     volumes:
-      # Mount for chronograf database
       - /docker/chronograf/data/:/var/lib/chronograf/
-    ports:
-      # The WebUI for Chronograf is served on port 8888
-      - "8888:8888"
-#    depends_on:
-#      - influxdb
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.chronograf.rule=Host(`chronograf.viewpoint.house`)"
-      - "traefik.http.routers.chronograf.entrypoints=web"
+      - traefik.enable=true
+      - traefik.http.routers.chronograf.rule=Host(`chronograf.viewpoint.house`)
+      - traefik.http.routers.chronograf.entrypoints=web
+      - traefik.http.services.chronograf.loadbalancer.server.port=8888
+      - traefik.http.services.chronograf.loadbalancer.healthcheck.port=8888
+      - traefik.http.services.chronograf.loadbalancer.healthcheck.path=/
       - flame.type=application # "app" works too
       - flame.name=Chronograf
-      - flame.url=http://viewpoint.house:8888
+      - flame.url=http://chronograf.viewpoint.house
+      - homepage.group=Monitoring
+      - homepage.name=Chronograf
+      - homepage.icon:mdi-chart-line
+      - homepage.href=http://chronograf.viewpoint.house
+      - homepage.description=Chronograf
       - com.centurylinklabs.watchtower.enable=true
     logging:
       driver: gelf
@@ -573,7 +739,7 @@ services:
 
   Watchtower:
     image: v2tec/watchtower:latest
-    command: --cleanup --label-enable --schedule="0 2 * * *"
+    command: "--label-enable"
     container_name: Watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -595,8 +761,24 @@ services:
     image: atdr.meo.ws/archiveteam/warrior-dockerfile
     container_name: archiveTeamWarrior
     hostname: archiveTeamWarrior
-    ports:
-      - "8001:8001"
+    networks:
+      - traefik_proxy
+    volumes:
+      - warrior_data:/data/data
+      - warrior_config:/home/warrior/projects/
     labels:
+      - traefik.enable=true
+      - traefik.http.routers.archiveteam.rule=Host(`archiveteam.viewpoint.house`)
+      - traefik.http.routers.archiveteam.entrypoints=web
+      - traefik.http.services.archiveteam.loadbalancer.server.port=8001
+      - traefik.http.services.archiveteam.loadbalancer.healthcheck.port=8001
+      - traefik.http.services.archiveteam.loadbalancer.healthcheck.path=/
+      - flame.type=application # "app" works too
+      - flame.name=ArchiveTeam
+      - flame.url=http://archiveteam.viewpoint.house
+      - homepage.group=Media
+      - homepage.name=Archive Team Warrior
+      - homepage.href=http://archiveteam.viewpoint.house
+      - homepage.description=Archive Team Warrior Node
       - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
