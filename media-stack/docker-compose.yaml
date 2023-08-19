@@ -118,9 +118,9 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik_proxy
-      - traefik.http.routers.miniflux.rule=Host(`ombi.viewpoint.house`)
-      - traefik.http.routers.miniflux.entrypoints=web
-      - traefik.http.services.miniflux.loadbalancer.server.port=3579
+      - traefik.http.routers.ombi.rule=Host(`ombi.viewpoint.house`)
+      - traefik.http.routers.ombi.entrypoints=web
+      - traefik.http.services.ombi.loadbalancer.server.port=3579
       - com.centurylinklabs.watchtower.enable=true
 
   ombi_mysql_db:
@@ -130,7 +130,7 @@ services:
     networks:
       - ombi_network
     environment:
-      MYSQL_ROOT_PASSWORD: 123 #change your root password here
+      - MYSQL_ROOT_PASSWORD=${OMBI_MYSQL_ROOT_PASSWORD}
     volumes:
       -  /docker/ombi/mysql:/var/lib/mysql
     labels:
@@ -142,6 +142,7 @@ services:
       restart: unless-stopped
       networks:
         - ombi_network
+        - traefik_proxy
       environment:
         PMA_HOST: ombi_mysql_db
       # ports:
@@ -149,9 +150,9 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=traefik_proxy
-        - traefik.http.routers.miniflux.rule=Host(`ombidb.viewpoint.house`)
-        - traefik.http.routers.miniflux.entrypoints=web
-        - traefik.http.services.miniflux.loadbalancer.server.port=80
+        - traefik.http.routers.ombidb.rule=Host(`ombidb.viewpoint.house`)
+        - traefik.http.routers.ombidb.entrypoints=web
+        - traefik.http.services.ombidb.loadbalancer.server.port=80
         - com.centurylinklabs.watchtower.enable=true
       depends_on:
         - "ombi_mysql_db"
