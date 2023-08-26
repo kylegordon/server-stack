@@ -220,7 +220,8 @@ services:
     image: monstrenyatko/mdns-repeater:latest
     container_name: mdns-repeater
     restart: unless-stopped
-    command: mdns-repeater-app -f eth0 br-a8ee464f47d2
+    # The result of ifconfig | grep -i `docker network ls | grep -i traefik | awk '{print $1}'` | awk '{print $1}'
+    command: mdns-repeater-app -f eth0 br-640e7c6c5f4b
     network_mode: "host"
 
   esphome:
