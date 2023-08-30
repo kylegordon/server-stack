@@ -40,7 +40,7 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:9443
+      - --entrypoints.websecure.address=:443
       - --entrypoints.haweb.address=:8123
       - --log.level=DEBUG
       - --accesslog=true
@@ -52,7 +52,7 @@ services:
       - docker.env
     ports:
       - "80:80"     # Web entrypoint
-      - "9443:9443" # Websecure entrypoint
+      - "443:443" # Websecure entrypoint
       - "8090:8080" # Traefik Dashboard
       - "8123:8123" # For Home-Assistant
       - "8300:8300" # Emulated Hue for Home-Assistant and Alexa
