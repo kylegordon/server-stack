@@ -624,9 +624,9 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/London
-      - PAPERLESS_URL=https://paperless.viewpoint.house=9443
+      - PAPERLESS_URL=https://paperless.viewpoint.house
       - PAPERLESS_ALLOWED_HOSTS = paperless.viewpoint.house
-      - PAPERLESS_CSRF_TRUSTED_ORIGINS=https://paperless.viewpoint.house:9443
+      - PAPERLESS_CSRF_TRUSTED_ORIGINS=https://paperless.viewpoint.house
       - PAPERLESS_REDIS=redis://paperless_broker:6379
       - PAPERLESS_DBENGINE=mariadb
       - PAPERLESS_DBHOST=paperless_db
@@ -654,7 +654,7 @@ services:
       - homepage.group=Media
       - homepage.icon=mdi-book-open-outline
       - homepage.name=Paperless
-      - homepage.href=http://paperless.viewpoint.house
+      - homepage.href=https://paperless.viewpoint.house
       - homepage.description=Paperless
       - com.centurylinklabs.watchtower.enable=true
 
