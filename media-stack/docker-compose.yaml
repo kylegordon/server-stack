@@ -396,7 +396,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.books.rule=Host(`books.viewpoint.house`)
-      - traefik.http.routers.books.entrypoints=web
+      - traefik.http.routers.books.entrypoints=websecure
+      - traefik.http.routers.books.tls=true
+      - traefik.http.routers.books.tls.certresolver=lets-encrypt
+      - traefik.http.routers.books.tls.domains[0].main=books.viewpoint.house
       - traefik.http.services.books.loadbalancer.server.port=8787
       - traefik.http.services.books.loadbalancer.healthcheck.port=8787
       - traefik.http.services.books.loadbalancer.healthcheck.path=/
@@ -407,7 +410,7 @@ services:
       - homepage.group=Media
       - homepage.icon=mdi-book-open-outline
       - homepage.name=Readarr Books
-      - homepage.href=http://books.viewpoint.house
+      - homepage.href=https://books.viewpoint.house
       - homepage.description=Books Management
       - com.centurylinklabs.watchtower.enable=true
     logging:
