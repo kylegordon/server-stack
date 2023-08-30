@@ -546,11 +546,15 @@ services:
       #- 8880:8880 #optional
       #- 6789:6789 #optional
       - 5514:5514/udp #optional
+    # You can't define serverstransport in docker labels, so have to hack around it with
+    # https://blog.ktz.me/traefik-v2-and-unifi-controller-in-docker/
     labels:
       - traefik.enable=true
       - traefik.http.routers.unifi-controller.rule=Host(`unifi.viewpoint.house`)
       - traefik.http.routers.unifi-controller.entrypoints=websecure
       - traefik.http.routers.unifi-controller.tls=true
+      - traefik.http.routers.unifi-controller.tls.certresolver=letsencrypt
+      - traefik.http.routers.unifi-controller.tls.domains[0].main=unifi.viewpoint.house
       - traefik.http.services.unifi-controller.loadbalancer.server.port=8443
       - traefik.http.services.unifi-controller.loadbalancer.server.scheme=https
       # - traefik.http.services.unifi-controller.loadbalancer.healthcheck.path=/
@@ -686,7 +690,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.chronograf.rule=Host(`chronograf.viewpoint.house`)
-      - traefik.http.routers.chronograf.entrypoints=web
+      - traefik.http.routers.chronograf.entrypoints=websecure
+      - traefik.http.routers.chronograf.tls=true
+      - traefik.http.routers.chronograf.tls.certresolver=letsencrypt
+      - traefik.http.routers.chronograf.tls.domains[0].main=chronograf.viewpoint.house
       - traefik.http.services.chronograf.loadbalancer.server.port=8888
       - traefik.http.services.chronograf.loadbalancer.healthcheck.port=8888
       - traefik.http.services.chronograf.loadbalancer.healthcheck.path=/
@@ -696,7 +703,7 @@ services:
       - homepage.group=Monitoring
       - homepage.name=Chronograf
       - homepage.icon:mdi-chart-line
-      - homepage.href=http://chronograf.viewpoint.house
+      - homepage.href=https://chronograf.viewpoint.house
       - homepage.description=Chronograf
       - com.centurylinklabs.watchtower.enable=true
     logging:
