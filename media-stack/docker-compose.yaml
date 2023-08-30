@@ -433,7 +433,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.jellyfin.rule=Host(`jellyfin.viewpoint.house`)
-      - traefik.http.routers.jellyfin.entrypoints=web
+      - traefik.http.routers.jellyfin.entrypoints=websecure
+      - traefik.http.routers.jellyfin.tls=true
+      - traefik.http.routers.jellyfin.tls.certresolver=lets-encrypt
+      - traefik.http.routers.jellyfin.tls.domains[0].main=jellyfin.viewpoint.house
       - traefik.http.services.jellyfin.loadbalancer.server.port=8096
       - traefik.http.services.jellyfin.loadbalancer.healthcheck.port=8096
       - traefik.http.services.jellyfin.loadbalancer.healthcheck.path=/
@@ -444,7 +447,7 @@ services:
       - homepage.group=Media
       - homepage.icon=mdi-movie-open-play
       - homepage.name=Jellyfin
-      - homepage.href=http://jellyfin.viewpoint.house
+      - homepage.href=https://jellyfin.viewpoint.house
       - homepage.description=Jellyfin Media Playback
       - com.centurylinklabs.watchtower.enable=true
     # Traefik filters out unhealthy services
