@@ -274,7 +274,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.z2m.rule=Host(`z2m.viewpoint.house`)
-      - traefik.http.routers.z2m.entrypoints=web
+      - traefik.http.routers.z2m.entrypoints=websecure
+      - traefik.http.routers.z2m.tls=true
+      - traefik.http.routers.z2m.tls.certresolver=letsencrypt
+      - traefik.http.routers.z2m.tls.domains[0].main=z2m.viewpoint.house
       - traefik.http.services.z2m.loadbalancer.server.port=8080
       - traefik.http.services.z2m.loadbalancer.healthcheck.path=/
       - traefik.http.services.z2m.loadbalancer.healthcheck.port=8080
@@ -286,7 +289,7 @@ services:
       - homepage.group=Home Automation
       - homepage.name=Zigbee2MQTT
       - homepage.icon=mdi-zigbee
-      - homepage.href=http://z2m.viewpoint.house
+      - homepage.href=https://z2m.viewpoint.house
       - homepage.description=Zigbee Management
       - com.centurylinklabs.watchtower.enable=true
     volumes:
