@@ -592,7 +592,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.grafana.rule=Host(`grafana.viewpoint.house`)
-      - traefik.http.routers.grafana.entrypoints=web
+      - traefik.http.routers.grafana.entrypoints=websecure
+      - traefik.http.routers.grafana.tls=true
+      - traefik.http.routers.grafana.tls.certresolver=letsencrypt
+      - traefik.http.routers.grafana.tls.domains[0].main=grafana.viewpoint.house
       - traefik.http.services.grafana.loadbalancer.server.port=3000
       - flame.type=application # "app" works too
       - flame.name=Grafana
@@ -601,7 +604,7 @@ services:
       - homepage.group=Monitoring
       - homepage.name=Grafana
       - homepage.icon:mdi-chart-line
-      - homepage.href=http://grafana.viewpoint.house
+      - homepage.href=https://grafana.viewpoint.house
       - homepage.description=Grafana
       - com.centurylinklabs.watchtower.enable=true
     healthcheck:
