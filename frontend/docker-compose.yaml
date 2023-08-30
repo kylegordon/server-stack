@@ -48,14 +48,8 @@ services:
       - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=route53
       - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
-    environment:
-      - EMAIL=${LETSENCRYPT_EMAIL}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_REGION=${AWS_REGION}
-      - AWS_HOSTED_ZONE_ID=${AWS_HOSTED_ZONE_ID}
-      - DOMAIN=${DOMAIN}
-      - CERT_RESOLVER=${CERT_RESOLVER}
+    env_file:
+      - docker.env
     ports:
       - "80:80"     # Web entrypoint
       - "9443:9443" # Websecure entrypoint
