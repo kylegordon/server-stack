@@ -237,7 +237,11 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.esphome.rule=Host(`esphome.viewpoint.house`)
-      - traefik.http.routers.esphome.entrypoints=web
+      - traefik.http.routers.esphome.entrypoints=websecure
+      - traefik.http.routers.esphome.service=esphome
+      - traefik.http.routers.esphome.tls=true
+      - traefik.http.routers.esphome.tls.certresolver=letsencrypt
+      - traefik.http.routers.esphome.tls.domains[0]=esphome.viewpoint.house
       - traefik.http.services.esphome.loadbalancer.server.port=6052
       - traefik.http.services.esphome.loadbalancer.healthcheck.path=/
       - traefik.http.services.esphome.loadbalancer.healthcheck.port=6052
@@ -248,7 +252,7 @@ services:
       - homepage.group=Home Automation
       - homepage.name=ESPHome
       - homepage.icon=mdi-chip
-      - homepage.href=http://esphome.viewpoint.house
+      - homepage.href=https://esphome.viewpoint.house
       - homepage.description=IOT Firmware Management
       - com.centurylinklabs.watchtower.enable=true
     healthcheck:
