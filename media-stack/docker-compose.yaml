@@ -122,7 +122,10 @@ services:
       - traefik.enable=true
       - traefik.docker.network=traefik_proxy
       - traefik.http.routers.ombi.rule=Host(`ombi.viewpoint.house`)
-      - traefik.http.routers.ombi.entrypoints=web
+      - traefik.http.routers.ombi.entrypoints=websecure
+      - traefik.http.routers.ombi.tls=true
+      - traefik.http.routers.ombi.tls.certresolver=letsencrypt
+      - traefik.http.routers.ombi.tls.domains[0].main=ombi.viewpoint.house
       - traefik.http.services.ombi.loadbalancer.server.port=3579
       - com.centurylinklabs.watchtower.enable=true
 
@@ -154,7 +157,10 @@ services:
         - traefik.enable=true
         - traefik.docker.network=traefik_proxy
         - traefik.http.routers.ombidb.rule=Host(`ombidb.viewpoint.house`)
-        - traefik.http.routers.ombidb.entrypoints=web
+        - traefik.http.routers.ombidb.entrypoints=websecure
+        - traefik.http.routers.ombidb.tls=true
+        - traefik.http.routers.ombidb.tls.certresolver=letsencrypt
+        - traefik.http.routers.ombidb.tls.domains[0].main=ombidb.viewpoint.house
         - traefik.http.services.ombidb.loadbalancer.server.port=80
         - com.centurylinklabs.watchtower.enable=true
       depends_on:
