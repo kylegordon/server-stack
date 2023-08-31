@@ -577,7 +577,10 @@ services:
       - traefik.enable=true
       - traefik.docker.network=traefik_proxy
       - traefik.http.routers.photos.rule=Host(`photos.viewpoint.house`)
-      - traefik.http.routers.photos.entrypoints=web
+      - traefik.http.routers.photos.entrypoints=websecure
+      - traefik.http.routers.photos.tls=true
+      - traefik.http.routers.photos.tls.certresolver=letsencrypt
+      - traefik.http.routers.photos.tls.domains[0].main=photos.viewpoint.house
       - traefik.http.services.photos.loadbalancer.server.port=2342
       - traefik.http.services.photos.loadbalancer.healthcheck.path=/
       - traefik.http.services.photos.loadbalancer.healthcheck.port=2342
@@ -588,7 +591,7 @@ services:
       - homepage.group=Media
       - homepage.name=Photoprism
       - homepage.icon=mdi-camera
-      - homepage.href=http://photos.viewpoint.house
+      - homepage.href=https://photos.viewpoint.house
       - homepage.description=PhotoPrism Photo Album
 
 
