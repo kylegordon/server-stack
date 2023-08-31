@@ -317,7 +317,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.hydra.rule=Host(`hydra.viewpoint.house`)
-      - traefik.http.routers.hydra.entrypoints=web
+      - traefik.http.routers.hydra.entrypoints=websecure
+      - traefik.http.routers.hydra.tls=true
+      - traefik.http.routers.hydra.tls.certresolver=letsencrypt
+      - traefik.http.routers.hydra.tls.domains[0].main=hydra.viewpoint.house
       - traefik.http.services.hydra.loadbalancer.server.port=5076
       - traefik.http.services.hydra.loadbalancer.healthcheck.port=5076
       - traefik.http.services.hydra.loadbalancer.healthcheck.path=/
@@ -326,7 +329,7 @@ services:
       - flame.url=http://hydra.viewpoint.house
       - homepage.group=Media
       - homepage.name=Hydra Usenet Index Meta-Search
-      - homepage.href=http://hydra.viewpoint.house
+      - homepage.href=https://hydra.viewpoint.house
       - homepage.description=Hydra Indexer
       - com.centurylinklabs.watchtower.enable=true
     volumes:
