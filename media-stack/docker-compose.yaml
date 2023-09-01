@@ -184,6 +184,10 @@ services:
       - /media/store/downloads/tmp:/downloads/tmp
     labels:
       - traefik.enable=true
+      - traefik.http.routers.nzbget-http.entrypoints=web
+      - traefik.http.routers.nzbget-http.rule=Host(`nzbget.viewpoint.house`)
+      - traefik.http.routers.nzbget-http.middlewares=nzbget-https
+      - traefik.http.middlewares.nzbget-https.redirectscheme.scheme=https
       - traefik.http.routers.nzbget.rule=Host(`nzbget.viewpoint.house`)
       - traefik.http.routers.nzbget.entrypoints=websecure
       - traefik.http.routers.nzbget.tls=true
@@ -222,6 +226,10 @@ services:
       - traefik_proxy
     labels:
       - traefik.enable=true
+      - traefik.http.routers.sonarr-http.entrypoints=web
+      - traefik.http.routers.sonarr-http.rule=Host(`tv.viewpoint.house`)
+      - traefik.http.routers.sonarr-http.middlewares=sonarr-https
+      - traefik.http.middlewares.sonarr-https.redirectscheme.scheme=https
       - traefik.http.routers.sonarr.rule=Host(`tv.viewpoint.house`)
       - traefik.http.routers.sonarr.entrypoints=websecure
       - traefik.http.routers.sonarr.tls=true
@@ -268,6 +276,10 @@ services:
       - traefik_proxy
     labels:
       - traefik.enable=true
+      - traefik.http.routers.radarr-http.entrypoints=web
+      - traefik.http.routers.radarr-http.rule=Host(`movies.viewpoint.house`)
+      - traefik.http.routers.radarr-http.middlewares=radarr-https
+      - traefik.http.middlewares.radarr-https.redirectscheme.scheme=https
       - traefik.http.routers.radarr.rule=Host(`movies.viewpoint.house`)
       - traefik.http.routers.radarr.entrypoints=websecure
       - traefik.http.routers.radarr.tls=true
@@ -316,6 +328,10 @@ services:
       retries: 5
     labels:
       - traefik.enable=true
+      - traefik.http.routers.hydra-http.entrypoints=web
+      - traefik.http.routers.hydra-http.rule=Host(`hydra.viewpoint.house`)
+      - traefik.http.routers.hydra-http.middlewares=hydra-https
+      - traefik.http.middlewares.hydra-https.redirectscheme.scheme=https
       - traefik.http.routers.hydra.rule=Host(`hydra.viewpoint.house`)
       - traefik.http.routers.hydra.entrypoints=websecure
       - traefik.http.routers.hydra.tls=true
@@ -413,6 +429,10 @@ services:
     restart: unless-stopped
     labels:
       - traefik.enable=true
+      - traefik.http.routers.readarr-http.entrypoints=web
+      - traefik.http.routers.readarr-http.rule=Host(`books.viewpoint.house`)
+      - traefik.http.routers.readarr-http.middlewares=readarr-https
+      - traefik.http.middlewares.readarr-https.redirectscheme.scheme=https
       - traefik.http.routers.books.rule=Host(`books.viewpoint.house`)
       - traefik.http.routers.books.entrypoints=websecure
       - traefik.http.routers.books.tls=true
@@ -453,6 +473,10 @@ services:
       - /media/store/Audio Books:/audiobooks
     labels:
       - traefik.enable=true
+      - traefik.http.routers.jellyfin-http.entrypoints=web
+      - traefik.http.routers.jellyfin-http.rule=Host(`jellyfin.viewpoint.house`)
+      - traefik.http.routers.jellyfin-http.middlewares=jellyfin-https
+      - traefik.http.middlewares.jellyfin-https.redirectscheme.scheme=https
       - traefik.http.routers.jellyfin.rule=Host(`jellyfin.viewpoint.house`)
       - traefik.http.routers.jellyfin.entrypoints=websecure
       - traefik.http.routers.jellyfin.tls=true

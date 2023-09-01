@@ -236,6 +236,10 @@ services:
     restart: unless-stopped
     labels:
       - traefik.enable=true
+      - traefik.http.routers.esphome-http.entrypoints=web
+      - traefik.http.routers.esphome-http.rule=Host(`esphome.viewpoint.house`)
+      - traefik.http.routers.esphome-http.middlewares=esphome-https
+      - traefik.http.middlewares.esphome-https.redirectscheme.scheme=https
       - traefik.http.routers.esphome.rule=Host(`esphome.viewpoint.house`)
       - traefik.http.routers.esphome.entrypoints=websecure
       - traefik.http.routers.esphome.tls=true
@@ -276,6 +280,10 @@ services:
       - traefik_proxy
     labels:
       - traefik.enable=true
+      - traefik.http.routers.z2m-http.entrypoints=web
+      - traefik.http.routers.z2m-http.rule=Host(`z2m.viewpoint.house`)
+      - traefik.http.routers.z2m-http.middlewares=z2m-https
+      - traefik.http.middlewares.z2m-https.redirectscheme.scheme=https
       - traefik.http.routers.z2m.rule=Host(`z2m.viewpoint.house`)
       - traefik.http.routers.z2m.entrypoints=websecure
       - traefik.http.routers.z2m.tls=true
@@ -351,6 +359,10 @@ services:
     container_name: node-red
     labels:
       - traefik.enable=true
+      - traefik.http.routers.nodered-http.entrypoints=web
+      - traefik.http.routers.nodered-http.rule=Host(`nodered.viewpoint.house`)
+      - traefik.http.routers.nodered-http.middlewares=nodered-https
+      - traefik.http.middlewares.nodered-https.redirectscheme.scheme=https
       - traefik.http.routers.nodered.rule=Host(`nodered.viewpoint.house`)
       - traefik.http.routers.nodered.entrypoints=websecure
       - traefik.http.routers.nodered.tls=true
@@ -417,6 +429,10 @@ services:
       retries: 10
     labels:
       - traefik.enable=true
+      - traefik.http.routers.frigate-http.entrypoints=web
+      - traefik.http.routers.frigate-http.rule=Host(`cctv.viewpoint.house`)
+      - traefik.http.routers.frigate-http.middlewares=frigate-https
+      - traefik.http.middlewares.frigate-https.redirectscheme.scheme=https
       - traefik.http.routers.frigate.rule=Host(`cctv.viewpoint.house`)
       - traefik.http.routers.frigate.entrypoints=websecure
       - traefik.http.routers.frigate.tls=true
@@ -495,6 +511,10 @@ services:
       retries: 10
     labels:
       - traefik.enable=true
+      - traefik.http.routers.uptime-http.entrypoints=web
+      - traefik.http.routers.uptime-http.rule=Host(`uptime.viewpoint.house`)
+      - traefik.http.routers.uptime-http.middlewares=uptime-https
+      - traefik.http.middlewares.uptime-https.redirectscheme.scheme=https
       - traefik.http.routers.uptime.rule=Host(`uptime.viewpoint.house`)
       - traefik.http.routers.uptime.entrypoints=websecure
       - traefik.http.routers.uptime.tls=true
