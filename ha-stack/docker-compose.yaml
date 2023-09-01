@@ -238,10 +238,9 @@ services:
       - traefik.enable=true
       - traefik.http.routers.esphome.rule=Host(`esphome.viewpoint.house`)
       - traefik.http.routers.esphome.entrypoints=websecure
-      - traefik.http.routers.esphome.service=esphome
       - traefik.http.routers.esphome.tls=true
       - traefik.http.routers.esphome.tls.certresolver=letsencrypt
-      - traefik.http.routers.esphome.tls.domains[0]=esphome.viewpoint.house
+      - traefik.http.routers.esphome.tls.domains[0].main=esphome.viewpoint.house
       - traefik.http.services.esphome.loadbalancer.server.port=6052
       - traefik.http.services.esphome.loadbalancer.healthcheck.path=/
       - traefik.http.services.esphome.loadbalancer.healthcheck.port=6052
@@ -353,7 +352,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.nodered.rule=Host(`nodered.viewpoint.house`)
-      - traefik.http.routers.nodered.entrypoints=web
+      - traefik.http.routers.nodered.entrypoints=websecure
+      - traefik.http.routers.nodered.tls=true
+      - traefik.http.routers.nodered.tls.certresolver=letsencrypt
+      - traefik.http.routers.nodered.tls.domains[0].main=nodered.viewpoint.house
       - traefik.http.services.nodered.loadbalancer.server.port=1880
       - traefik.http.services.nodered.loadbalancer.healthcheck.path=/
       - traefik.http.services.nodered.loadbalancer.healthcheck.port=1880
@@ -416,7 +418,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.frigate.rule=Host(`cctv.viewpoint.house`)
-      - traefik.http.routers.frigate.entrypoints=web
+      - traefik.http.routers.frigate.entrypoints=websecure
+      - traefik.http.routers.frigate.tls=true
+      - traefik.http.routers.frigate.tls.certresolver=letsencrypt
+      - traefik.http.routers.frigate.tls.domains[0].main=cctv.viewpoint.house
       - traefik.http.services.frigate.loadbalancer.server.port=5000
       - traefik.http.services.frigate.loadbalancer.healthcheck.path=/
       - traefik.http.services.frigate.loadbalancer.healthcheck.port=5000
@@ -454,7 +459,7 @@ services:
       - traefik.http.routers.double-take.rule=Host(`double-take.viewpoint.house`)
       - traefik.http.routers.double-take.entrypoints=websecure
       - traefik.http.routers.double-take.tls=true
-      - traefik.http.routers.double-take.tls.certresolver=lets-encrypt
+      - traefik.http.routers.double-take.tls.certresolver=letsencrypt
       - traefik.http.routers.double-take.tls.domains=double-take.viewpoint.house
       - traefik.http.services.double-take.loadbalancer.server.port=3000
       - traefik.http.services.double-take.loadbalancer.healthcheck.path=/
@@ -493,7 +498,7 @@ services:
       - traefik.http.routers.uptime.rule=Host(`uptime.viewpoint.house`)
       - traefik.http.routers.uptime.entrypoints=websecure
       - traefik.http.routers.uptime.tls=true
-      - traefik.http.routers.uptime.tls.certresolver=lets-encrypt
+      - traefik.http.routers.uptime.tls.certresolver=letsencrypt
       - traefik.http.routers.uptime.tls.domains[0].main=uptime.viewpoint.house
       - traefik.http.services.uptime.loadbalancer.server.port=3001
       - traefik.http.services.uptime.loadbalancer.healthcheck.path=/
