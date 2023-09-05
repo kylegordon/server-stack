@@ -276,6 +276,13 @@ services:
     container_name: zigbee2mqtt
     image: koenkk/zigbee2mqtt:latest
     restart: unless-stopped
+    healthcheck:
+      # test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      test: "wget --no-verbose --tries=1 --spider http://localhost:8080 || exit 1"
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
     networks:
       - traefik_proxy
     labels:
