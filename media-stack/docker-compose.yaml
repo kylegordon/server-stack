@@ -430,6 +430,12 @@ services:
       # - /media/store/home/bagpuss/Arduino_Books:/alternate
     networks:
       - traefik_proxy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8787"]
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
     restart: unless-stopped
     labels:
       - traefik.enable=true
