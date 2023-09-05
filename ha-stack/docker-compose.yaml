@@ -385,6 +385,7 @@ services:
       - homepage.group=Home Automation
       - homepage.name=Node Red
       - homepage.href=http://nodered.viewpoint.house
+      - homepage.icon=si-node-red
       - homepage.description=MQTT Management
       - com.centurylinklabs.watchtower.enable=true
     healthcheck:
@@ -491,7 +492,7 @@ services:
       - flame.name=Double Take
       - flame.url=http://double-take.viewpoint.house
       - homepage.group=Home Automation
-      - homepage.icon=mdi-person
+      - homepage.icon=mdi-tag-faces
       - homepage.name=Double-Take
       - homepage.href=https://double-take.viewpoint.house
       - homepage.description=Facial Recognition Service
@@ -538,6 +539,7 @@ services:
       - homepage.name=Uptime Kuma
       - homepage.href=https://uptime.viewpoint.house
       - homepage.description=Uptime Kuma
+      - homepage.icon=si-uptime-kuma
       - com.centurylinklabs.watchtower.enable=true
     logging:
       driver: gelf
@@ -648,7 +650,7 @@ services:
       - flame.icon=chart-line
       - homepage.group=Monitoring
       - homepage.name=Grafana
-      - homepage.icon:mdi-chart-line
+      - homepage.icon=si-grafana
       - homepage.href=https://grafana.viewpoint.house
       - homepage.description=Grafana
       - com.centurylinklabs.watchtower.enable=true
@@ -705,7 +707,7 @@ services:
       - flame.url=http://influxdb.viewpoint.house
       - homepage.group=Monitoring
       - homepage.name=InfluxDB
-      - homepage.icon:mdi-chart-line
+      - homepage.icon=si-influxdb
       - homepage.href=http://influxdb.viewpoint.house
       - homepage.description=InfluxDB
       - com.centurylinklabs.watchtower.enable=true
@@ -750,7 +752,7 @@ services:
       - flame.url=http://chronograf.viewpoint.house
       - homepage.group=Monitoring
       - homepage.name=Chronograf
-      - homepage.icon:mdi-chart-line
+      - homepage.icon=mdi-chart-line
       - homepage.href=https://chronograf.viewpoint.house
       - homepage.description=Chronograf
       - com.centurylinklabs.watchtower.enable=true
