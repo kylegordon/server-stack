@@ -473,6 +473,12 @@ services:
     networks:
       - traefik_proxy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
     depends_on:
       - eclipse-mosquitto
       - frigate
