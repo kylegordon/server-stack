@@ -62,6 +62,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik_proxy
+      - traefik.http.routers.miniflux-http.entrypoints=web
+      - traefik.http.routers.miniflux-http.rule=Host(`news.viewpoint.house`)
+      - traefik.http.routers.miniflux-http.middlewares=miniflux-https
+      - traefik.http.middlewares.miniflux-https.redirectscheme.scheme=https
       - traefik.http.routers.miniflux.rule=Host(`news.viewpoint.house`)
       - traefik.http.routers.miniflux.entrypoints=websecure
       - traefik.http.routers.miniflux.tls=true
