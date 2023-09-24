@@ -6,7 +6,8 @@ version: '3.6'
 
 services:
   nginx_core:
-    image: nginx:latest
+    # image: nginx:latest
+    image: unit:latest
     container_name: nginx_core
     restart: unless-stopped
     volumes:
