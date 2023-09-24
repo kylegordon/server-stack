@@ -1,0 +1,45 @@
+---
+version: '3.6'
+
+networks:
+  traefik_proxy:
+    driver: bridge
+
+volumes:
+  traefik_letsencrypt:
+
+services:
+  traefik:
+    ## Reference material ##
+    # https://github.com/ironicbadger/infra/blob/master/dev/traefik/docker-compose.yaml
+    # https://blog.ktz.me/traefik-v2-and-unifi-controller-in-docker/
+    # https://community.traefik.io/t/healthcheck-through-traefik/10000/6
+    # https://doc.traefik.io/traefik/routing/services/#health-check
+    # https://gist.github.com/jeroenhendricksen/7dfe273277bbbd1c2ea2cb7c647b24fa
+    image: "traefik:latest"
+    container_name: "traefik"
+    networks:
+      - traefik_proxy
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --log.level=DEBUG
+      - --accesslog=true
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=route53
+      - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+    env_file:
+      - docker-deepcore.env
+    ports:
+      - "80:80"     # Web entrypoint
+      - "443:443" # Websecure entrypoint
+      - "8080:8080" # Traefik Dashboard
+    volumes:
+      - traefik_letsencrypt:/letsencrypt
+      - "/docker/traefik/:/etc/traefik/"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    restart: unless-stopped
