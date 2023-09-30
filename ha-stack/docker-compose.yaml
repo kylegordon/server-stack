@@ -81,11 +81,19 @@ services:
     # Volumes store your data between container upgrades
     labels:
       - traefik.enable=true
+      - traefik.http.routers.pihole-http.entrypoints=web
+      - traefik.http.routers.pihole-http.rule=Host(`esphome.viewpoint.house`)
+      - traefik.http.routers.pihole-http.middlewares=esphome-https
+      - traefik.http.middlewares.pihole-https.redirectscheme.scheme=https
       - traefik.http.routers.pihole.rule=Host(`pihole.viewpoint.house`)
-      - traefik.http.routers.pihole.entrypoints=web
+      - traefik.http.routers.pihole.entrypoints=websecure
       - traefik.http.services.pihole.loadbalancer.server.port=80
       - traefik.http.services.pihole.loadbalancer.healthcheck.path=/admin/login.php
       - traefik.http.services.pihole.loadbalancer.healthcheck.port=80
+      - homepage.group=Management
+      - homepage.icon=mdi-wifi
+      - homepage.name=Pi-hole
+      - homepage.href=https://pihole.viewpoint.house
     volumes:
       - 'pihole_etc:/etc/pihole'
       - 'pihole_dnsmasq:/etc/dnsmasq.d'
