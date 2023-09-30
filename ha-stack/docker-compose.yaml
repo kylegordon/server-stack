@@ -142,6 +142,17 @@ services:
       - traefik.http.services.ha_hue.loadbalancer.server.port=80
       - traefik.http.services.ha_hue.loadbalancer.healthcheck.path=/api/
       - traefik.http.services.ha_hue.loadbalancer.healthcheck.port=80
+
+      - traefik.http.routers.hasecure.rule=Host(`viewpoint.house`) || Host(`172.24.32.13`)
+      - traefik.http.routers.hasecure.entrypoints=websecure
+      - traefik.http.routers.hasecure.service=hasecure
+      - traefik.http.routers.hasecure.tls=true
+      - traefik.http.routers.hasecure.tls.certresolver=letsencrypt
+      - traefik.http.routers.hasecure.tls.domains[0].main=viewpoint.house
+      - traefik.http.services.hasecure.loadbalancer.server.port=8123
+      - traefik.http.services.hasecure.loadbalancer.healthcheck.path=/
+      - traefik.http.services.hasecure.loadbalancer.healthcheck.port=8123
+
       - flame.type=application # "app" works too
       - flame.name=Home Assistant
       - flame.url=http://viewpoint.house:8123
