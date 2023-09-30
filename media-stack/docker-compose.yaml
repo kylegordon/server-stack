@@ -26,9 +26,6 @@ services:
       - homepage.name=Core Web
       - homepage.href=http://core.vpn.glasgownet.com
       - homepage.description=Core Web Files
-      - flame.type=application # "app" works too
-      - flame.name=Core Nginx
-      - flame.url=http://core.vpn.glasgownet.com
 
   ## Deploy this later, when ready
   # piwigo:
@@ -75,10 +72,6 @@ services:
       - traefik.http.services.miniflux.loadbalancer.server.port=8080
       # - traefik.http.services.miniflux.loadbalancer.healthcheck.port=8080
       # - traefik.http.services.miniflux.loadbalancer.healthcheck.path=/
-      - flame.type=application # "app" works too
-      - flame.name=Miniflux
-      - flame.url=http://news.viewpoint.house
-      - flame.icon=news
       - homepage.group=Media
       - homepage.icon=mdi-newspaper
       - homepage.name=Miniflux News
@@ -201,9 +194,6 @@ services:
       # - traefik.http.services.nzbget.loadbalancer.server.port=6789
       # - traefik.http.services.nzbget.loadbalancer.healthcheck.port=6789
       # - traefik.http.services.nzbget.loadbalancer.healthcheck.path=/
-      - flame.type=application # "app" works too
-      - flame.name=NZBGet
-      - flame.url=http://nzbget.viewpoint.house
       - homepage.group=Media
       - homepage.name=NZBGet
       - homepage.icon=mdi-cloud-download
@@ -243,10 +233,6 @@ services:
       - traefik.http.services.sonarr.loadbalancer.server.port=8989
       - traefik.http.services.sonarr.loadbalancer.healthcheck.port=8989
       - traefik.http.services.sonarr.loadbalancer.healthcheck.path=/
-      - flame.type=application # "app" works too
-      - flame.name=Sonarr
-      - flame.url=http://tv.viewpoint.house
-      - flame.icon=television
       - homepage.group=Media
       - homepage.icon=mdi-television
       - homepage.name=Sonarr
@@ -293,10 +279,6 @@ services:
       - traefik.http.services.radarr.loadbalancer.server.port=7878
       - traefik.http.services.radarr.loadbalancer.healthcheck.port=7878
       - traefik.http.services.radarr.loadbalancer.healthcheck.path=/
-      - flame.type=application # "app" works too
-      - flame.name=Radarr
-      - flame.url=http://movies.viewpoint.house
-      - flame.icon=movie-open-outline
       - homepage.group=Media
       - homepage.name=Radarr
       - homepage.icon=mdi-movie-open-outline
@@ -345,9 +327,6 @@ services:
       - traefik.http.services.hydra.loadbalancer.server.port=5076
       - traefik.http.services.hydra.loadbalancer.healthcheck.port=5076
       - traefik.http.services.hydra.loadbalancer.healthcheck.path=/
-      - flame.type=application # "app" works too
-      - flame.name=Hydra
-      - flame.url=http://hydra.viewpoint.house
       - homepage.group=Media
       - homepage.name=Hydra Usenet Index Meta-Search
       - homepage.href=https://hydra.viewpoint.house
@@ -394,10 +373,6 @@ services:
       - traefik.enable=true
       - traefik.http.routers.lazy.rule=Host(`lazy.viewpoint.house`)
       - traefik.http.routers.lazy.entrypoints=web
-      - flame.type=application # "app" works too
-      - flame.name=LazyLibrarian
-      - flame.url=http://lazy.viewpoint.house
-      - flame.icon=book-open-outline
       - com.centurylinklabs.watchtower.enable=true
     environment:
       - PUID=1000
@@ -452,10 +427,6 @@ services:
       - traefik.http.services.books.loadbalancer.server.port=8787
       - traefik.http.services.books.loadbalancer.healthcheck.port=8787
       - traefik.http.services.books.loadbalancer.healthcheck.path=/
-      - flame.type=application # "app" works too
-      - flame.name=Readarr Books
-      - flame.url=http://books.viewpoint.house
-      - flame.icon=book-open-outline
       - homepage.group=Media
       - homepage.icon=mdi-book-open-outline
       - homepage.name=Readarr Books
@@ -496,10 +467,6 @@ services:
       - traefik.http.services.jellyfin.loadbalancer.server.port=8096
       - traefik.http.services.jellyfin.loadbalancer.healthcheck.port=8096
       - traefik.http.services.jellyfin.loadbalancer.healthcheck.path=/
-      - flame.type=application # "app" works too
-      - flame.name=Jellyfin
-      - flame.url=http://jellyfin.viewpoint.house
-      - flame.icon=play-network-outline
       - homepage.group=Media
       - homepage.icon=mdi-movie-open-play
       - homepage.name=Jellyfin
@@ -619,10 +586,6 @@ services:
       - traefik.http.services.photos.loadbalancer.server.port=2342
       - traefik.http.services.photos.loadbalancer.healthcheck.path=/
       - traefik.http.services.photos.loadbalancer.healthcheck.port=2342
-      - flame.type=application # "app" works too
-      - flame.name=Photoprism
-      - flame.url=http://photos.viewpoint.house
-      - flame.icon=picture
       - homepage.group=Media
       - homepage.name=Photoprism
       - homepage.icon=mdi-camera
@@ -709,10 +672,6 @@ services:
       - traefik.http.routers.paperless.tls=true
       - traefik.http.routers.paperless.tls.certresolver=letsencrypt
       - traefik.http.routers.paperless.tls.domains[0].main=paperless.viewpoint.house
-      - flame.type=application # "app" works too
-      - flame.name=Paperless
-      - flame.url=http://paperless.viewpoint.house
-      - flame.icon=book-open-outline
       - homepage.group=Media
       - homepage.icon=mdi-book-open-outline
       - homepage.name=Paperless

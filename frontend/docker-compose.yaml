@@ -7,8 +7,6 @@ networks:
 
 volumes:
 
-  flame_data:
-
   traefik_letsencrypt:
     driver: local
     driver_opts:
@@ -85,21 +83,3 @@ services:
     volumes:
       - homepage_config:/app/config # Make sure your local config directory exists
       - /var/run/docker.sock:/var/run/docker.sock:ro # (optional) For docker integrations
-
-  flame:
-    image: pawelmalak/flame:latest
-    container_name: flame
-    restart: unless-stopped
-    networks:
-      - traefik_proxy
-    volumes:
-      - flame_data:/app/data
-      - /var/run/docker.sock:/var/run/docker.sock
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.flame.rule=Host(`flame.viewpoint.house`)
-      - traefik.http.routers.flame.entrypoints=websecure
-      - traefik.http.routers.flame.tls=true
-      - traefik.http.routers.flame.tls.certresolver=letsencrypt
-      - traefik.http.routers.flame.tls.domains[0].main=flame.viewpoint.house
-      - com.centurylinklabs.watchtower.enable=true

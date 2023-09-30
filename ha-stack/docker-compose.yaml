@@ -152,11 +152,6 @@ services:
       - traefik.http.services.hasecure.loadbalancer.server.port=8123
       - traefik.http.services.hasecure.loadbalancer.healthcheck.path=/
       - traefik.http.services.hasecure.loadbalancer.healthcheck.port=8123
-
-      - flame.type=application # "app" works too
-      - flame.name=Home Assistant
-      - flame.url=https://viewpoint.house
-      - flame.icon=home-assistant # Optional, default is "docker"
       - homepage.group=Home Automation
       - homepage.name=Home Assistant
       - homepage.icon=mdi-home-assistant
@@ -164,7 +159,6 @@ services:
       - homepage.description=Home Assistant
       - com.centurylinklabs.watchtower.lifecycle.pre-check=exit 0
       - com.centerylinklabs.watchtower.enable=false
-      # - flame.icon=custom to make changes in app. ie: custom icon upload
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8123"]
       start_period: 60s
@@ -259,10 +253,6 @@ services:
       - traefik.http.services.esphome.loadbalancer.server.port=6052
       - traefik.http.services.esphome.loadbalancer.healthcheck.path=/
       - traefik.http.services.esphome.loadbalancer.healthcheck.port=6052
-      - flame.type=application # "app" works too
-      - flame.name=ESPHome
-      - flame.url=http://esphome.viewpoint.house
-      - flame.icon=chip
       - homepage.group=Home Automation
       - homepage.name=ESPHome
       - homepage.icon=mdi-chip
@@ -310,11 +300,6 @@ services:
       - traefik.http.services.z2m.loadbalancer.server.port=8080
       - traefik.http.services.z2m.loadbalancer.healthcheck.path=/
       - traefik.http.services.z2m.loadbalancer.healthcheck.port=8080
-      - flame.type=application # "app" works too
-      - flame.group=Home Automation
-      - flame.name=zigbee2mqtt
-      - flame.url=http://z2m.viewpoint.house
-      - flame.icon=lightbulb-outline
       - homepage.group=Home Automation
       - homepage.name=Zigbee2MQTT
       - homepage.icon=mdi-zigbee
@@ -338,9 +323,8 @@ services:
   #   ports:
   #     - 8080:8080
   #   labels:
-  #     - flame.type=application # "app" works too
-  #     - flame.name=Facebox
-  #     - flame.url=http://viewpoint.house:8080
+  #     - homepage.name=Facebox
+  #     - homepage.href=http://viewpoint.house:8080
   #   environment:
   #     - MB_KEY=${MB_KEY}
   #     - MB_FACEBOX_DISABLE_RECOGNITION=false
@@ -389,10 +373,6 @@ services:
       - traefik.http.services.nodered.loadbalancer.server.port=1880
       - traefik.http.services.nodered.loadbalancer.healthcheck.path=/
       - traefik.http.services.nodered.loadbalancer.healthcheck.port=1880
-      - flame.type=application # "app" works too
-      - flame.name=Node-Red
-      - flame.url=http://nodered.viewpoint.house
-      - flame.group=Home Automation
       - homepage.group=Home Automation
       - homepage.name=Node Red
       - homepage.href=http://nodered.viewpoint.house
@@ -460,10 +440,7 @@ services:
       - traefik.http.services.frigate.loadbalancer.server.port=5000
       - traefik.http.services.frigate.loadbalancer.healthcheck.path=/
       - traefik.http.services.frigate.loadbalancer.healthcheck.port=5000
-      - flame.type=application # "app" works too
-      - flame.name=Frigate
-      - flame.url=http://cctv.viewpoint.house
-      - flame.icon=cctv
+
       - homepage.group=Home Automation
       - homepage.icon=mdi-cctv
       - homepage.name=Frigate
@@ -505,9 +482,6 @@ services:
       - traefik.http.services.double-take.loadbalancer.server.port=3000
       - traefik.http.services.double-take.loadbalancer.healthcheck.path=/
       - traefik.http.services.double-take.loadbalancer.healthcheck.port=3000
-      - flame.type=application # "app" works too
-      - flame.name=Double Take
-      - flame.url=http://double-take.viewpoint.house
       - homepage.group=Home Automation
       - homepage.icon=mdi-tag-faces
       - homepage.name=Double-Take
@@ -549,9 +523,6 @@ services:
       - traefik.http.services.uptime.loadbalancer.healthcheck.path=/
       - traefik.http.services.uptime.loadbalancer.healthcheck.port=3001
       # - traefik.port=3001
-      - flame.type=application # "app" works too
-      - flame.name=Uptime Kuma
-      - flame.url=http://uptime.viewpoint.house
       - homepage.group=Monitoring
       - homepage.name=Uptime Kuma
       - homepage.href=https://uptime.viewpoint.house
@@ -623,9 +594,6 @@ services:
       - traefik.http.services.unifi-controller.loadbalancer.server.scheme=https
       # - traefik.http.services.unifi-controller.loadbalancer.healthcheck.path=/
       # - traefik.http.services.unifi-controller.loadbalancer.healthcheck.port=8080
-      - flame.type=application # "app" works too
-      - flame.name=Unifi Controller
-      - flame.url=https://viewpoint.house:8444
       - homepage.group=Management
       - homepage.name=Unifi Wifi
       - homepage.icon=mdi-wifi
@@ -661,10 +629,6 @@ services:
       - traefik.http.routers.grafana.tls.certresolver=letsencrypt
       - traefik.http.routers.grafana.tls.domains[0].main=grafana.viewpoint.house
       - traefik.http.services.grafana.loadbalancer.server.port=3000
-      - flame.type=application # "app" works too
-      - flame.name=Grafana
-      - flame.url=http://grafana.viewpoint.house
-      - flame.icon=chart-line
       - homepage.group=Monitoring
       - homepage.name=Grafana
       - homepage.icon=si-grafana
@@ -719,9 +683,6 @@ services:
       - traefik.http.services.influxdb.loadbalancer.server.port=8086
       - traefik.http.services.influxdb.loadbalancer.healthcheck.path=/health
       - traefik.http.services.influxdb.loadbalancer.healthcheck.port=8086
-      - flame.type=application # "app" works too
-      - flame.name=InfluxDB
-      - flame.url=http://influxdb.viewpoint.house
       - homepage.group=Monitoring
       - homepage.name=InfluxDB
       - homepage.icon=si-influxdb
@@ -764,9 +725,6 @@ services:
       - traefik.http.services.chronograf.loadbalancer.server.port=8888
       - traefik.http.services.chronograf.loadbalancer.healthcheck.port=8888
       - traefik.http.services.chronograf.loadbalancer.healthcheck.path=/
-      - flame.type=application # "app" works too
-      - flame.name=Chronograf
-      - flame.url=http://chronograf.viewpoint.house
       - homepage.group=Monitoring
       - homepage.name=Chronograf
       - homepage.icon=mdi-chart-line
@@ -848,9 +806,6 @@ services:
       - traefik.http.services.archiveteam.loadbalancer.server.port=8001
       - traefik.http.services.archiveteam.loadbalancer.healthcheck.port=8001
       - traefik.http.services.archiveteam.loadbalancer.healthcheck.path=/
-      - flame.type=application # "app" works too
-      - flame.name=ArchiveTeam
-      - flame.url=http://archiveteam.viewpoint.house
       - homepage.group=Media
       - homepage.name=Archive Team Warrior
       - homepage.href=http://archiveteam.viewpoint.house
