@@ -155,12 +155,12 @@ services:
 
       - flame.type=application # "app" works too
       - flame.name=Home Assistant
-      - flame.url=http://viewpoint.house:8123
+      - flame.url=https://viewpoint.house
       - flame.icon=home-assistant # Optional, default is "docker"
       - homepage.group=Home Automation
       - homepage.name=Home Assistant
       - homepage.icon=mdi-home-assistant
-      - homepage.href=http://viewpoint.house:8123
+      - homepage.href=https://viewpoint.house
       - homepage.description=Home Assistant
       - com.centurylinklabs.watchtower.lifecycle.pre-check=exit 0
       - com.centerylinklabs.watchtower.enable=false
