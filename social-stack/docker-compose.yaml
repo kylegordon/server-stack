@@ -6,6 +6,10 @@ volumes:
 networks:
   calcnet:
 
+  traefik_proxy:
+    external: true
+    name: frontend_traefik_proxy
+
 services:
   web:
     image: registry.joinfirefish.org/firefish/firefish:latest
@@ -19,11 +23,27 @@ services:
       - "3000:3000"
     networks:
       - calcnet
+      - traefik_proxy
     environment:
       NODE_ENV: production
     volumes:
       - /docker/firefish/web/files:/firefish/files
       - /docker/firefish/web/.config:/firefish/.config:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.firefish-http.entrypoints=web
+      - traefik.http.routers.firefish-http.rule=Host(`social.glasgownet.com`)
+      - traefik.http.routers.firefish-http.middlewares=firefish-https
+      - traefik.http.middlewares.firefish-https.redirectscheme.scheme=https
+      - traefik.http.routers.firefish.rule=Host(`social.glasgownet.com`)
+      - traefik.http.routers.firefish.entrypoints=websecure
+      - traefik.http.routers.firefish.tls=true
+      - traefik.http.routers.firefish.tls.certresolver=letsencrypt
+      - traefik.http.routers.firefish.tls.domains[0].main=social.glasgownet.com
+      - traefik.http.services.firefish.loadbalancer.server.port=3000
+      - traefik.http.services.firefish.loadbalancer.healthcheck.path=/
+      - traefik.http.services.firefish.loadbalancer.healthcheck.port=3000
+      - traefik.http.services.firefish.loadbalancer.healthcheck.timeout=30s
 
   redis:
     restart: unless-stopped
