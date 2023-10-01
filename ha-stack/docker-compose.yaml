@@ -213,9 +213,6 @@ services:
     restart: unless-stopped
     ports:
       - 10300:10300
-    # healthcheck:
-      # test: ["CMD", "curl", "-f", "http://viewpoint.house:10300"]
-      # echo '{"type":"describe"}'|nc -w 1 localhost 10300
     labels:
       - com.centurylinklabs.watchtower.enable=true
 
@@ -234,6 +231,23 @@ services:
     restart: unless-stopped
     ports:
       - 10200:10200
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+  openwakeword:
+    container_name: openwakeword
+    command: --model 'ok_nabu' --model 'hey_jarvis' --model 'hey_rhasspy' --model 'hey_mycroft' --model 'alexa' --preload-model 'ok_nabu'
+    image: rhasspy/wyoming-openwakeword:latest
+    networks:
+      - homeautomation
+    environment:
+      - TZ=Europe/London
+    restart: unless-stopped
+    ports:
+      - 10400:10400
+    # healthcheck:
+      # test: ["CMD", "curl", "-f", "http://localhost:10300"]
+      # echo '{"type":"describe"}'|nc -w 1 localhost 10300
     labels:
       - com.centurylinklabs.watchtower.enable=true
 
