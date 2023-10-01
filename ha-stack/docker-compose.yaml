@@ -141,6 +141,7 @@ services:
     labels:
       # https://techoverflow.net/2022/03/27/how-to-fix-traefik-could-not-define-the-service-name-for-the-router-too-many-services/
       - traefik.enable=true
+      - traefik.docker.network=frontend_traefik_proxy
       - traefik.http.routers.ha.rule=Host(`viewpoint.house`) || Host(`172.24.32.13`)
       - traefik.http.routers.ha.entrypoints=haweb
       - traefik.http.routers.ha.service=ha
@@ -178,6 +179,7 @@ services:
       retries: 5
     networks:
       - traefik_proxy
+      - homeautomation
     environment:
       - PUID=200
       - PGID=200
@@ -203,6 +205,8 @@ services:
     command: --model medium-int8 --language en-gb
     image: rhasspy/wyoming-whisper:latest
     # network_mode: host
+    networks:
+      - homeautomation
     volumes:
       - whisper:/data
     environment:
@@ -222,6 +226,8 @@ services:
     #  command: --voice nl-nathalie-x-low
     command: --voice en-gb-southern_english_female-low
     # network_mode: host
+    networks:
+      - homeautomation
     volumes:
       - piper:/data
     environment:
@@ -297,8 +303,10 @@ services:
       retries: 5
     networks:
       - traefik_proxy
+      - homeautomation
     labels:
       - traefik.enable=true
+      - traefik.docker.network=frontend_traefik_proxy
       - traefik.http.routers.z2m-http.entrypoints=web
       - traefik.http.routers.z2m-http.rule=Host(`z2m.viewpoint.house`)
       - traefik.http.routers.z2m-http.middlewares=z2m-https
@@ -356,6 +364,7 @@ services:
       - com.centurylinklabs.watchtower.enable=true
     networks:
       - traefik_proxy
+      - homeautomation
     volumes:
         - /docker/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
         - /docker/mosquitto/data:/mosquitto/data
@@ -372,6 +381,7 @@ services:
     container_name: node-red
     labels:
       - traefik.enable=true
+      - traefik.docker.network=frontend_traefik_proxy
       - traefik.http.routers.nodered-http.entrypoints=web
       - traefik.http.routers.nodered-http.rule=Host(`nodered.viewpoint.house`)
       - traefik.http.routers.nodered-http.middlewares=nodered-https
@@ -398,6 +408,7 @@ services:
       retries: 5
     networks:
       - traefik_proxy
+      - homeautomation
     environment:
       TZ: Europe/London
     volumes:
@@ -415,6 +426,7 @@ services:
     restart: unless-stopped
     networks:
       - traefik_proxy
+      - homeautomation
     depends_on:
       - eclipse-mosquitto
     image: ghcr.io/blakeblackshear/frigate:stable

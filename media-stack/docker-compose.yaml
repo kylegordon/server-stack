@@ -59,7 +59,7 @@ services:
       - miniflux
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_proxy
+      - traefik.docker.network=frontend_traefik_proxy
       - traefik.http.routers.miniflux-http.entrypoints=web
       - traefik.http.routers.miniflux-http.rule=Host(`news.viewpoint.house`)
       - traefik.http.routers.miniflux-http.middlewares=miniflux-https
@@ -118,7 +118,7 @@ services:
       - "ombi_mysql_db"
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_proxy
+      - traefik.docker.network=frontend_traefik_proxy
       - traefik.http.routers.ombi.rule=Host(`ombi.viewpoint.house`)
       - traefik.http.routers.ombi.entrypoints=websecure
       - traefik.http.routers.ombi.tls=true
@@ -153,7 +153,7 @@ services:
       #   - '8084:80'
       labels:
         - traefik.enable=true
-        - traefik.docker.network=traefik_proxy
+        - traefik.docker.network=frontend_traefik_proxy
         - traefik.http.routers.ombidb.rule=Host(`ombidb.viewpoint.house`)
         - traefik.http.routers.ombidb.entrypoints=websecure
         - traefik.http.routers.ombidb.tls=true
@@ -577,7 +577,7 @@ services:
       - "photoprism_storage:/photoprism/storage"
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_proxy
+      - traefik.docker.network=frontend_traefik_proxy
       - traefik.http.routers.photos.rule=Host(`photos.viewpoint.house`)
       - traefik.http.routers.photos.entrypoints=websecure
       - traefik.http.routers.photos.tls=true
