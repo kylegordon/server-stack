@@ -157,7 +157,7 @@ services:
 
       - traefik.http.routers.hasecure.rule=Host(`viewpoint.house`) || Host(`172.24.32.13`)
       - traefik.http.routers.hasecure.entrypoints=websecure
-      - traefik.http.routers.hasecure.service=hasecure
+      - traefik.http.routers.hasecure.service=ha
       - traefik.http.routers.hasecure.tls=true
       - traefik.http.routers.hasecure.tls.certresolver=letsencrypt
       - traefik.http.routers.hasecure.tls.domains[0].main=viewpoint.house
