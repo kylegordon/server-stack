@@ -201,8 +201,7 @@ services:
 
   whisper:
     container_name: whisper
-    #  command: --model medium --language nl
-    command: --model medium-int8 --language en-gb
+    command: --model small --language en
     image: rhasspy/wyoming-whisper:latest
     # network_mode: host
     networks:
