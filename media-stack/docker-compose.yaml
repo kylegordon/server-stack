@@ -658,6 +658,7 @@ services:
       - PAPERLESS_DBUSER=${PAPERLESS_DBUSER}
       - PAPERLESS_DBPASS=${PAPERLESS_DBPASS}
       - PAPERLESS_DBPORT=3306
+      - PAPERLESS_FILENAME_FORMAT={created_year}/{correspondent}/{title}
     volumes:
       - paperless_data:/usr/src/paperless/data
       - paperless_media:/usr/src/paperless/media
