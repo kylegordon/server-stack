@@ -103,71 +103,71 @@ services:
     labels:
       - com.centurylinklabs.watchtower.enable=true
 
-# https://docs.ombi.app/settings/all-the-arrs/
-  ombi:
-    image: ghcr.io/linuxserver/ombi:latest
-    container_name: ombi
-    restart: unless-stopped
-    networks:
-      - traefik_proxy
-      - ombi_network
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
-    volumes:
-      - /docker/ombi/config:/config
-    # ports:
-    #   - "5002:3579"
-    depends_on:
-      - "ombi_mysql_db"
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=frontend_traefik_proxy
-      - traefik.http.routers.ombi.rule=Host(`ombi.viewpoint.house`)
-      - traefik.http.routers.ombi.entrypoints=websecure
-      - traefik.http.routers.ombi.tls=true
-      - traefik.http.routers.ombi.tls.certresolver=letsencrypt
-      - traefik.http.routers.ombi.tls.domains[0].main=ombi.viewpoint.house
-      - traefik.http.services.ombi.loadbalancer.server.port=3579
-      - com.centurylinklabs.watchtower.enable=true
+# # https://docs.ombi.app/settings/all-the-arrs/
+#   ombi:
+#     image: ghcr.io/linuxserver/ombi:latest
+#     container_name: ombi
+#     restart: unless-stopped
+#     networks:
+#       - traefik_proxy
+#       - ombi_network
+#     environment:
+#       - PUID=1000
+#       - PGID=1000
+#       - TZ=Europe/London
+#     volumes:
+#       - /docker/ombi/config:/config
+#     # ports:
+#     #   - "5002:3579"
+#     depends_on:
+#       - "ombi_mysql_db"
+#     labels:
+#       - traefik.enable=true
+#       - traefik.docker.network=frontend_traefik_proxy
+#       - traefik.http.routers.ombi.rule=Host(`ombi.viewpoint.house`)
+#       - traefik.http.routers.ombi.entrypoints=websecure
+#       - traefik.http.routers.ombi.tls=true
+#       - traefik.http.routers.ombi.tls.certresolver=letsencrypt
+#       - traefik.http.routers.ombi.tls.domains[0].main=ombi.viewpoint.house
+#       - traefik.http.services.ombi.loadbalancer.server.port=3579
+#       - com.centurylinklabs.watchtower.enable=true
 
-  ombi_mysql_db:
-    image: "mysql:5.7"
-    container_name: ombi_mysql
-    restart: unless-stopped
-    networks:
-      - ombi_network
-    environment:
-      - MYSQL_ROOT_PASSWORD=${OMBI_MYSQL_ROOT_PASSWORD}
-    volumes:
-      -  /docker/ombi/mysql:/var/lib/mysql
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
+#   ombi_mysql_db:
+#     image: "mysql:5.7"
+#     container_name: ombi_mysql
+#     restart: unless-stopped
+#     networks:
+#       - ombi_network
+#     environment:
+#       - MYSQL_ROOT_PASSWORD=${OMBI_MYSQL_ROOT_PASSWORD}
+#     volumes:
+#       -  /docker/ombi/mysql:/var/lib/mysql
+#     labels:
+#       - com.centurylinklabs.watchtower.enable=true
 
-  ombi_phpmyadmin:
-      image: phpmyadmin/phpmyadmin
-      container_name: ombi_phpmyadmin
-      restart: unless-stopped
-      networks:
-        - ombi_network
-        - traefik_proxy
-      environment:
-        PMA_HOST: ombi_mysql_db
-      # ports:
-      #   - '8084:80'
-      labels:
-        - traefik.enable=true
-        - traefik.docker.network=frontend_traefik_proxy
-        - traefik.http.routers.ombidb.rule=Host(`ombidb.viewpoint.house`)
-        - traefik.http.routers.ombidb.entrypoints=websecure
-        - traefik.http.routers.ombidb.tls=true
-        - traefik.http.routers.ombidb.tls.certresolver=letsencrypt
-        - traefik.http.routers.ombidb.tls.domains[0].main=ombidb.viewpoint.house
-        - traefik.http.services.ombidb.loadbalancer.server.port=80
-        - com.centurylinklabs.watchtower.enable=true
-      depends_on:
-        - "ombi_mysql_db"
+#   ombi_phpmyadmin:
+#       image: phpmyadmin/phpmyadmin
+#       container_name: ombi_phpmyadmin
+#       restart: unless-stopped
+#       networks:
+#         - ombi_network
+#         - traefik_proxy
+#       environment:
+#         PMA_HOST: ombi_mysql_db
+#       # ports:
+#       #   - '8084:80'
+#       labels:
+#         - traefik.enable=true
+#         - traefik.docker.network=frontend_traefik_proxy
+#         - traefik.http.routers.ombidb.rule=Host(`ombidb.viewpoint.house`)
+#         - traefik.http.routers.ombidb.entrypoints=websecure
+#         - traefik.http.routers.ombidb.tls=true
+#         - traefik.http.routers.ombidb.tls.certresolver=letsencrypt
+#         - traefik.http.routers.ombidb.tls.domains[0].main=ombidb.viewpoint.house
+#         - traefik.http.services.ombidb.loadbalancer.server.port=80
+#         - com.centurylinklabs.watchtower.enable=true
+#       depends_on:
+#         - "ombi_mysql_db"
 
   nzbget:
     image: linuxserver/nzbget:latest
@@ -362,39 +362,39 @@ services:
 #      - 8686:8686
 #    restart: unless-stopped
 
-  lazylibrarian:
-    image: linuxserver/lazylibrarian:latest
-    container_name: lazylibrarian
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5299/home"]
-      start_period: 60s
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    networks:
-      - traefik_proxy
-    restart: unless-stopped
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.lazy.rule=Host(`lazy.viewpoint.house`)
-      - traefik.http.routers.lazy.entrypoints=web
-      - com.centurylinklabs.watchtower.enable=true
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
-      - DOCKER_MODS=linuxserver/calibre-web:calibre #optional
-    volumes:
-      - /docker/lazylibrarian/config:/config
-      - complete:/downloads
-      - /media/store/ebooks:/ebooks
-      - /media/store/Audio Books:/audiobooks
-      - /media/store/home/bagpuss/Arduino_Books:/alternate
-    logging:
-      driver: gelf
-      options:
-        gelf-address: "udp://172.24.32.13:12201"
-        tag: "{{.Name}}"
+  # lazylibrarian:
+  #   image: linuxserver/lazylibrarian:latest
+  #   container_name: lazylibrarian
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:5299/home"]
+  #     start_period: 60s
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+  #   networks:
+  #     - traefik_proxy
+  #   restart: unless-stopped
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.http.routers.lazy.rule=Host(`lazy.viewpoint.house`)
+  #     - traefik.http.routers.lazy.entrypoints=web
+  #     - com.centurylinklabs.watchtower.enable=true
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/London
+  #     - DOCKER_MODS=linuxserver/calibre-web:calibre #optional
+  #   volumes:
+  #     - /docker/lazylibrarian/config:/config
+  #     - complete:/downloads
+  #     - /media/store/ebooks:/ebooks
+  #     - /media/store/Audio Books:/audiobooks
+  #     - /media/store/home/bagpuss/Arduino_Books:/alternate
+  #   logging:
+  #     driver: gelf
+  #     options:
+  #       gelf-address: "udp://172.24.32.13:12201"
+  #       tag: "{{.Name}}"
 
   readarr:
     image: lscr.io/linuxserver/readarr:develop
@@ -444,52 +444,52 @@ services:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
-  jellyfin:
-    image: jellyfin/jellyfin:latest
-    container_name: jellyfin
-    networks:
-      - traefik_proxy
-    restart: unless-stopped
-    volumes:
-      - /docker/jellyfin/config:/config
-      - /docker/jellyfin/cache:/cache
-      - tv:/media/tv
-      - movies:/media/movies
-      - music:/media/music
-      - /media/store/ebooks:/ebooks
-      - /media/store/Audio Books:/audiobooks
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.jellyfin-http.entrypoints=web
-      - traefik.http.routers.jellyfin-http.rule=Host(`jellyfin.viewpoint.house`)
-      - traefik.http.routers.jellyfin-http.middlewares=jellyfin-https
-      - traefik.http.middlewares.jellyfin-https.redirectscheme.scheme=https
-      - traefik.http.routers.jellyfin.rule=Host(`jellyfin.viewpoint.house`)
-      - traefik.http.routers.jellyfin.entrypoints=websecure
-      - traefik.http.routers.jellyfin.tls=true
-      - traefik.http.routers.jellyfin.tls.certresolver=letsencrypt
-      - traefik.http.routers.jellyfin.tls.domains[0].main=jellyfin.viewpoint.house
-      - traefik.http.services.jellyfin.loadbalancer.server.port=8096
-      - traefik.http.services.jellyfin.loadbalancer.healthcheck.port=8096
-      - traefik.http.services.jellyfin.loadbalancer.healthcheck.path=/
-      - homepage.group=Media
-      - homepage.icon=mdi-movie-open-play
-      - homepage.name=Jellyfin
-      - homepage.href=https://jellyfin.viewpoint.house
-      - homepage.description=Jellyfin Media Playback
-      - com.centurylinklabs.watchtower.enable=true
-    # Traefik filters out unhealthy services
-    # healthcheck:
-    #   test: ["CMD", "apt", "install", "-y", "curl", "curl", "-f", "http://172.24.32.13:8096/web/index.html"]
-    #   start_period: 60s
-    #   interval: 300s
-    #   timeout: 10s
-    #   retries: 5
-    logging:
-      driver: gelf
-      options:
-        gelf-address: "udp://172.24.32.13:12201"
-        tag: "{{.Name}}"
+  # jellyfin:
+  #   image: jellyfin/jellyfin:latest
+  #   container_name: jellyfin
+  #   networks:
+  #     - traefik_proxy
+  #   restart: unless-stopped
+  #   volumes:
+  #     - /docker/jellyfin/config:/config
+  #     - /docker/jellyfin/cache:/cache
+  #     - tv:/media/tv
+  #     - movies:/media/movies
+  #     - music:/media/music
+  #     - /media/store/ebooks:/ebooks
+  #     - /media/store/Audio Books:/audiobooks
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.http.routers.jellyfin-http.entrypoints=web
+  #     - traefik.http.routers.jellyfin-http.rule=Host(`jellyfin.viewpoint.house`)
+  #     - traefik.http.routers.jellyfin-http.middlewares=jellyfin-https
+  #     - traefik.http.middlewares.jellyfin-https.redirectscheme.scheme=https
+  #     - traefik.http.routers.jellyfin.rule=Host(`jellyfin.viewpoint.house`)
+  #     - traefik.http.routers.jellyfin.entrypoints=websecure
+  #     - traefik.http.routers.jellyfin.tls=true
+  #     - traefik.http.routers.jellyfin.tls.certresolver=letsencrypt
+  #     - traefik.http.routers.jellyfin.tls.domains[0].main=jellyfin.viewpoint.house
+  #     - traefik.http.services.jellyfin.loadbalancer.server.port=8096
+  #     - traefik.http.services.jellyfin.loadbalancer.healthcheck.port=8096
+  #     - traefik.http.services.jellyfin.loadbalancer.healthcheck.path=/
+  #     - homepage.group=Media
+  #     - homepage.icon=mdi-movie-open-play
+  #     - homepage.name=Jellyfin
+  #     - homepage.href=https://jellyfin.viewpoint.house
+  #     - homepage.description=Jellyfin Media Playback
+  #     - com.centurylinklabs.watchtower.enable=true
+  #   # Traefik filters out unhealthy services
+  #   # healthcheck:
+  #   #   test: ["CMD", "apt", "install", "-y", "curl", "curl", "-f", "http://172.24.32.13:8096/web/index.html"]
+  #   #   start_period: 60s
+  #   #   interval: 300s
+  #   #   timeout: 10s
+  #   #   retries: 5
+  #   logging:
+  #     driver: gelf
+  #     options:
+  #       gelf-address: "udp://172.24.32.13:12201"
+  #       tag: "{{.Name}}"
 
 # DOCKER COMPOSE COMMAND REFERENCE
 # --------------------------------------------------------------------------
@@ -685,7 +685,123 @@ services:
       - homepage.description=Paperless
       - com.centurylinklabs.watchtower.enable=true
 
+  homebox:
+    image: ghcr.io/hay-kot/homebox:latest
+    container_name: homebox
+    environment:
+      - TZ=Europe/London
+    volumes:
+      - homebox_data:/data
+    networks:
+      - traefik_proxy
+    healthcheck:
+      # test: ["CMD", "curl", "-f", "http://localhost:7745"]
+      test: "wget --no-verbose --tries=1 --spider http://localhost:7745 || exit 1"
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.homebox-http.entrypoints=web
+      - traefik.http.routers.homebox-http.rule=Host(`parts.viewpoint.house`)
+      - traefik.http.routers.homebox-http.middlewares=homebox-https
+      - traefik.http.middlewares.homebox-https.redirectscheme.scheme=https
+      - traefik.http.routers.homebox.rule=Host(`parts.viewpoint.house`)
+      - traefik.http.routers.homebox.entrypoints=websecure
+      - traefik.http.routers.homebox.tls=true
+      - traefik.http.routers.homebox.tls.certresolver=letsencrypt
+      - traefik.http.routers.homebox.tls.domains[0].main=parts.viewpoint.house
+      - traefik.http.services.homebox.loadbalancer.server.port=7745
+      - traefik.http.services.homebox.loadbalancer.healthcheck.port=7745
+      - traefik.http.services.homebox.loadbalancer.healthcheck.path=/
+      - homepage.group=Media
+      - homepage.icon=mdi-book-open-outline
+      - homepage.name=Parts
+      - homepage.href=https://parts.viewpoint.house
+      - homepage.description=Parts Management
+      - com.centurylinklabs.watchtower.enable=true
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+
+  # tdarr:
+  #   container_name: tdarr
+  #   image: ghcr.io/haveagitgat/tdarr:latest
+  #   restart: unless-stopped
+  #   network_mode: bridge
+  #   ports:
+  #     - 8265:8265 # webUI port
+  #     - 8266:8266 # server port
+  #   environment:
+  #     - TZ=Europe/London
+  #     - PUID=${TDARR_PUID}
+  #     - PGID=${TDARR_PGID}
+  #     - UMASK_SET=002
+  #     - serverIP=0.0.0.0
+  #     - serverPort=8266
+  #     - webUIPort=8265
+  #     - internalNode=true
+  #     - inContainer=true
+  #     - nodeName=MyInternalNode
+  #   volumes:
+  #     - tdarr_server:/app/server
+  #     - tdarr_configs:/app/configs
+  #     - tdarr_logs:/app/logs
+  #     - /media/store/test:/media
+  #     # - /transcode_cache:/temp
+  #   labels:
+  #     - com.centurylinklabs.watchtower.enable=true
+
+  # tdarr-node:
+  #   container_name: tdarr-node
+  #   image: ghcr.io/haveagitgat/tdarr_node:latest
+  #   restart: unless-stopped
+  #   network_mode: service:tdarr
+  #   environment:
+  #     - TZ=Europe/London
+  #     - PUID=${TDARR_PUID}
+  #     - PGID=${TDARR_PGID}
+  #     - UMASK_SET=002
+  #     - nodeName=MyExternalNode
+  #     - serverIP=0.0.0.0
+  #     - serverPort=8266
+  #     - inContainer=true
+  #   volumes:
+  #     - tdarr_configs:/app/configs
+  #     - tdarr_logs:/app/logs
+  #     - /media/store/test:/media
+  #     # - /transcode_cache:/temp
+  #   labels:
+  #     - com.centurylinklabs.watchtower.enable=true
+
 volumes:
+
+  homebox_data:
+
+  tdarr_server:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/docker_nfs/tdarr/server/"
+
+  tdarr_configs:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/docker_nfs/tdarr/configs/"
+
+  tdarr_logs:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/docker_nfs/tdarr/logs/"
 
   paperless_redisdata:
     driver: local
