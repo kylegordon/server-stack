@@ -596,7 +596,7 @@ services:
       - homepage.icon=mdi-camera
       - homepage.href=https://photos.viewpoint.house
       - homepage.description=PhotoPrism Photo Album
-
+      - com.centurylinklabs.watchtower.enable=true
 
   ## Database Server (recommended)
   ## see https://docs.photoprism.org/getting-started/faq/#should-i-use-sqlite-mariadb-or-mysql
@@ -616,6 +616,8 @@ services:
       - MYSQL_DATABASE=${PHOTOPRISM_MYSQL_DATABASE}
       - MYSQL_USER=${PHOTOPRISM_MYSQL_USER}
       - MYSQL_PASSWORD=${PHOTOPRISM_MYSQL_PASSWORD}
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
 
   paperless_broker:
     image: docker.io/library/redis:7
@@ -624,6 +626,8 @@ services:
       - paperless
     volumes:
       - paperless_redisdata:/data
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
 
   paperless_db:
     image: docker.io/library/mariadb:10
@@ -638,6 +642,8 @@ services:
       MARIADB_USER: ${PAPERLESS_MARIADB_USER}
       MARIADB_PASSWORD: ${PAPERLESS_MARIADB_PASSWORD}
       MARIADB_ROOT_PASSWORD: ${PAPERLESS_MARIADB_ROOT_PASSWORD}
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
 
   paperless-ngx:
     image: ghcr.io/paperless-ngx/paperless-ngx:latest
@@ -664,6 +670,7 @@ services:
       - PAPERLESS_DBPASS=${PAPERLESS_DBPASS}
       - PAPERLESS_DBPORT=3306
       - PAPERLESS_FILENAME_FORMAT={created_year}/{correspondent}/{title}
+      - PAPERLESS_ENABLE_HTTP_REMOTE_USER=true
     volumes:
       - paperless_data:/usr/src/paperless/data
       - paperless_media:/usr/src/paperless/media
@@ -678,6 +685,7 @@ services:
       - traefik.http.routers.paperless.tls=true
       - traefik.http.routers.paperless.tls.certresolver=letsencrypt
       - traefik.http.routers.paperless.tls.domains[0].main=paperless.viewpoint.house
+      - traefik.http.routers.paperless.middlewares=authelia@docker
       - homepage.group=Media
       - homepage.icon=mdi-book-open-outline
       - homepage.name=Paperless
