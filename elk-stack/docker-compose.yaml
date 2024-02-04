@@ -1,26 +1,75 @@
 version: '3.4'
+
+volumes:
+  data01:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/media/sata_ssd/elasticsearch/data01/"
+  data02:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/media/sata_ssd/elasticsearch/data02/"
+
+networks:
+  elastic:
+    driver: bridge
+
+  traefik_proxy:
+    external: true
+    name: frontend_traefik_proxy
+
 services:
 
   cerebro:
-    image: lmenezes/cerebro
+    image: lmenezes/cerebro:latest
     container_name: cerebro
     restart: unless-stopped
     ports:
       - 9000:9000
     networks:
       - elastic
+      - traefik_proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.http.routers.cerebro.rule=Host(`cerebro.viewpoint.house`)
+      - traefik.http.routers.cerebro.entrypoints=websecure
+      - traefik.http.routers.cerebro.tls=true
+      - traefik.http.routers.cerebro.tls.certresolver=letsencrypt
+      - homepage.group=Monitoring
+      - homepage.name=Cerebro
+      - homepage.icon=mdi-chip
+      - homepage.href=https://cerebro.viewpoint.house
+      - homepage.description=ELK - Cerebro
 
   elastichq:
-    image: elastichq/elasticsearch-hq
+    image: elastichq/elasticsearch-hq:latest
     container_name: elastichq
     restart: unless-stopped
     ports:
       - 5001:5000
     networks:
       - elastic
+      - traefik_proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.http.routers.elastichq.rule=Host(`elastichq.viewpoint.house`)
+      - traefik.http.routers.elastichq.entrypoints=websecure
+      - traefik.http.routers.elastichq.tls=true
+      - traefik.http.routers.elastichq.tls.certresolver=letsencrypt
+      - homepage.group=Monitoring
+      - homepage.name=ElasticHQ
+      - homepage.icon=mdi-chip
+      - homepage.href=https://elastichq.viewpoint.house
+      - homepage.description=ELK - ElasticHQ
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:7.14.0
+    image: docker.elastic.co/logstash/logstash:7.17.0
     container_name: logstash
     restart: unless-stopped
     volumes:
@@ -59,7 +108,7 @@ services:
       - elastic
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:7.14.0
+    image: docker.elastic.co/beats/filebeat:7.17.0
     container_name: filebeat
     restart: unless-stopped
     user: root #To read the docker socket
@@ -84,76 +133,78 @@ services:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
-  auditbeat:
-    image: docker.elastic.co/beats/auditbeat:7.14.0
-    container_name: auditbeat
-    restart: unless-stopped
-    user: root #To read the docker socket
-    cap_add:
-      - AUDIT_CONTROL
-      - AUDIT_READ
-    command: auditbeat -e -strict.perms=false
-    pid: "host" # Set the required permissions with pid and cap_add for Auditbeat
-    volumes:
-      - type: bind
-        source: /docker/auditbeat/config/auditbeat.yml
-        target: /usr/share/auditbeat/auditbeat.yml
-        read_only: true
-    healthcheck:
-      test: auditbeat test config
-      interval: 30s
-      timeout: 15s
-      retries: 5
-    networks:
-      - elastic
-    logging:
-      driver: gelf
-      options:
-        gelf-address: "udp://172.24.32.13:12201"
-        tag: "{{.Name}}"
+  # auditbeat:
+  #   image: docker.elastic.co/beats/auditbeat:7.17.0
+  #   container_name: auditbeat
+  #   restart: unless-stopped
+  #   user: root #To read the docker socket
+  #   cap_add:
+  #     - AUDIT_CONTROL
+  #     - AUDIT_READ
+  #   command: auditbeat -e -strict.perms=false
+  #   pid: "host" # Set the required permissions with pid and cap_add for Auditbeat
+  #   volumes:
+  #     - type: bind
+  #       source: /docker/auditbeat/config/auditbeat.yml
+  #       target: /usr/share/auditbeat/auditbeat.yml
+  #       read_only: true
+  #   healthcheck:
+  #     test: auditbeat test config
+  #     interval: 30s
+  #     timeout: 15s
+  #     retries: 5
+  #   networks:
+  #     - elastic
+  #   logging:
+  #     driver: gelf
+  #     options:
+  #       gelf-address: "udp://172.24.32.13:12201"
+  #       tag: "{{.Name}}"
 
-  apm-server:
-    image: docker.elastic.co/apm/apm-server:7.14.0
-    container_name: apm-server
-    restart: unless-stopped
-    depends_on:
-      - es01
-      - es02
-      - kibana01
-    cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
-    cap_drop: ["ALL"]
-    ports:
-    - 8200:8200
-    networks:
-    - elastic
-    command: >
-       apm-server -e
-         -E apm-server.rum.enabled=true
-         -E setup.kibana.host=kibana01:5601
-         -E setup.template.settings.index.number_of_replicas=0
-         -E apm-server.kibana.enabled=true
-         -E apm-server.kibana.host=kibana01:5601
-         -E output.elasticsearch.hosts='["es01:9200", "es02:9200"]'
-    healthcheck:
-      interval: 10s
-      retries: 12
-      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8200/
+  # apm-server:
+  #   image: docker.elastic.co/apm/apm-server:7.17.0
+  #   container_name: apm-server
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - es01
+  #     - es02
+  #     - kibana01
+  #   cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
+  #   cap_drop: ["ALL"]
+  #   ports:
+  #   - 8200:8200
+  #   networks:
+  #   - elastic
+  #   command: >
+  #      apm-server -e
+  #        -E apm-server.rum.enabled=true
+  #        -E setup.kibana.host=kibana01:5601
+  #        -E setup.template.settings.index.number_of_replicas=0
+  #        -E apm-server.kibana.enabled=true
+  #        -E apm-server.kibana.host=kibana01:5601
+  #        -E output.elasticsearch.hosts='["es01:9200","es02:9200"]'
+  #   healthcheck:
+  #     interval: 10s
+  #     retries: 12
+  #     test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8200/
 
 
   es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
     container_name: es01
     restart: unless-stopped
+    # network_mode: host
     environment:
       - node.name=es01
+      - xpack.security.enabled=false
       - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es02,es03
-      - cluster.initial_master_nodes=es01,es02,es03
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02
       - cluster.routing.allocation.disk.watermark.low=97%
       - cluster.routing.allocation.disk.watermark.high=98%
       - cluster.routing.allocation.disk.watermark.flood_stage=99%
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
     ulimits:
       memlock:
         soft: -1
@@ -162,13 +213,15 @@ services:
       - data01:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
+      - 9300:9300
     networks:
       - elastic
 
   es02:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
     container_name: es02
     restart: unless-stopped
+    # network_mode: host
     environment:
       - node.name=es02
       - cluster.name=es-docker-cluster
@@ -178,7 +231,7 @@ services:
       - cluster.routing.allocation.disk.watermark.high=98%
       - cluster.routing.allocation.disk.watermark.flood_stage=99%
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
     ulimits:
       memlock:
         soft: -1
@@ -191,7 +244,7 @@ services:
       - elastic
 
   kibana01:
-    image: docker.elastic.co/kibana/kibana:7.12.1
+    image: docker.elastic.co/kibana/kibana:7.17.0
     container_name: kibana
     restart: unless-stopped
     ports:
@@ -199,8 +252,24 @@ services:
     environment:
       ELASTICSEARCH_URL: http://es01:9200
       ELASTICSEARCH_HOSTS: http://es01:9200
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.http.routers.kibana01.rule=Host(`logs.viewpoint.house`)
+      - traefik.http.routers.kibana01.entrypoints=websecure
+      - traefik.http.routers.kibana01.tls=true
+      - traefik.http.routers.kibana01.tls.certresolver=letsencrypt
+      - traefik.http.services.kibana01.loadbalancer.server.port=5601
+      - traefik.http.services.kibana01.loadbalancer.healthcheck.path=/
+      - traefik.http.services.kibana01.loadbalancer.healthcheck.port=5601
+      - homepage.group=Monitoring
+      - homepage.name=Kibana
+      - homepage.icon=mdi-chip
+      - homepage.href=https://logs.viewpoint.house
+      - homepage.description=ELK - Kibana
     networks:
       - elastic
+      - traefik_proxy
 
   # metricbeat:
   #   image: docker.elastic.co/beats/metricbeat:7.12.1
@@ -226,21 +295,3 @@ services:
   #    timeout: 15s
   #    retries: 5
 
-volumes:
-  data01:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/media/sata_ssd/elasticsearch/data01/"
-  data02:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/media/sata_ssd/elasticsearch/data02/"
-
-
-networks:
-  elastic:
-    driver: bridge
