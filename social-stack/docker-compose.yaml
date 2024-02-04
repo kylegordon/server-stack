@@ -12,7 +12,8 @@ networks:
 
 services:
   web:
-    image: registry.joinfirefish.org/firefish/firefish:latest
+    # image: registry.joinfirefish.org/firefish/firefish:latest
+    image: registry.joinfirefish.org/firefish/firefish:beta-amd64
     container_name: firefish_web
     restart: unless-stopped
     depends_on:
@@ -72,5 +73,13 @@ services:
     networks:
       - calcnet
     volumes:
-      - /docker/firefish/sonic/store:/var/lib/sonic/store
-      - /docker/firefish/sonic/config.cfg:/etc/sonic.cfg:ro
+      - type: bind
+        source: /docker/firefish/sonic/store
+        target: /var/lib/sonic/store
+        read_only: false
+      - type: bind
+        source: /docker/firefish/sonic/config.cfg
+        target: /etc/sonic.cfg
+        read_only: false
+      # - /docker/firefish/sonic/store:/var/lib/sonic/store
+      # - /docker/firefish/sonic/config.cfg:/etc/sonic.cfg
