@@ -6,8 +6,7 @@ version: '3.6'
 
 services:
   nginx_core:
-    # image: nginx:latest
-    image: unit:latest
+    image: nginx:latest
     container_name: nginx_core
     restart: unless-stopped
     volumes:
@@ -22,10 +21,16 @@ services:
       - traefik.enable=true
       - traefik.http.routers.nginx_core.rule=Host(`core.vpn.glasgownet.com`)
       - traefik.http.routers.nginx_core.entrypoints=web
+      - traefik.http.routers.nginx_core-https.rule=Host(`core.viewpoint.house`)
+      - traefik.http.routers.nginx_core-https.entrypoints=websecure
+      - traefik.http.routers.nginx_core-https.tls=true
+      - traefik.http.routers.nginx_core-https.tls.certresolver=letsencrypt
+      - traefik.http.routers.nginx_core-https.tls.domains[0].main=core.viewpoint.house
       - homepage.group=Management
       - homepage.name=Core Web
-      - homepage.href=http://core.vpn.glasgownet.com
+      - homepage.href=https://core.viewpoint.house
       - homepage.description=Core Web Files
+      - com.centurylinklabs.watchtower.enable=true
 
   ## Deploy this later, when ready
   # piwigo:
