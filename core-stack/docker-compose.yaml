@@ -1,0 +1,198 @@
+---
+version: "2.1"
+
+networks:
+    traefik_proxy:
+      external: true
+      name: frontend_traefik_proxy
+
+volumes:
+  kea:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/kea/"
+
+  kea_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/kea/config/"
+
+  kea_leases:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/kea/leases/"
+
+  authelia_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/authelia/data/"
+
+  authelia_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/authelia/config/"
+
+  netbootxyz_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/netbootxyz/config/"
+
+  netbootxyz_assets:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/netbootxyz/assets/"
+
+  tftpd_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/tftp/"
+
+services:
+
+  # dhcp4:
+  #   image: jonasal/kea-dhcp4:2
+  #   restart: unless-stopped
+  #   container_name: kea_dhcp4
+  #   network_mode: host
+  #   command: -c /kea/config/dhcp4.json
+  #   volumes:
+  #     - kea_config:/kea/config
+  #     - kea_leases:/kea/leases
+
+  # dhcp6:
+  #   image: jonasal/kea-dhcp6:2
+  #   restart: unless-stopped
+  #   container_name: kea_dhcp6
+  #   network_mode: host
+  #   command: -c /kea/config/dhcp6.json
+  #   volumes:
+  #     - kea:/kea
+
+  # ctrl-agent:
+  #   image: jonasal/kea-ctrl-agent:2
+  #   restart: unless-stopped
+  #   container_name: kea_ctrl-agent
+  #   ports:
+  #     - 8000:8000
+  #   command: -c /kea/config/ctrl-agent.json
+  #   volumes:
+  #     - kea_config:/kea/config
+  #     - kea_leases:/kea/leases
+
+  # netbootxyz:
+  #   image: ghcr.io/netbootxyz/netbootxyz
+  #   container_name: netbootxyz
+  #   # environment:
+  #   #   - MENU_VERSION=2.0.47 # optional
+  #   volumes:
+  #     - netbootxyz_config:/config # optional
+  #     - netbootxyz_assets:/assets # optional
+  #   ports:
+  #     - 3000:3000
+  #     - 69:69/udp
+  #     # - 8080:80 #optional
+  #   restart: unless-stopped
+  #   networks:
+  #     - traefik_proxy
+  #   labels:
+  #     - 'traefik.enable=true'
+  #     - 'traefik.http.routers.netbootxyz.rule=Host(`netboot.viewpoint.house`)'
+  #     - 'traefik.http.routers.netbootxyz.entrypoints=websecure'
+  #     - 'traefik.http.routers.netbootxyz.tls=true'
+  #     - 'traefik.http.routers.netbootxyz.tls.certresolver=letsencrypt'
+  #     - 'traefik.http.routers.netbootxyz.service=netbootxyz'
+  #     - 'traefik.http.services.netbootxyz.loadbalancer.server.port=80'
+
+  # https://hub.docker.com/r/aguslr/atftpd
+  atftpd:
+    image: aguslr/atftpd:latest
+    container_name: atftpd
+    restart: unless-stopped
+    ports:
+      - 69:69/udp
+    volumes:
+      # - ./atftpd.conf:/etc/atftpd.conf
+      - tftpd_data:/data
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
+
+  # Example from https://gist.github.com/james-d-elliott/5152d27c0781aee856a3383f1284998e
+
+  authelia:
+    image: authelia/authelia:latest
+    container_name: authelia
+    volumes:
+      - authelia_config:/config
+      - authelia_data:/var/lib/authelia
+    networks:
+      - traefik_proxy
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.authelia.rule=Host(`auth.viewpoint.house`)'
+      - 'traefik.http.routers.authelia.entrypoints=websecure'
+      - 'traefik.http.routers.authelia.tls=true'
+      - 'traefik.http.routers.authelia.tls.certresolver=letsencrypt'
+      # - 'traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/authz/forward-auth?authelia_url=https://auth.viewpoint.house'  # yamllint disable-line rule:line-length
+      # - 'traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true'
+      # - 'traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'  # yamllint disable-line rule:line-length
+      - 'traefik.http.middlewares.authelia.forwardAuth.address=http://authelia:9091/api/verify?rd=https%3A%2F%2Fauth.viewpoint.house%2F'
+      - 'traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader=true'
+      - 'traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'
+      - 'traefik.http.middlewares.authelia-basic.forwardAuth.address=http://authelia:9091/api/verify?auth=basic'
+      - 'traefik.http.middlewares.authelia-basic.forwardAuth.trustForwardHeader=true'
+      - 'traefik.http.middlewares.authelia-basic.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'
+
+      - homepage.group=Management
+      - homepage.name=Authentication
+      - homepage.icon=mdi-chip
+      - homepage.href=https://auth.viewpoint.house
+      - homepage.description=Authentication
+    expose:
+      - 9091
+    restart: unless-stopped
+    healthcheck:
+      ## In production the healthcheck section should be commented.
+      disable: true
+    environment:
+      - TZ=Europe/London
+
+  meshtastic:
+    image: ghcr.io/meshtastic/web
+    container_name: Meshtastic-Web
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/London
+    # ports:
+    #   - 8080:8080
+    #   - 8443:8443
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - traefik.enable=true
+      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.http.routers.meshtastic.rule=Host(`meshtastic.viewpoint.house`)
+      - traefik.http.routers.meshtastic.entrypoints=web
+      - traefik.http.services.meshtastic.loadbalancer.server.port=8080
+      # - traefik.http.services.meshtastic.loadbalancer.healthcheck.port=8080
+      # - traefik.http.services.meshtastic.loadbalancer.healthcheck.path=/
+      - homepage.group=Management
+      - homepage.name=MeshTastic
+      - homepage.icon=mdi-chip
+      - homepage.href=http://meshtastic.viewpoint.house
+      - homepage.description=MeshTastic
