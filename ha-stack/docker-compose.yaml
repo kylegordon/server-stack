@@ -82,8 +82,8 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.pihole-http.entrypoints=web
-      - traefik.http.routers.pihole-http.rule=Host(`esphome.viewpoint.house`)
-      - traefik.http.routers.pihole-http.middlewares=esphome-https
+      - traefik.http.routers.pihole-http.rule=Host(`pihole.viewpoint.house`)
+      - traefik.http.routers.pihole-http.middlewares=pihole-https
       - traefik.http.middlewares.pihole-https.redirectscheme.scheme=https
       - traefik.http.routers.pihole.rule=Host(`pihole.viewpoint.house`)
       - traefik.http.routers.pihole.tls=true
