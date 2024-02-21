@@ -106,31 +106,6 @@ services:
     #   - NET_ADMIN # Required if you are using Pi-hole as your DHCP server, else not needed
     restart: unless-stopped
 
-  ldap:
-    image: minkwe/389ds:latest
-    hostname: ldap.viewpoint.house
-    container_name: ldap
-    volumes:
-      - /docker/ldap/data:/var/lib/dirsrv:Z
-      - /docker/ldap/config:/etc/dirsrv:Z
-      - /docker/ldap/logs:/var/log/dirsrv:Z
-      - /docker/ldap/certs:/certs:Z
-    environment:
-      - DIR_SUFFIX=${LDAP_DIR_SUFFIX}
-      - DIR_ADMIN_USERNAME=${LDAP_DIR_ADMIN_USERNAME}
-      - DIR_MANAGER_PASSWORD={LDAP_DIR_MANAGER_PASSWORD}
-      - DIR_ADMIN_UID{LDAP_DIR_ADMIN_UID}
-      - DIR_USERS_HOME=${LDAP_DIR_USERS_HOME}
-    ports:
-      # Move this to Traefik TCP
-      - 389:389
-      - 636:636
-    restart: unless-stopped
-    networks:
-      - traefik_proxy
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-
   home-assistant:
     image: ghcr.io/home-assistant/home-assistant:latest
     container_name: home-assistant
@@ -347,24 +322,6 @@ services:
     # devices:
       # Make sure this matched your adapter location
       # - /dev/serial/by-id/usb-FTDI_FT230X_Basic_UART_DO00KFKX-if00-port0:/dev/ttyACM0
-
-  # facebox:
-  #   image: machinebox/facebox_noavx
-  #   container_name: facebox
-  #   restart: unless-stopped
-  #   ports:
-  #     - 8080:8080
-  #   labels:
-  #     - homepage.name=Facebox
-  #     - homepage.href=http://viewpoint.house:8080
-  #   environment:
-  #     - MB_KEY=${MB_KEY}
-  #     - MB_FACEBOX_DISABLE_RECOGNITION=false
-  #   logging:
-  #     driver: gelf
-  #     options:
-  #       gelf-address: "udp://172.24.32.13:12201"
-  #       tag: "{{.Name}}"
 
   eclipse-mosquitto:
     image: eclipse-mosquitto:latest
