@@ -424,14 +424,14 @@ services:
       - traefik.http.routers.readarr-http.rule=Host(`books.viewpoint.house`)
       - traefik.http.routers.readarr-http.middlewares=readarr-https
       - traefik.http.middlewares.readarr-https.redirectscheme.scheme=https
-      - traefik.http.routers.books.rule=Host(`books.viewpoint.house`)
-      - traefik.http.routers.books.entrypoints=websecure
-      - traefik.http.routers.books.tls=true
-      - traefik.http.routers.books.tls.certresolver=letsencrypt
-      - traefik.http.routers.books.tls.domains[0].main=books.viewpoint.house
-      - traefik.http.services.books.loadbalancer.server.port=8787
-      - traefik.http.services.books.loadbalancer.healthcheck.port=8787
-      - traefik.http.services.books.loadbalancer.healthcheck.path=/
+      - traefik.http.routers.readarr.rule=Host(`books.viewpoint.house`)
+      - traefik.http.routers.readarr.entrypoints=websecure
+      - traefik.http.routers.readarr.tls=true
+      - traefik.http.routers.readarr.tls.certresolver=letsencrypt
+      - traefik.http.routers.readarr.tls.domains[0].main=books.viewpoint.house
+      - traefik.http.services.readarr.loadbalancer.server.port=8787
+      - traefik.http.services.readarr.loadbalancer.healthcheck.port=8787
+      - traefik.http.services.readarr.loadbalancer.healthcheck.path=/
       - homepage.group=Media
       - homepage.icon=mdi-book-open-outline
       - homepage.name=Readarr Books
@@ -443,6 +443,54 @@ services:
       options:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
+
+  calibre:
+    image: lscr.io/linuxserver/calibre:latest
+    container_name: calibre
+    security_opt:
+      - seccomp:unconfined #optional
+    networks:
+      - traefik_proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - PASSWORD= #optional
+      - CLI_ARGS= #optional
+    volumes:
+      - calibre_config:/config
+      - /media/store/ebooks:/books
+    # ports:
+    #  - 8080:8080 # Internal http port
+    #  - 8181:8181 # Internal https port
+    #  - 8081:8081 # Internal built in webserver port
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.calibre-http.entrypoints=web
+      - traefik.http.routers.calibre-http.rule=Host(`calibre.viewpoint.house`)
+      - traefik.http.routers.calibre-http.middlewares=calibre-https
+      - traefik.http.middlewares.calibre-https.redirectscheme.scheme=https
+      - traefik.http.routers.calibre.rule=Host(`calibre.viewpoint.house`)
+      - traefik.http.routers.calibre.entrypoints=websecure
+      - traefik.http.routers.calibre.tls=true
+      - traefik.http.routers.calibre.tls.certresolver=letsencrypt
+      - traefik.http.routers.calibre.tls.domains[0].main=calibre.viewpoint.house
+      - traefik.http.services.calibre.loadbalancer.server.port=8080
+      - traefik.http.services.calibre.loadbalancer.healthcheck.port=8080
+      - traefik.http.services.calibre.loadbalancer.healthcheck.path=/
+      - homepage.group=Media
+      - homepage.icon=mdi-book-open-outline
+      - homepage.name=Calibre Books
+      - homepage.href=https://calibre.viewpoint.house
+      - homepage.description=Books Management
+      - com.centurylinklabs.watchtower.enable=true
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+
 
   # jellyfin:
   #   image: jellyfin/jellyfin:latest
@@ -920,6 +968,13 @@ volumes:
       type: nfs4
       o: addr=172.24.32.5,rw
       device: ":/srv/nfs4/store/music_playlists/"
+
+  calibre_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/calibre/config/"
 
 networks:
     traefik_proxy:
