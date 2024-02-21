@@ -159,11 +159,7 @@ services:
       - PUID=200
       - PGID=200
     devices:
-      # - /dev/ttyUSB0:/dev/ttyUSB0
-      # Before udev fuckup - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A1WRPEJT-if00-port0:/dev/ttyUSB0
-      - /dev/serial/by-id/pci-RFXCOM_RFXtrx433_A1WRPEJT-if00-port0:/dev/ttyUSB0
-      # - /dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0:/dev/zwave
-      # - /dev/serial/by-id/usb-FTDI_FT230X_Basic_UART_DO00KFKX-if00-port0:/dev/conbee1
+      - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A1WRPEJT-if00-port0:/dev/ttyUSB0
     volumes:
       - /docker/home-assistant/config:/config
       - /media/store/cctv/frigate:/media/frigate_cctv
@@ -318,10 +314,6 @@ services:
       - /run/udev:/run/udev:ro
     environment:
       - TZ=Europe/London
-      - DEBUG=zigbee-herdsman*
-    # devices:
-      # Make sure this matched your adapter location
-      # - /dev/serial/by-id/usb-FTDI_FT230X_Basic_UART_DO00KFKX-if00-port0:/dev/ttyACM0
 
   eclipse-mosquitto:
     image: eclipse-mosquitto:latest
