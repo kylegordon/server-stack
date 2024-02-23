@@ -460,6 +460,7 @@ services:
     volumes:
       - calibre_config:/config
       - /media/store/ebooks:/books
+      - /media/store/ebooks_import:/books_import
     # ports:
     #  - 8080:8080 # Internal http port
     #  - 8181:8181 # Internal https port
