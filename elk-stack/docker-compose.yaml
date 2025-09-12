@@ -190,7 +190,7 @@ services:
 
 
   es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.29
     container_name: es01
     restart: unless-stopped
     # network_mode: host
@@ -218,7 +218,7 @@ services:
       - elastic
 
   es02:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.29
     container_name: es02
     restart: unless-stopped
     # network_mode: host
