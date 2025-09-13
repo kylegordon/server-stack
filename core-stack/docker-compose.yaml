@@ -1,9 +1,9 @@
 ---
-version: "2.1"
 
 networks:
     traefik_proxy:
       external: true
+      # driver: overlay
       name: frontend_traefik_proxy
 
 volumes:
@@ -123,6 +123,7 @@ services:
   atftpd:
     image: aguslr/atftpd:latest
     container_name: atftpd
+    # command: /usr/sbin/atftpd --verbose=7 --daemon --no-fork --user nobody nogroup --logfile /dev/stdout --port 69 /data
     restart: unless-stopped
     ports:
       - 69:69/udp
@@ -134,44 +135,45 @@ services:
 
   # Example from https://gist.github.com/james-d-elliott/5152d27c0781aee856a3383f1284998e
 
-  authelia:
-    image: authelia/authelia:latest
-    container_name: authelia
-    volumes:
-      - authelia_config:/config
-      - authelia_data:/var/lib/authelia
-    networks:
-      - traefik_proxy
-    labels:
-      - 'com.centurylinklabs.watchtower.enable=true'
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.authelia.rule=Host(`auth.viewpoint.house`)'
-      - 'traefik.http.routers.authelia.entrypoints=websecure'
-      - 'traefik.http.routers.authelia.tls=true'
-      - 'traefik.http.routers.authelia.tls.certresolver=letsencrypt'
-      # - 'traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/authz/forward-auth?authelia_url=https://auth.viewpoint.house'  # yamllint disable-line rule:line-length
-      # - 'traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true'
-      # - 'traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'  # yamllint disable-line rule:line-length
-      - 'traefik.http.middlewares.authelia.forwardAuth.address=http://authelia:9091/api/verify?rd=https%3A%2F%2Fauth.viewpoint.house%2F'
-      - 'traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader=true'
-      - 'traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'
-      - 'traefik.http.middlewares.authelia-basic.forwardAuth.address=http://authelia:9091/api/verify?auth=basic'
-      - 'traefik.http.middlewares.authelia-basic.forwardAuth.trustForwardHeader=true'
-      - 'traefik.http.middlewares.authelia-basic.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'
+  # authelia:
+  #   image: authelia/authelia:latest
+  #   # container_name: authelia
+  #   volumes:
+  #     - authelia_config:/config
+  #     - authelia_data:/var/lib/authelia
+  #   networks:
+  #     - traefik_proxy
+  #   deploy:
+  #     labels:
+  #       - 'com.centurylinklabs.watchtower.enable=true'
+  #       - 'traefik.enable=true'
+  #       - 'traefik.http.routers.authelia.rule=Host(`auth.viewpoint.house`)'
+  #       - 'traefik.http.routers.authelia.entrypoints=websecure'
+  #       - 'traefik.http.routers.authelia.tls=true'
+  #       - 'traefik.http.routers.authelia.tls.certresolver=letsencrypt'
+  #       # - 'traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/authz/forward-auth?authelia_url=https://auth.viewpoint.house'  # yamllint disable-line rule:line-length
+  #       # - 'traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true'
+  #       # - 'traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'  # yamllint disable-line rule:line-length
+  #       - 'traefik.http.middlewares.authelia.forwardAuth.address=http://authelia:9091/api/verify?rd=https%3A%2F%2Fauth.viewpoint.house%2F'
+  #       - 'traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader=true'
+  #       - 'traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'
+  #       - 'traefik.http.middlewares.authelia-basic.forwardAuth.address=http://authelia:9091/api/verify?auth=basic'
+  #       - 'traefik.http.middlewares.authelia-basic.forwardAuth.trustForwardHeader=true'
+  #       - 'traefik.http.middlewares.authelia-basic.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'
 
-      - homepage.group=Management
-      - homepage.name=Authentication
-      - homepage.icon=mdi-chip
-      - homepage.href=https://auth.viewpoint.house
-      - homepage.description=Authentication
-    expose:
-      - 9091
-    restart: unless-stopped
-    healthcheck:
-      ## In production the healthcheck section should be commented.
-      disable: true
-    environment:
-      - TZ=Europe/London
+  #       - homepage.group=Management
+  #       - homepage.name=Authentication
+  #       - homepage.icon=mdi-chip
+  #       - homepage.href=https://auth.viewpoint.house
+  #       - homepage.description=Authentication
+  #   expose:
+  #     - 9091
+  #   # restart: unless-stopped
+  #   healthcheck:
+  #     ## In production the healthcheck section should be commented.
+  #     disable: true
+  #   environment:
+  #     - TZ=Europe/London
 
   meshtastic:
     image: ghcr.io/meshtastic/web
@@ -179,13 +181,10 @@ services:
     restart: unless-stopped
     environment:
       - TZ=Europe/London
-    # ports:
-    #   - 8080:8080
-    #   - 8443:8443
     labels:
       - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
-      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.meshtastic.rule=Host(`meshtastic.viewpoint.house`)
       - traefik.http.routers.meshtastic.entrypoints=web
       - traefik.http.services.meshtastic.loadbalancer.server.port=8080
