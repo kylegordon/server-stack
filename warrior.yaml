@@ -1,0 +1,43 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: frontend_traefik_proxy
+
+volumes:
+  warrior_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/archiveteamWarrior/data/"
+  warrior_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/archiveteamWarrior/config/"
+
+services:
+  archiveTeamWarrior:
+    image: atdr.meo.ws/archiveteam/warrior-dockerfile
+    container_name: archiveTeamWarrior
+    hostname: archiveTeamWarrior
+    networks:
+      - traefik_proxy
+    volumes:
+      - warrior_data:/data/data
+      - warrior_config:/home/warrior/projects/
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.archiveteam.rule=Host(`archiveteam.viewpoint.house`)
+      - traefik.http.routers.archiveteam.entrypoints=web
+      - traefik.http.services.archiveteam.loadbalancer.server.port=8001
+      - traefik.http.services.archiveteam.loadbalancer.healthcheck.port=8001
+      - traefik.http.services.archiveteam.loadbalancer.healthcheck.path=/
+      - homepage.group=Media
+      - homepage.name=Archive Team Warrior
+      - homepage.href=http://archiveteam.viewpoint.house
+      - homepage.description=Archive Team Warrior Node
+      - com.centurylinklabs.watchtower.enable=true
+    restart: unless-stopped
