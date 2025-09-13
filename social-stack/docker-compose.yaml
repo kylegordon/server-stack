@@ -68,7 +68,7 @@ services:
 
   sonic:
     restart: unless-stopped
-    image: docker.io/valeriansaliou/sonic:v1.4.0
+    image: docker.io/valeriansaliou/sonic:v1.4.9
     container_name: firefish_sonic
     networks:
       - calcnet
