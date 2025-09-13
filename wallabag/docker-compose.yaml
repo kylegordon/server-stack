@@ -1,0 +1,79 @@
+---
+services:
+  wallabag:
+    image: wallabag/wallabag
+    restart: unless-stopped
+    networks:
+      - wallabag
+      - traefik_proxy
+    env_file:
+      - ".wallabag.env"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - SYMFONY__ENV__DATABASE_DRIVER=${DATABASE_DRIVER}
+      - SYMFONY__ENV__DATABASE_HOST=${DATABASE_HOST}
+      - SYMFONY__ENV__DATABASE_PORT=${DATABASE_PORT}
+      - SYMFONY__ENV__DATABASE_NAME=${DATABASE_NAME}
+      - SYMFONY__ENV__DATABASE_USER=${DATABASE_USER}
+      - SYMFONY__ENV__DATABASE_PASSWORD=${WALLABAG_DATABASE_PASSWORD}
+      - SYMFONY__ENV__DATABASE_CHARSET=${DATABASE_CHARSET}
+      - SYMFONY__ENV__DATABASE_TABLE_PREFIX=${DATABASE_TABLE_PREFIX}
+      - SYMFONY__ENV__MAILER_DSN=${MAILER_DSN}
+      - SYMFONY__ENV__FROM_EMAIL=${FROM_EMAIL}
+      - SYMFONY__ENV__DOMAIN_NAME=${DOMAIN_NAME}
+      - SYMFONY__ENV__SERVER_NAME=${SERVER_NAME}
+    # ports:
+    #   - "80"
+    volumes:
+      - /docker/wallabag/images:/var/www/wallabag/web/assets/images
+    depends_on:
+      - db
+      - redis
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.http.routers.wallabag-http.entrypoints=web
+      - traefik.http.routers.wallabag-http.rule=Host(`pocket.glasgownet.com`)
+      - traefik.http.routers.wallabag-http.middlewares=wallabag-https
+      - traefik.http.middlewares.wallabag-https.redirectscheme.scheme=https
+      - traefik.http.routers.wallabag.rule=Host(`pocket.glasgownet.com`)
+      - traefik.http.routers.wallabag.entrypoints=websecure
+      - traefik.http.routers.wallabag.tls=true
+      - traefik.http.routers.wallabag.tls.certresolver=letsencrypt
+      - traefik.http.routers.wallabag.tls.domains[0].main=pocket.glasgownet.com
+      - traefik.http.services.wallabag.loadbalancer.server.port=80
+      - traefik.http.services.wallabag.loadbalancer.healthcheck.path=/
+      - traefik.http.services.wallabag.loadbalancer.healthcheck.port=80
+
+  db:
+    image: mariadb
+    restart: unless-stopped
+    networks:
+      - wallabag
+    env_file:
+      - ".wallabag.env"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - /docker/wallabag/data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh", "--innodb_initialized"]
+      interval: 20s
+      timeout: 3s
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    networks:
+      - wallabag
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 20s
+      timeout: 3s
+
+networks:
+  wallabag:
+
+  traefik_proxy:
+    external: true
+    name: frontend_traefik_proxy
