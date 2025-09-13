@@ -1,4 +1,3 @@
-version: '3.6'
 
 # https://github.com/HaoZeke/starDock_compose/blob/master/docker-compose.yml
 # https://www.smarthomebeginner.com/traefik-reverse-proxy-tutorial-for-docker/#Traefik_Docker_Compose_Examples
@@ -12,15 +11,20 @@ services:
     volumes:
       - nginx_core_conf:/etc/nginx
       - nginx_core_data:/var/www
-      # - /docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
-      # - /docker/nginx/www/:/var/www
-      # - /docker/nginx/logs:/logs
     networks:
       - traefik_proxy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
     labels:
       - traefik.enable=true
       - traefik.http.routers.nginx_core.rule=Host(`core.vpn.glasgownet.com`)
       - traefik.http.routers.nginx_core.entrypoints=web
+      - traefik.http.routers.nginx_core-viewpoint.rule=Host(`core.viewpoint.house`)
+      - traefik.http.routers.nginx_core-viewpoint.entrypoints=web
       - traefik.http.routers.nginx_core-https.rule=Host(`core.viewpoint.house`)
       - traefik.http.routers.nginx_core-https.entrypoints=websecure
       - traefik.http.routers.nginx_core-https.tls=true
@@ -51,13 +55,9 @@ services:
     image: miniflux/miniflux:latest
     depends_on:
       miniflux_db:
-        condition: service_healthy
-    environment:
-      - DATABASE_URL=${MINIFLUX_DATABASE_URL}
-      - RUN_MIGRATIONS=${MINIFLUX_RUN_MIGRATIONS}
-      - CREATE_ADMIN=${MINIFLUX_CREATE_ADMIN}
-      - ADMIN_USERNAME=${MINIFLUX_ADMIN_USERNAME}
-      - ADMIN_PASSWORD=${MINIFLUX_ADMIN_PASSWORD}
+          condition: service_healthy
+    env_file:
+      - .miniflux.env
     restart: unless-stopped
     networks:
       - traefik_proxy
@@ -88,9 +88,8 @@ services:
 
   miniflux_db:
     image: postgres:15
-    environment:
-      - POSTGRES_USER=${MINIFLUX_POSTGRES_USER}
-      - POSTGRES_PASSWORD=${MINIFLUX_POSTGRES_SECRET}
+    env_file:
+      - .miniflux.env
     restart: unless-stopped
     networks:
       - miniflux
@@ -102,6 +101,39 @@ services:
       start_period: 30s
     labels:
       - com.centurylinklabs.watchtower.enable=true
+
+
+  ## Music Assistant disabled whilst I figure out the MDNS/5353/Openhome stuff
+  # music-assistant-server:
+  #   image: ghcr.io/music-assistant/server:latest
+  #   container_name: music-assistant-server
+  #   restart: unless-stopped
+  #   # Network mode must be set to host for MA to work correctly
+  #   network_mode: host
+  #   volumes:
+  #     - music-assistant:/data/
+  #   # privileged caps needed to mount smb folders within the container
+  #   cap_add:
+  #     - SYS_ADMIN
+  #     - DAC_READ_SEARCH
+  #   privileged: true
+  #   environment:
+  #     # Provide logging level as environment variable.
+  #     # default=info, possible=(critical, error, warning, info, debug, verbose)
+  #     - LOG_LEVEL=info
+  #   labels:
+  #     - traefik.enable=true
+  #     # - traefik.docker.network=frontend_traefik_proxy
+  #     - traefik.http.routers.music-http.entrypoints=web
+  #     - traefik.http.routers.music-http.rule=Host(`music.viewpoint.house`)
+  #     - traefik.http.routers.music-http.middlewares=music-https
+  #     - traefik.http.middlewares.music-https.redirectscheme.scheme=https
+  #     - traefik.http.routers.music.rule=Host(`music.viewpoint.house`)
+  #     - traefik.http.routers.music.entrypoints=websecure
+  #     - traefik.http.routers.music.tls=true
+  #     - traefik.http.routers.music.tls.certresolver=letsencrypt
+  #     - traefik.http.routers.music.tls.domains[0].main=music.viewpoint.house
+  #     - traefik.http.services.music.loadbalancer.server.port=8095
 
 # # https://docs.ombi.app/settings/all-the-arrs/
 #   ombi:
@@ -169,6 +201,32 @@ services:
 #       depends_on:
 #         - "ombi_mysql_db"
 
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: unless-stopped
+    # ports:
+    #   - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
+    networks:
+      - traefik_proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.phpmyadmin-http.rule=Host(`phpmyadmin.viewpoint.house`)
+      - traefik.http.routers.phpmyadmin-http.entrypoints=web
+      - traefik.http.routers.phpmyadmin-http.middlewares=phpmyadmin-https
+      - traefik.http.middlewares.phpmyadmin-https.redirectscheme.scheme=https
+      - traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.viewpoint.house`)
+      - traefik.http.routers.phpmyadmin.entrypoints=websecure
+      - traefik.http.routers.phpmyadmin.tls=true
+      - traefik.http.routers.phpmyadmin.tls.certresolver=letsencrypt
+      - traefik.http.routers.phpmyadmin.tls.domains[0].main=phpmyadmin.viewpoint.house
+      - traefik.http.services.phpmyadmin.loadbalancer.server.port=80
+      - traefik.http.services.phpmyadmin.loadbalancer.healthcheck.port=80
+      - traefik.http.services.phpmyadmin.loadbalancer.healthcheck.path=/
+      - com.centurylinklabs.watchtower.enable=true
+
   nzbget:
     image: linuxserver/nzbget:latest
     container_name: nzbget
@@ -177,14 +235,14 @@ services:
       - traefik_proxy
     environment:
       - NZBGET_TRACK=stable
-      - PUID=200
-      - PGID=200
+      # - PUID=200
+      # - PGID=200
     volumes:
-      - /docker/nzbget/config:/config
-      - /docker/nzbget/data:/downloads
-      - /media/store/downloads/nzbs/intermediate:/intermediate
-      - /media/store/downloads:/complete
-      - /media/store/downloads/tmp:/downloads/tmp
+      - nzbget_config:/config
+      - nzbget_data:/downloads
+      - downloads_intermediate:/intermediate
+      - downloads_complete:/complete
+      - downloads_tmp:/downloads/tmp
     labels:
       - traefik.enable=true
       - traefik.http.routers.nzbget-http.entrypoints=web
@@ -196,7 +254,7 @@ services:
       - traefik.http.routers.nzbget.tls=true
       - traefik.http.routers.nzbget.tls.certresolver=letsencrypt
       - traefik.http.routers.nzbget.tls.domains[0].main=nzbget.viewpoint.house
-      # - traefik.http.services.nzbget.loadbalancer.server.port=6789
+      - traefik.http.services.nzbget.loadbalancer.server.port=6789
       # - traefik.http.services.nzbget.loadbalancer.healthcheck.port=6789
       # - traefik.http.services.nzbget.loadbalancer.healthcheck.path=/
       - homepage.group=Media
@@ -212,6 +270,20 @@ services:
       timeout: 10s
       retries: 5
 
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr
+    container_name: recyclarr
+    user: 1000:1000
+    env_file:
+      - .recyclarr.env
+    networks:
+      - recyclarr
+      - traefik_proxy
+    volumes:
+      - recyclarr_config:/config
+    environment:
+      - TZ=Europe/London
+
   sonarr:
     image: linuxserver/sonarr:latest
     container_name: sonarr
@@ -224,8 +296,10 @@ services:
       retries: 5
     networks:
       - traefik_proxy
+      - recyclarr
     labels:
       - traefik.enable=true
+      - traefik.docker.network=frontend_traefik_proxy
       - traefik.http.routers.sonarr-http.entrypoints=web
       - traefik.http.routers.sonarr-http.rule=Host(`tv.viewpoint.house`)
       - traefik.http.routers.sonarr-http.middlewares=sonarr-https
@@ -244,11 +318,11 @@ services:
       - homepage.href=https://tv.viewpoint.house
       - homepage.description=TV Show Mangement
       - com.centurylinklabs.watchtower.enable=true
-    environment:
-      - PUID=200
-      - PGID=200
+    # environment:
+      # - PUID=200
+      # - PGID=200
     volumes:
-      - /docker/sonarr/config:/config
+      - sonarr_config:/config
       - complete:/complete
       - complete:/downloads/complete
       - tv:/tv
@@ -270,8 +344,10 @@ services:
     restart: unless-stopped
     networks:
       - traefik_proxy
+      - recyclarr
     labels:
       - traefik.enable=true
+      - traefik.docker.network=frontend_traefik_proxy
       - traefik.http.routers.radarr-http.entrypoints=web
       - traefik.http.routers.radarr-http.rule=Host(`movies.viewpoint.house`)
       - traefik.http.routers.radarr-http.middlewares=radarr-https
@@ -290,11 +366,11 @@ services:
       - homepage.href=https://movies.viewpoint.house
       - homepage.description=Movie Management
       - com.centurylinklabs.watchtower.enable=true
-    environment:
-      - PUID=200
-      - PGID=200
+    # environment:
+      # - PUID=200
+      # - PGID=200
     volumes:
-      - /docker/radarr/config:/config
+      - radarr_config:/config
       - complete:/complete
       - movies:/movies
     logging:
@@ -338,8 +414,8 @@ services:
       - homepage.description=Hydra Indexer
       - com.centurylinklabs.watchtower.enable=true
     volumes:
-      - /docker/nzbhydra/config:/config
-      - /docker/nzbhydra/downloads:/downloads/
+      - nzbhydra_config:/config
+      - nzbhydra_downloads:/downloads
     logging:
       driver: gelf
       options:
@@ -396,53 +472,52 @@ services:
   #       gelf-address: "udp://172.24.32.13:12201"
   #       tag: "{{.Name}}"
 
-  readarr:
-    image: lscr.io/linuxserver/readarr:develop
-    container_name: readarr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
-    volumes:
-      - readarr:/config
-      - complete:/downloads
-      - /media/store/ebooks:/books
-      - /media/store/Audio Books:/audiobooks
-      # - /media/store/home/bagpuss/Arduino_Books:/alternate
-    networks:
-      - traefik_proxy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8787"]
-      start_period: 15s
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    restart: unless-stopped
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.readarr-http.entrypoints=web
-      - traefik.http.routers.readarr-http.rule=Host(`books.viewpoint.house`)
-      - traefik.http.routers.readarr-http.middlewares=readarr-https
-      - traefik.http.middlewares.readarr-https.redirectscheme.scheme=https
-      - traefik.http.routers.readarr.rule=Host(`books.viewpoint.house`)
-      - traefik.http.routers.readarr.entrypoints=websecure
-      - traefik.http.routers.readarr.tls=true
-      - traefik.http.routers.readarr.tls.certresolver=letsencrypt
-      - traefik.http.routers.readarr.tls.domains[0].main=books.viewpoint.house
-      - traefik.http.services.readarr.loadbalancer.server.port=8787
-      - traefik.http.services.readarr.loadbalancer.healthcheck.port=8787
-      - traefik.http.services.readarr.loadbalancer.healthcheck.path=/
-      - homepage.group=Media
-      - homepage.icon=mdi-book-open-outline
-      - homepage.name=Readarr Books
-      - homepage.href=https://books.viewpoint.house
-      - homepage.description=Books Management
-      - com.centurylinklabs.watchtower.enable=true
-    logging:
-      driver: gelf
-      options:
-        gelf-address: "udp://172.24.32.13:12201"
-        tag: "{{.Name}}"
+  # readarr:
+  #   image: lscr.io/linuxserver/readarr:develop
+  #   container_name: readarr
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/London
+  #   volumes:
+  #     - readarr:/config
+  #     - complete:/downloads
+  #     - ebooks:/ebooks
+  #     - audiobooks:/audiobooks
+  #   networks:
+  #     - traefik_proxy
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8787"]
+  #     start_period: 15s
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+  #   restart: unless-stopped
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.http.routers.readarr-http.entrypoints=web
+  #     - traefik.http.routers.readarr-http.rule=Host(`books.viewpoint.house`)
+  #     - traefik.http.routers.readarr-http.middlewares=readarr-https
+  #     - traefik.http.middlewares.readarr-https.redirectscheme.scheme=https
+  #     - traefik.http.routers.readarr.rule=Host(`books.viewpoint.house`)
+  #     - traefik.http.routers.readarr.entrypoints=websecure
+  #     - traefik.http.routers.readarr.tls=true
+  #     - traefik.http.routers.readarr.tls.certresolver=letsencrypt
+  #     - traefik.http.routers.readarr.tls.domains[0].main=books.viewpoint.house
+  #     - traefik.http.services.readarr.loadbalancer.server.port=8787
+  #     - traefik.http.services.readarr.loadbalancer.healthcheck.port=8787
+  #     - traefik.http.services.readarr.loadbalancer.healthcheck.path=/
+  #     - homepage.group=Media
+  #     - homepage.icon=mdi-book-open-outline
+  #     - homepage.name=Readarr Books
+  #     - homepage.href=https://books.viewpoint.house
+  #     - homepage.description=Books Management
+  #     - com.centurylinklabs.watchtower.enable=true
+  #   logging:
+  #     driver: gelf
+  #     options:
+  #       gelf-address: "udp://172.24.32.13:12201"
+  #       tag: "{{.Name}}"
 
   calibre:
     image: lscr.io/linuxserver/calibre:latest
@@ -459,8 +534,8 @@ services:
       - CLI_ARGS= #optional
     volumes:
       - calibre_config:/config
-      - /media/store/ebooks:/books
-      - /media/store/ebooks_import:/books_import
+      - ebooks:/books
+      - ebooks_import:/books_import
     # ports:
     #  - 8080:8080 # Internal http port
     #  - 8181:8181 # Internal https port
@@ -474,14 +549,19 @@ services:
       - traefik.http.middlewares.calibre-https.redirectscheme.scheme=https
       - traefik.http.routers.calibre.rule=Host(`calibre.viewpoint.house`)
       - traefik.http.routers.calibre.entrypoints=websecure
+      - traefik.http.routers.calibre.service=calibre
       - traefik.http.routers.calibre.tls=true
       - traefik.http.routers.calibre.tls.certresolver=letsencrypt
       - traefik.http.routers.calibre.tls.domains[0].main=calibre.viewpoint.house
       - traefik.http.services.calibre.loadbalancer.server.port=8080
       - traefik.http.services.calibre.loadbalancer.healthcheck.port=8080
       - traefik.http.services.calibre.loadbalancer.healthcheck.path=/
+
+      - traefik.http.routers.calibre-web-https.tls=true
+      - traefik.http.routers.calibre-web-https.tls.certresolver=letsencrypt
+      - traefik.http.routers.calibre-web-https.tls.domains[0].main=calibre-web.viewpoint.house
       - traefik.http.routers.calibre-web-https.rule=Host(`calibre-web.viewpoint.house`)
-      - traefik.http.routers.calibre-web-https.entrypoints=web
+      - traefik.http.routers.calibre-web-https.entrypoints=websecure
       - traefik.http.routers.calibre-web-https.service=calibre-web-https
       - traefik.http.services.calibre-web-https.loadbalancer.server.port=8081
       - traefik.http.services.calibre-web-https.loadbalancer.healthcheck.path=/
@@ -499,52 +579,52 @@ services:
         tag: "{{.Name}}"
 
 
-  # jellyfin:
-  #   image: jellyfin/jellyfin:latest
-  #   container_name: jellyfin
-  #   networks:
-  #     - traefik_proxy
-  #   restart: unless-stopped
-  #   volumes:
-  #     - /docker/jellyfin/config:/config
-  #     - /docker/jellyfin/cache:/cache
-  #     - tv:/media/tv
-  #     - movies:/media/movies
-  #     - music:/media/music
-  #     - /media/store/ebooks:/ebooks
-  #     - /media/store/Audio Books:/audiobooks
-  #   labels:
-  #     - traefik.enable=true
-  #     - traefik.http.routers.jellyfin-http.entrypoints=web
-  #     - traefik.http.routers.jellyfin-http.rule=Host(`jellyfin.viewpoint.house`)
-  #     - traefik.http.routers.jellyfin-http.middlewares=jellyfin-https
-  #     - traefik.http.middlewares.jellyfin-https.redirectscheme.scheme=https
-  #     - traefik.http.routers.jellyfin.rule=Host(`jellyfin.viewpoint.house`)
-  #     - traefik.http.routers.jellyfin.entrypoints=websecure
-  #     - traefik.http.routers.jellyfin.tls=true
-  #     - traefik.http.routers.jellyfin.tls.certresolver=letsencrypt
-  #     - traefik.http.routers.jellyfin.tls.domains[0].main=jellyfin.viewpoint.house
-  #     - traefik.http.services.jellyfin.loadbalancer.server.port=8096
-  #     - traefik.http.services.jellyfin.loadbalancer.healthcheck.port=8096
-  #     - traefik.http.services.jellyfin.loadbalancer.healthcheck.path=/
-  #     - homepage.group=Media
-  #     - homepage.icon=mdi-movie-open-play
-  #     - homepage.name=Jellyfin
-  #     - homepage.href=https://jellyfin.viewpoint.house
-  #     - homepage.description=Jellyfin Media Playback
-  #     - com.centurylinklabs.watchtower.enable=true
-  #   # Traefik filters out unhealthy services
-  #   # healthcheck:
-  #   #   test: ["CMD", "apt", "install", "-y", "curl", "curl", "-f", "http://172.24.32.13:8096/web/index.html"]
-  #   #   start_period: 60s
-  #   #   interval: 300s
-  #   #   timeout: 10s
-  #   #   retries: 5
-  #   logging:
-  #     driver: gelf
-  #     options:
-  #       gelf-address: "udp://172.24.32.13:12201"
-  #       tag: "{{.Name}}"
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    networks:
+      - traefik_proxy
+    restart: unless-stopped
+    volumes:
+      - jellyfin_config:/config
+      - jellyfin_cache:/cache
+      - tv:/media/tv
+      - movies:/media/movies
+      - music:/media/music
+      - ebooks:/ebooks
+      - audiobooks:/audiobooks
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.jellyfin-http.entrypoints=web
+      - traefik.http.routers.jellyfin-http.rule=Host(`jellyfin.viewpoint.house`)
+      - traefik.http.routers.jellyfin-http.middlewares=jellyfin-https
+      - traefik.http.middlewares.jellyfin-https.redirectscheme.scheme=https
+      - traefik.http.routers.jellyfin.rule=Host(`jellyfin.viewpoint.house`)
+      - traefik.http.routers.jellyfin.entrypoints=websecure
+      - traefik.http.routers.jellyfin.tls=true
+      - traefik.http.routers.jellyfin.tls.certresolver=letsencrypt
+      - traefik.http.routers.jellyfin.tls.domains[0].main=jellyfin.viewpoint.house
+      - traefik.http.services.jellyfin.loadbalancer.server.port=8096
+      - traefik.http.services.jellyfin.loadbalancer.healthcheck.port=8096
+      - traefik.http.services.jellyfin.loadbalancer.healthcheck.path=/
+      - homepage.group=Media
+      - homepage.icon=mdi-movie-open-play
+      - homepage.name=Jellyfin
+      - homepage.href=https://jellyfin.viewpoint.house
+      - homepage.description=Jellyfin Media Playback
+      - com.centurylinklabs.watchtower.enable=true
+    # Traefik filters out unhealthy services
+    # healthcheck:
+    #   test: ["CMD", "apt", "install", "-y", "curl", "curl", "-f", "http://172.24.32.13:8096/web/index.html"]
+    #   start_period: 60s
+    #   interval: 300s
+    #   timeout: 10s
+    #   retries: 5
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
 
 # DOCKER COMPOSE COMMAND REFERENCE
 # --------------------------------------------------------------------------
@@ -575,7 +655,8 @@ services:
       - traefik_proxy
       - photoprism
     depends_on:
-      - photoprism_mariadb
+      photoprism_mariadb:
+          condition: service_started
     ## Only enable automatic restarts once your installation is properly
     ## configured as it otherwise may get stuck in a restart loop,
     ## see https://docs.photoprism.org/getting-started/faq/#why-is-photoprism-getting-stuck-in-a-restart-loop
@@ -585,47 +666,8 @@ services:
       - apparmor:unconfined
     ## Run as a specific, non-root user (see https://docs.docker.com/engine/reference/run/#user):
     # user: "1000:1000"
-    environment:
-      - PHOTOPRISM_ADMIN_PASSWORD=${PHOTOPRISM_ADMIN_PASSWORD}          # PLEASE CHANGE: Your initial admin password (min 4 characters)
-      - PHOTOPRISM_SITE_URL=${PHOTOPRISM_SITE_URL}                      # Public server URL incl http:// or https:// and /path, :port is optional
-      - PHOTOPRISM_ORIGINALS_LIMIT=${PHOTOPRISM_ORIGINALS_LIMIT}        # File size limit for originals in MB (increase for high-res video)
-      - PHOTOPRISM_HTTP_COMPRESSION=${PHOTOPRISM_HTTP_COMPRESSION}      # Improves transfer speed and bandwidth utilization (none or gzip)
-      - PHOTOPRISM_DEBUG=${PHOTOPRISM_DEBUG}                            # Run in debug mode (shows additional log messages)
-      - PHOTOPRISM_PUBLIC=${PHOTOPRISM_PUBLIC}                          # No authentication required (disables password protection)
-      - PHOTOPRISM_READONLY=${PHOTOPRISM_READONLY}                      # Don't modify originals directory (reduced functionality)
-      - PHOTOPRISM_EXPERIMENTAL=${PHOTOPRISM_EXPERIMENTAL}              # Enables experimental features
-      - PHOTOPRISM_DISABLE_CHOWN=${PHOTOPRISM_DISABLE_CHOWN}              # Disables storage permission updates on startup
-      - PHOTOPRISM_DISABLE_WEBDAV=${PHOTOPRISM_DISABLE_WEBDAV}             # Disables built-in WebDAV server
-      - PHOTOPRISM_DISABLE_SETTINGS=${PHOTOPRISM_DISABLE_SETTINGS}           # Disables Settings in Web UI
-      - PHOTOPRISM_DISABLE_TENSORFLOW=${PHOTOPRISM_DISABLE_TENSORFLOW}         # Disables all features depending on TensorFlow
-      - PHOTOPRISM_DISABLE_FACES=${PHOTOPRISM_DISABLE_FACES}               # Disables facial recognition
-      - PHOTOPRISM_DISABLE_CLASSIFICATION=${PHOTOPRISM_DISABLE_CLASSIFICATION}    # Disables image classification
-      - PHOTOPRISM_DARKTABLE_PRESETS=${PHOTOPRISM_DARKTABLE_PRESETS}        # Enables Darktable presets and disables concurrent RAW conversion
-      - PHOTOPRISM_DETECT_NSFW=${PHOTOPRISM_DETECT_NSFW}                  # Flag photos as private that MAY be offensive (requires TensorFlow)
-      - PHOTOPRISM_UPLOAD_NSFW=${PHOTOPRISM_UPLOAD_NSFW}                  # Allow uploads that MAY be offensive
-      # - PHOTOPRISM_DATABASE_DRIVER: "sqlite"         # SQLite is an embedded database that doesn't require a server
-      - PHOTOPRISM_DATABASE_DRIVER=${PHOTOPRISM_DATABASE_DRIVER}          # Use MariaDB 10.5+ or MySQL 8+ instead of SQLite for improved performance
-      - PHOTOPRISM_DATABASE_SERVER=${PHOTOPRISM_DATABASE_SERVER}    # MariaDB or MySQL database server (hostname:port)
-      - PHOTOPRISM_DATABASE_NAME=${PHOTOPRISM_DATABASE_NAME}    # MariaDB or MySQL database schema name
-      - PHOTOPRISM_DATABASE_USER=${PHOTOPRISM_DATABASE_USER}      # MariaDB or MySQL database user name
-      - PHOTOPRISM_DATABASE_PASSWORD=${PHOTOPRISM_DATABASE_PASSWORD}    # MariaDB or MySQL database user password
-      - PHOTOPRISM_SITE_TITLE=${PHOTOPRISM_SITE_TITLE}
-      - PHOTOPRISM_SITE_CAPTION=${PHOTOPRISM_SITE_CAPTION}
-      - PHOTOPRISM_SITE_DESCRIPTION=${PHOTOPRISM_SITE_DESCRIPTION}
-      - PHOTOPRISM_SITE_AUTHOR=${PHOTOPRISM_SITE_AUTHOR}
-      ## Set a non-root user, group, or custom umask if your Docker environment doesn't support this natively:
-      # - PHOTOPRISM_UID: 1000
-      # - PHOTOPRISM_GID: 1000
-      # - PHOTOPRISM_UMASK: 0000
-      ## Enable TensorFlow AVX2 support for modern Intel CPUs (requires starting the container as root):
-      # - PHOTOPRISM_INIT: "tensorflow-amd64-avx2"
-      ## Hardware video transcoding config (optional):
-      # - PHOTOPRISM_FFMPEG_BUFFERS: "64"              # FFmpeg capture buffers (default: 32)
-      # - PHOTOPRISM_FFMPEG_BITRATE: "32"              # FFmpeg encoding bitrate limit in Mbit/s (default: 50)
-      # - PHOTOPRISM_FFMPEG_ENCODER: "h264_v4l2m2m"    # Use Video4Linux for AVC transcoding (default: libx264)
-      # - PHOTOPRISM_FFMPEG_ENCODER: "h264_qsv"        # Use Intel Quick Sync Video for AVC transcoding (default: libx264)
-      # - PHOTOPRISM_INIT: "intel-graphics tensorflow-amd64-avx2" # Enable TensorFlow AVX2 & Intel Graphics support
-      - HOME=${PHOTOPRISM_HOME}
+    env_file:
+      - .photoprism.env
     ## Hardware devices for video transcoding and machine learning (optional):
     # devices:
     #  - "/dev/video11:/dev/video11" # Video4Linux (h264_v4l2m2m)
@@ -633,11 +675,21 @@ services:
     #  - "/dev/dri/card0:/dev/dri/card0"
     working_dir: "/photoprism"
     volumes:
-      - "/media/store/home/Pictures:/photoprism/originals"
+      - photoprism_pictures:/photoprism/originals"
       - "photoprism_storage:/photoprism/storage"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2342"]
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
     labels:
       - traefik.enable=true
       - traefik.docker.network=frontend_traefik_proxy
+      - traefik.http.routers.photos-http.entrypoints=web
+      - traefik.http.routers.photos-http.rule=Host(`photos.viewpoint.house`)
+      - traefik.http.routers.photos-http.middlewares=photos-https
+      - traefik.http.middlewares.photos-https.redirectscheme.scheme=https
       - traefik.http.routers.photos.rule=Host(`photos.viewpoint.house`)
       - traefik.http.routers.photos.entrypoints=websecure
       - traefik.http.routers.photos.tls=true
@@ -671,8 +723,75 @@ services:
       - MYSQL_DATABASE=${PHOTOPRISM_MYSQL_DATABASE}
       - MYSQL_USER=${PHOTOPRISM_MYSQL_USER}
       - MYSQL_PASSWORD=${PHOTOPRISM_MYSQL_PASSWORD}
+    # healthcheck:
+    #   test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+    #   start_period: 10s
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 3
     labels:
       - com.centurylinklabs.watchtower.enable=true
+
+  # immich-server:
+  #   container_name: immich_server
+  #   image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+  #   # extends:
+  #   #   file: hwaccel.transcoding.yml
+  #   #   service: cpu # set to one of [nvenc, quicksync, rkmpp, vaapi, vaapi-wsl] for accelerated transcoding
+  #   volumes:
+  #     # Do not edit the next line. If you want to change the media storage location on your system, edit the value of UPLOAD_LOCATION in the .env file
+  #     - ${UPLOAD_LOCATION}:/usr/src/app/upload
+  #     - /etc/localtime:/etc/localtime:ro
+  #   env_file:
+  #     - immich.env
+  #   ports:
+  #     - '2283:2283'
+  #   depends_on:
+  #     - immich-redis
+  #     - immich-database
+  #   restart: always
+  #   healthcheck:
+  #     disable: false
+
+  # immich-machine-learning:
+  #   container_name: immich_machine_learning
+  #   # For hardware acceleration, add one of -[armnn, cuda, rocm, openvino, rknn] to the image tag.
+  #   # Example tag: ${IMMICH_VERSION:-release}-cuda
+  #   image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+  #   # extends: # uncomment this section for hardware acceleration - see https://immich.app/docs/features/ml-hardware-acceleration
+  #   #   file: hwaccel.ml.yml
+  #   #   service: cpu # set to one of [armnn, cuda, rocm, openvino, openvino-wsl, rknn] for accelerated inference - use the `-wsl` version for WSL2 where applicable
+  #   volumes:
+  #     - model-cache:/cache
+  #   env_file:
+  #     - immich.env
+  #   restart: always
+  #   healthcheck:
+  #     disable: false
+
+  # immich-redis:
+  #   container_name: immich_redis
+  #   image: docker.io/valkey/valkey:8-bookworm@sha256:fec42f399876eb6faf9e008570597741c87ff7662a54185593e74b09ce83d177
+  #   healthcheck:
+  #     test: redis-cli ping || exit 1
+  #   restart: always
+
+  # immich-database:
+  #   container_name: immich_postgres
+  #   image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
+  #   env_file:
+  #     - immich.env
+  #   # environment:
+  #   #   POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #   #   POSTGRES_USER: ${DB_USERNAME}
+  #   #   POSTGRES_DB: ${DB_DATABASE_NAME}
+  #   #   POSTGRES_INITDB_ARGS: '--data-checksums'
+  #   #   # Uncomment the DB_STORAGE_TYPE: 'HDD' var if your database isn't stored on SSDs
+  #   #   # DB_STORAGE_TYPE: 'HDD'
+  #   volumes:
+  #     # Do not edit the next line. If you want to change the database storage location on your system, edit the value of DB_DATA_LOCATION in the .env file
+  #     - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
+  #   restart: always
 
   paperless_broker:
     image: docker.io/library/redis:7
@@ -691,12 +810,14 @@ services:
       - paperless
     volumes:
       - paperless_dbdata:/var/lib/mysql
-    environment:
-      MARIADB_HOST: ${PAPERLESS_MARIADB_HOST}
-      MARIADB_DATABASE: ${PAPERLESS_MARIADB_DATABASE}
-      MARIADB_USER: ${PAPERLESS_MARIADB_USER}
-      MARIADB_PASSWORD: ${PAPERLESS_MARIADB_PASSWORD}
-      MARIADB_ROOT_PASSWORD: ${PAPERLESS_MARIADB_ROOT_PASSWORD}
+    env_file:
+      - .paperless.env
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
     labels:
       - com.centurylinklabs.watchtower.enable=true
 
@@ -704,28 +825,17 @@ services:
     image: ghcr.io/paperless-ngx/paperless-ngx:latest
     container_name: paperless-ngx
     depends_on:
-      - paperless_broker
-      - paperless_db
+      paperless_broker:
+          condition: service_started
+      paperless_db:
+          condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000"]
       interval: 30s
       timeout: 10s
       retries: 5
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
-      - PAPERLESS_URL=https://paperless.viewpoint.house
-      - PAPERLESS_ALLOWED_HOSTS = paperless.viewpoint.house
-      - PAPERLESS_CSRF_TRUSTED_ORIGINS=https://paperless.viewpoint.house
-      - PAPERLESS_REDIS=redis://paperless_broker:6379
-      - PAPERLESS_DBENGINE=mariadb
-      - PAPERLESS_DBHOST=paperless_db
-      - PAPERLESS_DBUSER=${PAPERLESS_DBUSER}
-      - PAPERLESS_DBPASS=${PAPERLESS_DBPASS}
-      - PAPERLESS_DBPORT=3306
-      - PAPERLESS_FILENAME_FORMAT={created_year}/{correspondent}/{title}
-      - PAPERLESS_ENABLE_HTTP_REMOTE_USER=true
+    env_file:
+      - .paperless.env
     volumes:
       - paperless_data:/usr/src/paperless/data
       - paperless_media:/usr/src/paperless/media
@@ -735,12 +845,14 @@ services:
       - paperless
     labels:
       - traefik.enable=true
+      - traefick.docker.network=frontend_traefik_proxy
       - traefik.http.routers.paperless.rule=Host(`paperless.viewpoint.house`)
       - traefik.http.routers.paperless.entrypoints=websecure
       - traefik.http.routers.paperless.tls=true
       - traefik.http.routers.paperless.tls.certresolver=letsencrypt
       - traefik.http.routers.paperless.tls.domains[0].main=paperless.viewpoint.house
-      - traefik.http.routers.paperless.middlewares=authelia@docker
+      - traefik.http.services.paperless.loadbalancer.server.port=8000
+      # - traefik.http.routers.paperless.middlewares=authelia@docker
       - homepage.group=Media
       - homepage.icon=mdi-book-open-outline
       - homepage.name=Paperless
@@ -748,219 +860,352 @@ services:
       - homepage.description=Paperless
       - com.centurylinklabs.watchtower.enable=true
 
-  homebox:
-    image: ghcr.io/hay-kot/homebox:latest
-    container_name: homebox
+  # homebox:
+  #   image: ghcr.io/hay-kot/homebox:latest
+  #   container_name: homebox
+  #   environment:
+  #     - TZ=Europe/London
+  #   volumes:
+  #     - homebox_data:/data
+  #   networks:
+  #     - traefik_proxy
+  #   healthcheck:
+  #     # test: ["CMD", "curl", "-f", "http://localhost:7745"]
+  #     test: "wget --no-verbose --tries=1 --spider http://localhost:7745 || exit 1"
+  #     start_period: 15s
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+  #   restart: unless-stopped
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.http.routers.homebox-http.entrypoints=web
+  #     - traefik.http.routers.homebox-http.rule=Host(`parts.viewpoint.house`)
+  #     - traefik.http.routers.homebox-http.middlewares=homebox-https
+  #     - traefik.http.middlewares.homebox-https.redirectscheme.scheme=https
+  #     - traefik.http.routers.homebox.rule=Host(`parts.viewpoint.house`)
+  #     - traefik.http.routers.homebox.entrypoints=websecure
+  #     - traefik.http.routers.homebox.tls=true
+  #     - traefik.http.routers.homebox.tls.certresolver=letsencrypt
+  #     - traefik.http.routers.homebox.tls.domains[0].main=parts.viewpoint.house
+  #     - traefik.http.services.homebox.loadbalancer.server.port=7745
+  #     - traefik.http.services.homebox.loadbalancer.healthcheck.port=7745
+  #     - traefik.http.services.homebox.loadbalancer.healthcheck.path=/
+  #     - homepage.group=Media
+  #     - homepage.icon=mdi-book-open-outline
+  #     - homepage.name=Parts
+  #     - homepage.href=https://parts.viewpoint.house
+  #     - homepage.description=Parts Management
+  #     - com.centurylinklabs.watchtower.enable=true
+  #   logging:
+  #     driver: gelf
+  #     options:
+  #       gelf-address: "udp://172.24.32.13:12201"
+  #       tag: "{{.Name}}"
+
+  tdarr:
+    container_name: tdarr
+    image: ghcr.io/haveagitgat/tdarr:latest
+    restart: unless-stopped
+    network_mode: bridge
+    ports:
+      - 8265:8265 # webUI port
+      - 8266:8266 # server port
     environment:
       - TZ=Europe/London
+      - PUID=${TDARR_PUID}
+      - PGID=${TDARR_PGID}
+      - UMASK_SET=002
+      - serverIP=0.0.0.0
+      - serverPort=8266
+      - webUIPort=8265
+      - internalNode=true
+      - inContainer=true
+      - nodeName=MyInternalNode
     volumes:
-      - homebox_data:/data
-    networks:
-      - traefik_proxy
-    healthcheck:
-      # test: ["CMD", "curl", "-f", "http://localhost:7745"]
-      test: "wget --no-verbose --tries=1 --spider http://localhost:7745 || exit 1"
-      start_period: 15s
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    restart: unless-stopped
+      - tdarr_server:/app/server
+      - tdarr_configs:/app/configs
+      - tdarr_logs:/app/logs
+      - /media/store/test:/media
+      - /media/store/transcode_cache:/temp
     labels:
       - traefik.enable=true
-      - traefik.http.routers.homebox-http.entrypoints=web
-      - traefik.http.routers.homebox-http.rule=Host(`parts.viewpoint.house`)
-      - traefik.http.routers.homebox-http.middlewares=homebox-https
-      - traefik.http.middlewares.homebox-https.redirectscheme.scheme=https
-      - traefik.http.routers.homebox.rule=Host(`parts.viewpoint.house`)
-      - traefik.http.routers.homebox.entrypoints=websecure
-      - traefik.http.routers.homebox.tls=true
-      - traefik.http.routers.homebox.tls.certresolver=letsencrypt
-      - traefik.http.routers.homebox.tls.domains[0].main=parts.viewpoint.house
-      - traefik.http.services.homebox.loadbalancer.server.port=7745
-      - traefik.http.services.homebox.loadbalancer.healthcheck.port=7745
-      - traefik.http.services.homebox.loadbalancer.healthcheck.path=/
+      - traefik.http.routers.tdarr-http.entrypoints=web
+      - traefik.http.routers.tdarr-http.rule=Host(`tdarr.viewpoint.house`)
+      - traefik.http.routers.tdarr-http.middlewares=tdarr-https
+      - traefik.http.middlewares.tdarr-https.redirectscheme.scheme=https
+      - traefik.http.routers.tdarr.rule=Host(`tdarr.viewpoint.house`)
+      - traefik.http.routers.tdarr.entrypoints=websecure
+      - traefik.http.routers.tdarr.tls=true
+      - traefik.http.routers.tdarr.tls.certresolver=letsencrypt
+      - traefik.http.routers.tdarr.tls.domains[0].main=tdarr.viewpoint.house
+      - traefik.http.services.tdarr.loadbalancer.server.port=8265
+      - traefik.http.services.tdarr.loadbalancer.healthcheck.port=8265
+      - traefik.http.services.tdarr.loadbalancer.healthcheck.path=/
       - homepage.group=Media
-      - homepage.icon=mdi-book-open-outline
-      - homepage.name=Parts
-      - homepage.href=https://parts.viewpoint.house
-      - homepage.description=Parts Management
+      - homepage.icon=mdi-movie-open-outline
+      - homepage.name=Tdarr
+      - homepage.href=https://tdarr.viewpoint.house
+      - homepage.description=Tdarr Transcoding
       - com.centurylinklabs.watchtower.enable=true
-    logging:
-      driver: gelf
-      options:
-        gelf-address: "udp://172.24.32.13:12201"
-        tag: "{{.Name}}"
 
-  # tdarr:
-  #   container_name: tdarr
-  #   image: ghcr.io/haveagitgat/tdarr:latest
-  #   restart: unless-stopped
-  #   network_mode: bridge
-  #   ports:
-  #     - 8265:8265 # webUI port
-  #     - 8266:8266 # server port
-  #   environment:
-  #     - TZ=Europe/London
-  #     - PUID=${TDARR_PUID}
-  #     - PGID=${TDARR_PGID}
-  #     - UMASK_SET=002
-  #     - serverIP=0.0.0.0
-  #     - serverPort=8266
-  #     - webUIPort=8265
-  #     - internalNode=true
-  #     - inContainer=true
-  #     - nodeName=MyInternalNode
-  #   volumes:
-  #     - tdarr_server:/app/server
-  #     - tdarr_configs:/app/configs
-  #     - tdarr_logs:/app/logs
-  #     - /media/store/test:/media
-  #     # - /transcode_cache:/temp
-  #   labels:
-  #     - com.centurylinklabs.watchtower.enable=true
-
-  # tdarr-node:
-  #   container_name: tdarr-node
-  #   image: ghcr.io/haveagitgat/tdarr_node:latest
-  #   restart: unless-stopped
-  #   network_mode: service:tdarr
-  #   environment:
-  #     - TZ=Europe/London
-  #     - PUID=${TDARR_PUID}
-  #     - PGID=${TDARR_PGID}
-  #     - UMASK_SET=002
-  #     - nodeName=MyExternalNode
-  #     - serverIP=0.0.0.0
-  #     - serverPort=8266
-  #     - inContainer=true
-  #   volumes:
-  #     - tdarr_configs:/app/configs
-  #     - tdarr_logs:/app/logs
-  #     - /media/store/test:/media
-  #     # - /transcode_cache:/temp
-  #   labels:
-  #     - com.centurylinklabs.watchtower.enable=true
+  tdarr-node:
+    container_name: tdarr-node
+    image: ghcr.io/haveagitgat/tdarr_node:latest
+    restart: unless-stopped
+    network_mode: service:tdarr
+    environment:
+      - TZ=Europe/London
+      - PUID=${TDARR_PUID}
+      - PGID=${TDARR_PGID}
+      - UMASK_SET=002
+      - nodeName=MyExternalNode
+      - serverIP=0.0.0.0
+      - serverPort=8266
+      - inContainer=true
+    volumes:
+      - tdarr_configs:/app/configs
+      - tdarr_logs:/app/logs
+      - /media/store/test:/media
+      - /media/store/transcode_cache:/temp
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
 
 volumes:
 
   homebox_data:
+  immich-model-cache:
+  recyclarr_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/recyclarr/config/"
+
+  nzbget_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nzbget/config/"
+
+  nzbget_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nzbget/data/"
+
+  downloads_complete:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/downloads/"
+      device: ":/media/Tank/Downloads/"
+
+  downloads_tmp:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/downloads/tmp/"
+      device: ":/media/Tank/Downloads/tmp/"
+
+  downloads_intermediate:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/downloads/nzbs/intermediate/"
+      device: ":/media/Tank/Downloads/nzbs/intermediate/"
+
+  music-assistant:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/music-assistant/"
+
+  radarr_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw,sync,rsize=0,wsize=0
+      device: ":/srv/nfs4/docker_nfs/radarr/config/"
+
+  sonarr_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw,sync,rsize=0,wsize=0
+      device: ":/srv/nfs4/docker_nfs/sonarr/config/"
+
+  nzbhydra_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nzbhydra/config/"
+
+  nzbhydra_downloads:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nzbhydra/downloads/"
+
+  ebooks:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/ebooks/"
+      device: ":/media/Tank/Books/ebooks/"
+
+  ebooks_import:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/ebooks_import/"
+      device: ":/media/Tank/Books/ebooks_import/"
+
+  audiobooks:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/Audio Books"
+      device: ":/media/Tank/Books/Audio Books/"
 
   tdarr_server:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/docker_nfs/tdarr/server/"
+      device: ":/srv/nfs4/docker_nfs/tdarr/server/"
 
   tdarr_configs:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/docker_nfs/tdarr/configs/"
+      device: ":/srv/nfs4/docker_nfs/tdarr/configs/"
 
   tdarr_logs:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/docker_nfs/tdarr/logs/"
+      device: ":/srv/nfs4/docker_nfs/tdarr/logs/"
 
   paperless_redisdata:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/docker_nfs/paperless/redis/data/"
+      device: ":/srv/nfs4/docker_nfs/paperless/redis/data/"
 
   paperless_dbdata:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/docker_nfs/paperless/db/data/"
+      device: ":/srv/nfs4/docker_nfs/paperless/db/data/"
 
   paperless_media:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/docker_nfs/paperless/media/"
+      device: ":/srv/nfs4/docker_nfs/paperless/media/"
 
   paperless_data:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/docker_nfs/paperless/data/"
+      device: ":/srv/nfs4/docker_nfs/paperless/data/"
 
   nginx_core_conf:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/docker_nfs/nginx_core/conf/"
+      device: ":/srv/nfs4/docker_nfs/nginx_core/conf/"
 
   nginx_core_data:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/docker_nfs/nginx_core/html"
+      device: ":/srv/nfs4/docker_nfs/nginx_core/html"
 
   readarr:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/docker_nfs/readarr/"
+      device: ":/srv/nfs4/docker_nfs/readarr/"
 
   miniflux-db:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/docker_nfs/miniflux/db/"
+      device: ":/srv/nfs4/docker_nfs/miniflux/db/"
 
   photoprism_db:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/docker_nfs/photoprism/db/"
+      device: ":/srv/nfs4/docker_nfs/photoprism/db/"
   photoprism_storage:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/docker_nfs/photoprism/storage/"
+      device: ":/srv/nfs4/docker_nfs/photoprism/storage/"
+  photoprism_pictures:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/media/Tank/Home/Pictures"
+      device: ":/srv/nfs4/home/Pictures/"
+
   complete:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/downloads/"
+      # device: ":/srv/nfs4/store/downloads/"
+      device: ":/media/Tank/Downloads/"
 
   tv:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/tv/"
+      # device: ":/srv/nfs4/store/tv/"
+      device: ":/media/Tank/TV/"
 
   movies:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/movies/"
+      # device: ":/srv/nfs4/store/movies/"
+      device: ":/media/Tank/Movies/"
 
   music:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/music/"
+      device: ":/media/Tank/Music/"
 
   podcasts:
     driver: local
@@ -983,15 +1228,34 @@ volumes:
       o: addr=172.24.32.5,rw
       device: ":/srv/nfs4/docker_nfs/calibre/config/"
 
+  jellyfin_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/jellyfin/config/"
+
+  jellyfin_cache:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/jellyfin/cache/"
+
 networks:
     traefik_proxy:
       external: true
       name: frontend_traefik_proxy
     photoprism:
-      driver: bridge
+      # driver: overlay
+      # driver: bridge
     miniflux:
-      driver: bridge
-    ombi_network:
-      name: ombi_network
+      # driver: overlay
+      # driver: bridge
+    # ombi_network:
+    #   name: ombi_network
     paperless:
       name: paperless
+      # driver: overlay
+    recyclarr:
+      name: recyclarr
