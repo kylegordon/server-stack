@@ -1,43 +1,182 @@
-version: '3.6'
+---
 
 volumes:
-  influxdb2:
+  influxdb2_data:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/influxdb/"
+      device: ":/srv/nfs4/docker_nfs/influxdb/data/"
+
+  influxdb_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/influxdb/config/"
+
+  # Think this was a collectd thing
+  # influxdb_types:
+  #   driver: local
+  #   driver_opts:
+  #     type: nfs4
+  #     o: addr=172.24.32.5,rw
+  #     device: ":/srv/nfs4/docker_nfs/influxdb/types.db"
+
+      # - influxdb2:/var/lib/influxdb2
+
+      # - /docker/influxdb/config/:/etc/influxdb/
+      # - /docker/influxdb/types.db:/usr/share/collectd/types.db
 
   uptime-kuma:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: "/srv/nfs4/docker_nfs/uptime-kuma/"
+
+  scrutiny_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/scrutiny/config/"
+
+  scrutiny_influxdb:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/scrutiny/influxdb/"
+
   netdataconfig:
   netdatalib:
   netdatacache:
-  scrutiny_config:
 
-  warrior_data:
+  predbat_config:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/archiveteamWarrior/data/"
-  warrior_config:
+      device: ":/srv/nfs4/docker_nfs/predbat/config/"
+
+  givtcp:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw,sync,rsize=0,wsize=0
+      device: ":/srv/nfs4/docker_nfs/givtcp/"
+
+  ebusd:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/archiveteamWarrior/config/"
+      device: ":/srv/nfs4/docker_nfs/ebusd/config/"
+
+  chronograf_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/chronograf/data/"
+
+  grafana:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/grafana/"
+
+  double_take_storage:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/double_take/storage/"
+
+  node-red_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/node-red/data/"
+
+  mosquitto_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/mosquitto/config/"
+
+  mosquitto_logs:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/mosquitto/log/"
+
+  mosquitto_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/mosquitto/data/"
+
+  zigbee2mqtt_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/zigbee2mqtt/data/"
+
+  frigate_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/frigate/config/"
+
+  frigate_db:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/frigate/db/"
+
+  frigate_cctv:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/cctv/frigate/"
+      device: ":/media/Tank/CCTV/frigate/"
+
+  esphome_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/home-assistant/config/esphome/"
+
+  home-assistant_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/home-assistant/config/"
 
   pihole_etc:
     driver: local
     driver_opts:
       type: nfs4
-      o: addr=172.24.32.5,rw
+      o: addr=172.24.32.5,rw,sync,rsize=0,wsize=0
       device: ":/srv/nfs4/docker_nfs/pihole/etc/"
   pihole_dnsmasq:
     driver: local
     driver_opts:
       type: nfs4
-      o: addr=172.24.32.5,rw
+      o: addr=172.24.32.5,rw,sync,rsize=0,wsize=0
       device: ":/srv/nfs4/docker_nfs/pihole/dnsmasq/"
 
   whisper:
@@ -61,24 +200,24 @@ networks:
     homeautomation:
       name: homeautomation
 
+    unifi:
+      name: unifi
+
+    scrutiny:
+      name: scrutiny
+
+    # lan_network:
+    #   driver: macvlan
+    #   driver_opts:
+    #     parent: eth0          # <-- using default network
+    #   ipam:
+    #     config:
+    #       - subnet: 172.24.32.0/24         # <-- Update
+    #         gateway: 172.24.32.1         # <-- Update
+    #         ip_range: 172.24.32.240/32         # <-- Update
+
 services:
   pihole:
-    container_name: pihole
-    image: pihole/pihole:latest
-    # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
-    ports:
-     - "172.24.32.13:53:53/tcp"
-     - "172.24.32.13:53:53/udp"
-     # - "67:67/udp" # Only required if you are using Pi-hole as your DHCP server
-    #  - "84:80/tcp"
-    networks:
-      - traefik_proxy
-    environment:
-      - TZ='Europe/London'
-      - DNSMASQ_LISTENING='all'
-      # - WEBPASSWORD: 'set a secure password here or it will be random'
-      - WEBPASSWORD=${PIHOLE_WEBPASSWORD}
-    # Volumes store your data between container upgrades
     labels:
       - traefik.enable=true
       - traefik.http.routers.pihole-http.entrypoints=web
@@ -97,21 +236,41 @@ services:
       - homepage.icon=mdi-wifi
       - homepage.name=Pi-hole
       - homepage.href=https://pihole.viewpoint.house/admin/login.php
+    container_name: pihole
+    image: pihole/pihole:latest
+    # image: pihole/pihole@sha256:0def896a596e8d45780b6359dbf82fc8c75ef05b97e095452e67a0a4ccc95377
+    # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
+    ports:
+      - "172.24.32.13:53:53/tcp"
+      - "172.24.32.13:53:53/udp"
+      # - "67:67/udp" # Only required if you are using Pi-hole as your DHCP server
+      - "90:80/tcp"
+    networks:
+      - traefik_proxy
+    env_file:
+      - .pihole.env
     volumes:
       - 'pihole_etc:/etc/pihole'
       - 'pihole_dnsmasq:/etc/dnsmasq.d'
     #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
     cap_add:
+      - CAP_SYS_NICE
       - CAP_NET_BIND_SERVICE
+      - CAP_NET_RAW
+      - CAP_CHOWN
     #   - NET_ADMIN # Required if you are using Pi-hole as your DHCP server, else not needed
     restart: unless-stopped
 
   home-assistant:
-    image: ghcr.io/home-assistant/home-assistant:latest
+    image: homeassistant/home-assistant:latest
     container_name: home-assistant
     depends_on:
-      - zigbee2mqtt
-      - eclipse-mosquitto
+      zigbee2mqtt:
+          condition: service_healthy
+      eclipse-mosquitto:
+          condition: service_started
+      pihole:
+          condition: service_healthy
     restart: unless-stopped
     labels:
       # https://techoverflow.net/2022/03/27/how-to-fix-traefik-could-not-define-the-service-name-for-the-router-too-many-services/
@@ -152,17 +311,24 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    # network_mode: host
     networks:
       - traefik_proxy
       - homeautomation
+    ports:
+      - 1900:1900/udp
+      - 2869:2869/tcp
+      # - 5353:5353/udp
+      # - 5353:5353/tcp
     environment:
       - PUID=200
       - PGID=200
-    devices:
-      - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A1WRPEJT-if00-port0:/dev/ttyUSB0
+    # Not supported in Swarm
+    # devices:
+    #   - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A1WRPEJT-if00-port0:/dev/ttyUSB0
     volumes:
-      - /docker/home-assistant/config:/config
-      - /media/store/cctv/frigate:/media/frigate_cctv
+      - home-assistant_config:/config
+      - frigate_cctv:/media/frigate_cctv
       - /etc/localtime:/etc/localtime:ro
     logging:
       driver: gelf
@@ -170,8 +336,117 @@ services:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
+  EPLZones:
+    image: everythingsmarthome/everything-presence-mmwave-configurator:latest
+    container_name: everything-presence-mmwave-configurator
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+      - homeautomation
+    env_file:
+      - .eplzones.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8099"]
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - traefik.enable=true
+      - traefik.docker.network=traefik_proxy
+      - traefik.http.routers.EPLZones.rule=Host(`eplzones.viewpoint.house`)
+      - traefik.http.routers.EPLZones.entrypoints=websecure
+      - traefik.http.routers.EPLZones.tls.certresolver=letsencrypt
+      - traefik.http.routers.EPLZones.tls.domains[0].main=eplzones.viewpoint.house
+      - traefik.http.services.EPLZones.loadbalancer.server.port=8099
+      - traefik.http.services.EPLZones.loadbalancer.healthcheck.path=/
+      - traefik.http.services.EPLZones.loadbalancer.healthcheck.port=8099
+      - homepage.group=Home Automation
+      - homepage.name=EPL Zones
+      - homepage.icon=mdi-home-assistant
+      - homepage.href=https://eplzones.viewpoint.house
+      - homepage.description=EPL Zones
+
+  GivTCP:
+    # https://wiki.terravolt.co.uk/docs/givtcp-installation-version-2-0/
+    container_name: GivTCP
+    image: britkat/giv_tcp-ma:latest
+    # ports:
+    #   - "8099:8099"                   # REST and Config web server (https on 8098)
+    #   - "3030:3030"                   # WEB Dashboard
+    #   - "6345:6345"
+    depends_on:
+      - eclipse-mosquitto
+    networks:
+      - traefik_proxy
+      - homeautomation
+    volumes:
+      - givtcp:/config/GivTCP
+    restart: unless-stopped
+    privileged: true
+    healthcheck:
+      # Must be a hostname or address of the container itself. Does not listen on localhost
+      test: "wget --no-verbose --tries=1 --spider http://GivTCP:8099 || exit 1"
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - traefik.enable=true
+      - traefik.docker.network=traefik_proxy
+      - traefik.http.routers.givtcp.rule=Host(`givtcp.viewpoint.house`)
+      - traefik.http.routers.givtcp.entrypoints=websecure
+      - traefik.http.routers.givtcp.tls.certresolver=letsencrypt
+      - traefik.http.routers.givtcp.tls.domains[0].main=givtcp.viewpoint.house
+      - traefik.http.services.givtcp.loadbalancer.server.port=8099
+      - traefik.http.services.givtcp.loadbalancer.healthcheck.path=/
+      - traefik.http.services.givtcp.loadbalancer.healthcheck.port=8099
+      - homepage.group=Home Automation
+      - homepage.name=GivTCP
+      - homepage.icon=mdi-home-assistant
+      - homepage.href=https://givtcp.viewpoint.house
+      - homepage.description=GivTCP
+
+  predbat:
+    container_name: predbat
+    image: nipar44/predbat_addon:latest
+    restart: unless-stopped
+    volumes:
+      # - /docker/predbat/config:/config:rw
+      - predbat_config:/config:rw
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - traefik_proxy
+      - homeautomation
+    depends_on:
+      GivTCP:
+          condition: service_started
+      home-assistant:
+          condition: service_healthy
+      pihole:
+          condition: service_healthy
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - traefik.enable=true
+      - traefik.docker.network=traefik_proxy
+      - traefik.http.routers.predbat.rule=Host(`predbat.viewpoint.house`)
+      - traefik.http.routers.predbat.entrypoints=websecure
+      - traefik.http.routers.predbat.tls.certresolver=letsencrypt
+      - traefik.http.routers.predbat.tls.domains[0].main=predbat.viewpoint.house
+      - traefik.http.services.predbat.loadbalancer.server.port=5052
+      - traefik.http.services.predbat.loadbalancer.healthcheck.path=/
+      - traefik.http.services.predbat.loadbalancer.healthcheck.port=5052
+      - homepage.group=Home Automation
+      - homepage.name=Predbat
+      - homepage.icon=mdi-home-assistant
+      - homepage.href=https://predbat.viewpoint.house
+      - homepage.description=Predbat
+
   whisper:
     container_name: whisper
+    restart: unless-stopped
     command: --model small --language en
     image: rhasspy/wyoming-whisper:latest
     # network_mode: host
@@ -179,9 +454,8 @@ services:
       - homeautomation
     volumes:
       - whisper:/data
-    environment:
-      - TZ=Europe/London
-    restart: unless-stopped
+    # environment:
+    #   - TZ=Europe/London
     ports:
       - 10300:10300
     labels:
@@ -189,59 +463,133 @@ services:
 
   piper:
     container_name: piper
-    image: rhasspy/wyoming-piper:latest
+    restart: unless-stopped
+    # image: rhasspy/wyoming-piper:latest
+    image: lscr.io/linuxserver/piper:latest
     #  command: --voice nl-nathalie-x-low
-    command: --voice en-gb-southern_english_female-low
+    # command: --voice en-gb-southern_english_female-low
     # network_mode: host
     networks:
       - homeautomation
     volumes:
       - piper:/data
+    env_file:
+      - .piper.env
     environment:
       - TZ=Europe/London
-    restart: unless-stopped
     ports:
       - 10200:10200
     labels:
       - com.centurylinklabs.watchtower.enable=true
 
-  openwakeword:
-    container_name: openwakeword
-    command: --model 'ok_nabu' --model 'hey_jarvis' --model 'hey_rhasspy' --model 'hey_mycroft' --model 'alexa' --preload-model 'ok_nabu'
-    image: rhasspy/wyoming-openwakeword:latest
-    networks:
-      - homeautomation
-    environment:
-      - TZ=Europe/London
+  # openwakeword:
+  #   container_name: openwakeword
+  #   command: --model 'ok_nabu' --model 'hey_jarvis' --model 'hey_rhasspy' --model 'hey_mycroft' --model 'alexa' --preload-model 'ok_nabu'
+  #   image: rhasspy/wyoming-openwakeword:latest
+  #   networks:
+  #     - homeautomation
+  #   environment:
+  #     - TZ=Europe/London
+  #   restart: unless-stopped
+  #   ports:
+  #     - 10400:10400
+  #   # healthcheck:
+  #     # test: ["CMD", "curl", "-f", "http://localhost:10300"]
+  #     # echo '{"type":"describe"}'|nc -w 1 localhost 10300
+  #   labels:
+  #     - com.centurylinklabs.watchtower.enable=true
+
+  mdns_repeater:
+    image: jdbeeler/mdns-repeater:latest
+    network_mode: "host"
+    privileged: true
+    env_file:
+      - .mdns.env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # mdns-repeater:
+  #   image: jdelker/mdns-repeater:latest
+  #   network_mode: "host"
+  #   privileged: true
+  #   environment:
+  #     INTERFACES: "eth0"
+  #     DOCKER_NETWORKS: "homeautomation"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+
+  # mdns-repeater:
+  #   image: monstrenyatko/mdns-repeater:latest
+  #   container_name: mdns-repeater
+  #   restart: unless-stopped
+  #   # environment:
+  #   #   - MDNS_REPEATER_INTERFACES=eth0 docker0
+  #   # The result of ifconfig | grep -i `docker network ls | grep -i traefik | awk '{print $1}'` | awk '{print $1}'
+  #   # command: mdns-repeater-app -f eth0 br-d5e10b6d76a1
+  #   command: mdns-repeater-app -d -f eth0 docker0
+  #   network_mode: "host"
+
+  # multicast-relay:
+  #   container_name: multicast-relay
+  #   image: kidhasmoxy/multicast-relay
+  #   hostname: mdnsrelay
+  #   networks:
+  #     - homeautomation
+  #     - lan_network
+  #   restart: unless-stopped
+  #   # ssdpUnicastAddr should be on IoT vlan to allow for simple firewall config (as return queries can go to pretty random ports)
+  #   command: --foreground --interfaces eth0 br-d5e10b6d76a1 --wait --verbose --relay 224.0.0.251:80 255.255.255.255:80 --ssdpUnicastAddr 192.168.20.240
+
+  # multicast-relay:
+  #   image: scyto/multicast-relay
+  #   # container_name: multicast-relay
+  #   # hostname: mdnsrelay
+  #   network_mode: "host"
+  #   # networks:
+  #   #   - homeautomation
+  #   #   - lan_network
+  #   env_file:
+  #     - .multicast-relay.env
+  #   # restart: unless-stopped
+  #   # ssdpUnicastAddr should be on IoT vlan to allow for simple firewall config (as return queries can go to pretty random ports)
+  #   # command: --foreground --interfaces eth0 br-d5e10b6d76a1 --wait --verbose --relay 224.0.0.251:80 255.255.255.255:80 --ssdpUnicastAddr 192.168.20.240
+
+  ebusd:
+    # alternatively, use "john30/ebusd:devel" for the latest build of the current source code
+    image: john30/ebusd:latest
+    container_name: ebusd
     restart: unless-stopped
+    env_file:
+      - .ebusd.env
     ports:
-      - 10400:10400
-    # healthcheck:
-      # test: ["CMD", "curl", "-f", "http://localhost:10300"]
-      # echo '{"type":"describe"}'|nc -w 1 localhost 10300
+      - 8888:8888
+      # when enabling the HTTP port, add it to the published ports as well:
+      - 8081:8080
+    depends_on:
+      - eclipse-mosquitto
+    volumes:
+      - ebusd:/config
     labels:
       - com.centurylinklabs.watchtower.enable=true
 
-  mdns-repeater:
-    image: monstrenyatko/mdns-repeater:latest
-    container_name: mdns-repeater
-    restart: unless-stopped
-    # The result of ifconfig | grep -i `docker network ls | grep -i traefik | awk '{print $1}'` | awk '{print $1}'
-    command: mdns-repeater-app -f eth0 br-640e7c6c5f4b
-    network_mode: "host"
 
   esphome:
     image: ghcr.io/esphome/esphome:latest
     container_name: esphome
-    depends_on:
-      - mdns-repeater
+    # depends_on:
+    #   - mdns-repeater
     networks:
       - traefik_proxy
+      - homeautomation
     # network_mode: host
     # https://doc.traefik.io/traefik/providers/docker/#host-networking
     restart: unless-stopped
+    environment:
+      - TZ=Europe/London
+      # - ESPHOME_DASHBOARD_USE_PING=true
     labels:
       - traefik.enable=true
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.esphome-http.entrypoints=web
       - traefik.http.routers.esphome-http.rule=Host(`esphome.viewpoint.house`)
       - traefik.http.routers.esphome-http.middlewares=esphome-https
@@ -267,7 +615,8 @@ services:
       timeout: 10s
       retries: 5
     volumes:
-      - /docker/home-assistant/config/esphome:/config
+      # - /docker/home-assistant/config/esphome:/config
+      - esphome_config:/config
     logging:
       driver: gelf
       options:
@@ -309,10 +658,10 @@ services:
       - homepage.description=Zigbee Management
       - com.centurylinklabs.watchtower.enable=true
     volumes:
-      - /docker/zigbee2mqtt/data:/app/data
+      - zigbee2mqtt_data:/app/data
       - /run/udev:/run/udev:ro
-    environment:
-      - TZ=Europe/London
+    # environment:
+    #   - TZ=Europe/London
 
   eclipse-mosquitto:
     image: eclipse-mosquitto:latest
@@ -327,19 +676,23 @@ services:
       - traefik_proxy
       - homeautomation
     volumes:
-        - /docker/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
-        - /docker/mosquitto/data:/mosquitto/data
-        - /docker/mosquitto/log:/mosquitto/log
+        - mosquitto_config:/mosquitto/config
+        - mosquitto_data:/mosquitto/data
+        - mosquitto_logs:/mosquitto/log
     logging:
       driver: gelf
       options:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
+
   nodered:
     restart: unless-stopped
     image: nodered/node-red:latest
     container_name: node-red
+    depends_on:
+      eclipse-mosquitto:
+          condition: service_started
     labels:
       - traefik.enable=true
       - traefik.docker.network=frontend_traefik_proxy
@@ -370,10 +723,11 @@ services:
     networks:
       - traefik_proxy
       - homeautomation
-    environment:
-      TZ: Europe/London
+    # environment:
+    #   TZ: Europe/London
+    user: root:root
     volumes:
-      - /docker/node-red/data:/data
+      - node-red_data:/data
       - /etc/localtime:/etc/localtime:ro
     logging:
       driver: gelf
@@ -389,16 +743,20 @@ services:
       - traefik_proxy
       - homeautomation
     depends_on:
-      - eclipse-mosquitto
+      eclipse-mosquitto:
+          condition: service_started
     image: ghcr.io/blakeblackshear/frigate:stable
     devices:
-      - /dev/bus/usb:/dev/bus/usb
-      - /dev/dri/card0 # for intel hwaccel, needs to be updated for your hardware
+        - /dev/dri
+        - /dev/kfd
+    #   - /dev/bus/usb:/dev/bus/usb
+    #   - /dev/dri/card0 # for intel hwaccel, needs to be updated for your hardware
+    shm_size: "2g"
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /docker/frigate/config/config.yml:/config/config.yml:ro
-      - /media/store/cctv/frigate:/media/frigate
-      - /docker/frigate/db:/frigate_db
+      - frigate_cctv:/media/frigate
+      - frigate_db:/frigate_db
+      - frigate_config:/config
       - type: tmpfs # Optional: 1GB of memory, reduces SSD/SD Card wear
         target: /tmp/cache
         tmpfs:
@@ -442,8 +800,8 @@ services:
     #  options:
     #    gelf-address: "udp://172.24.32.13:12201"
     #    tag: "{{.Name}}"
-    environment:
-      - FRIGATE_RTSP_PASSWORD=${FRIGATE_RTSP_PASSWORD}
+    env_file:
+      - .frigate.env
 
   double-take:
     container_name: double-take
@@ -461,7 +819,7 @@ services:
       - eclipse-mosquitto
       - frigate
     volumes:
-      - /docker/double-take/storage:/.storage
+      - double_take_storage:/.storage
     labels:
       - traefik.enable=true
       - traefik.http.routers.double-take.rule=Host(`double-take.viewpoint.house`)
@@ -512,7 +870,7 @@ services:
       - traefik.http.services.uptime.loadbalancer.server.port=3001
       - traefik.http.services.uptime.loadbalancer.healthcheck.path=/
       - traefik.http.services.uptime.loadbalancer.healthcheck.port=3001
-      - traefik.http.routers.uptime.middlewares=authelia@docker
+      # - traefik.http.routers.uptime.middlewares=authelia@docker
       - homepage.group=Monitoring
       - homepage.name=Uptime Kuma
       - homepage.href=https://uptime.viewpoint.house
@@ -525,58 +883,89 @@ services:
         gelf-address: "udp://72.24.32.13:12201"
         tag: "{{.Name}}"
 
-  # scrutiny:
-  #   image: lscr.io/linuxserver/scrutiny:latest
-  #   container_name: scrutiny
-  #   cap_add:
-  #     - SYS_RAWIO
-  #     - SYS_ADMIN #optional
-  #   environment:
-  #     - PUID=1000
-  #     - PGID=1000
-  #     - TZ=Europe/London
-  #     - SCRUTINY_API_ENDPOINT=http://localhost:8080
-  #     - SCRUTINY_WEB=true
-  #     - SCRUTINY_COLLECTOR=true
-  #   volumes:
-  #     - scrutiny_config:/config
-  #     - /run/udev:/run/udev:ro
-  #   ports:
-  #     - 8085:8080
-  #   devices:
-  #     - /dev/sda:/dev/sda
-  #     - /dev/sdb:/dev/sdb
-  #     - /dev/nvme1n1:/dev/nvme1n1
-  #   restart: unless-stopped
-
-  unifi-controller:
-    image: lscr.io/linuxserver/unifi-controller:latest
-    container_name: unifi-controller
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - MEM_LIMIT=1024 #optional
-      - MEM_STARTUP=1024 #optional
-      - UNIFI_CORE_ENABLED=true
+  scrutiny_web:
+    image: 'ghcr.io/analogj/scrutiny:master-web'
+    # ports:
+    #   - '8080:8080'
     networks:
       - traefik_proxy
+      - scrutiny
     volumes:
-      - /docker/unifi-controller:/config
+      - 'scrutiny_config:/opt/scrutiny/config'
+    restart: unless-stopped
+    environment:
+      SCRUTINY_WEB_INFLUXDB_HOST: 'scrutiny_influxdb'
+    depends_on:
+      scrutiny_influxdb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 10s
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_proxy
+      - traefik.http.routers.scrutiny-web-http.entrypoints=web
+      - traefik.http.routers.scrutiny-web-http.rule=Host(`scrutiny.viewpoint.house`)
+      - traefik.http.routers.scrutiny-web-http.middlewares=scrutiny-web-https
+      - traefik.http.middlewares.scrutiny-web-https.redirectscheme.scheme=https
+      - traefik.http.routers.scrutiny-web.rule=Host(`scrutiny.viewpoint.house`)
+      - traefik.http.routers.scrutiny-web.entrypoints=websecure
+      - traefik.http.routers.scrutiny-web.tls=true
+      - traefik.http.routers.scrutiny-web.tls.certresolver=letsencrypt
+      - traefik.http.routers.scrutiny-web.tls.domains=scrutiny.viewpoint.house
+      - traefik.http.services.scrutiny-web.loadbalancer.server.port=8080
+      - traefik.http.services.scrutiny-web.loadbalancer.healthcheck.path=/api/health
+      - traefik.http.services.scrutiny-web.loadbalancer.healthcheck.port=8080
+      - homepage.group=Monitoring
+      - homepage.name=Scrutiny Web
+      - homepage.href=https://scrutiny.viewpoint.house
+      - homepage.description=Scrutiny Web
+      - homepage.icon=si-scrutiny
+      - com.centurylinklabs.watchtower.enable=true
+
+  scrutiny_influxdb:
+    image: influxdb:2.2
+    # ports:
+    #   - '8086:8086'
+    networks:
+      - scrutiny
+    volumes:
+      - 'scrutiny_influxdb:/var/lib/influxdb2'
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+
+  unifi-network-application:
+    image: lscr.io/linuxserver/unifi-network-application:latest
+    container_name: unifi-network-application
+    networks:
+      - unifi
+    depends_on:
+      - unifi-db
+    env_file:
+      - .unifi.env
+    volumes:
+      - /docker/unifi-network-application:/config
+    # networks:
+    #   - enp0s31f6
+#    ports:
+#      - "10.0.1.102:7878:7878"
     ports:
       - 8444:8443
       - 3478:3478/udp
       - 10001:10001/udp
       - 8080:8080
-      - 8081:8081
-      #- 1900:1900/udp #optional
-      #- 8843:8843 #optional
-      #- 8880:8880 #optional
-      #- 6789:6789 #optional
+      # - 1900:1900/udp #optional
+      - 8843:8843 #optional
+      - 8880:8880 #optional
+      - 6789:6789 #optional
       - 5514:5514/udp #optional
-    # You can't define serverstransport in docker labels, so have to hack around it with
-    # https://blog.ktz.me/traefik-v2-and-unifi-controller-in-docker/
-    # To avoid verifying the certificate, you need insecureSkipVerify
-    # But this cannot be set using labels, and must use a file transport instead
     labels:
       - traefik.enable=true
       - traefik.http.routers.unifi-controller.rule=Host(`unifi.viewpoint.house`)
@@ -593,6 +982,17 @@ services:
       - homepage.icon=mdi-wifi
       - homepage.href=https://unifi.viewpoint.house:8444
       - homepage.description=Unifi Wireless Management
+    restart: unless-stopped
+
+  unifi-db:
+    image: docker.io/mongo:4
+    # I have to use v4, as v5+ requires a CPU with AVX support
+    # container_name: unifi-db
+    networks:
+      - unifi
+    volumes:
+      - /docker/unifi-network-application-database:/data/db
+      - /docker/unifi-network-application/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     restart: unless-stopped
 
 #  pialert:
@@ -629,8 +1029,6 @@ services:
       - traefik.http.services.grafana.loadbalancer.server.port=3000
       - traefik.http.services.grafana.loadbalancer.healthcheck.path=/
       - traefik.http.services.grafana.loadbalancer.healthcheck.port=3000
-
-
       - homepage.group=Monitoring
       - homepage.name=Grafana
       - homepage.icon=si-grafana
@@ -644,30 +1042,10 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    environment:
-      # http://docs.grafana.org/installation/configuration/#using-environment-variables
-      - GF_INSTALL_PLUGINS=${GF_INSTALL_PLUGINS}
-      - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
-      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
-      - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED}
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=${GF_AUTH_ANONYMOUS_ORG_ROLE}
-      - GF_SERVER_ROOT_URL=https://grafana.viewpoint.house
-      - GF_AUTH_GENERIC_OAUTH_ENABLED=true
-      - GF_AUTH_GENERIC_OAUTH_NAME=Authelia
-      - GF_AUTH_GENERIC_OAUTH_CLIENT_ID=${GF_AUTH_GENERIC_OAUTH_CLIENT_ID}
-      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=${GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
-      - GF_AUTH_GENERIC_OAUTH_SCOPES=openid profile email groups
-      - GF_AUTH_GENERIC_OAUTH_EMPTY_SCOPES=false
-      - GF_AUTH_GENERIC_OAUTH_AUTH_URL=https://auth.viewpoint.house/api/oidc/authorization
-      - GF_AUTH_GENERIC_OAUTH_TOKEN_URL=https://auth.viewpoint.house/api/oidc/token
-      - GF_AUTH_GENERIC_OAUTH_API_URL=https://auth.viewpoint.house/api/oidc/userinfo
-      - GF_AUTH_GENERIC_OAUTH_LOGIN_ATTRIBUTE_PATH=preferred_username
-      - GF_AUTH_GENERIC_OAUTH_GROUPS_ATTRIBUTE_PATH=groups
-      - GF_AUTH_GENERIC_OAUTH_NAME_ATTRIBUTE_PATH=name
-      - GF_AUTH_GENERIC_OAUTH_USE_PKCE=true
-
+    env_file:
+      - .grafana.env
     volumes:
-      - /docker/grafana:/var/lib/grafana/
+      - grafana:/var/lib/grafana/
     logging:
       driver: gelf
       options:
@@ -682,10 +1060,12 @@ services:
       # Mount for influxdb data directory - this is an LVM volume on homeauto
       # - /var/lib/influxdb:/var/lib/influxdb # unused
       # - influxdb2:/home/influxdb/.influxdbv2 # surplus
-      - influxdb2:/var/lib/influxdb2
+      - influxdb2_data:/var/lib/influxdb2
       # Mount for influxdb configuration
-      - /docker/influxdb/config/:/etc/influxdb/
-      - /docker/influxdb/types.db:/usr/share/collectd/types.db
+      - influxdb_config:/etc/influxdb/
+      # - influxdb_types:/usr/share/collectd/types.db
+      # - /docker/influxdb/config/:/etc/influxdb/
+      # - /docker/influxdb/types.db:/usr/share/collectd/types.db
     networks:
       - traefik_proxy
     ports:
@@ -725,41 +1105,41 @@ services:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
-  chronograf:
-    image: chronograf:latest
-    container_name: chronograf
-    restart: unless-stopped
-    networks:
-      - traefik_proxy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8888"]
-      start_period: 15s
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    volumes:
-      - /docker/chronograf/data/:/var/lib/chronograf/
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.chronograf.rule=Host(`chronograf.viewpoint.house`)
-      - traefik.http.routers.chronograf.entrypoints=websecure
-      - traefik.http.routers.chronograf.tls=true
-      - traefik.http.routers.chronograf.tls.certresolver=letsencrypt
-      - traefik.http.routers.chronograf.tls.domains[0].main=chronograf.viewpoint.house
-      - traefik.http.services.chronograf.loadbalancer.server.port=8888
-      - traefik.http.services.chronograf.loadbalancer.healthcheck.port=8888
-      - traefik.http.services.chronograf.loadbalancer.healthcheck.path=/
-      - homepage.group=Monitoring
-      - homepage.name=Chronograf
-      - homepage.icon=mdi-chart-line
-      - homepage.href=https://chronograf.viewpoint.house
-      - homepage.description=Chronograf
-      - com.centurylinklabs.watchtower.enable=true
-    logging:
-      driver: gelf
-      options:
-        gelf-address: "udp://172.24.32.13:12201"
-        tag: "{{.Name}}"
+  # chronograf:
+  #   image: chronograf:latest
+  #   # container_name: chronograf
+  #   # restart: unless-stopped
+  #   networks:
+  #     - traefik_proxy
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8888"]
+  #     start_period: 15s
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+  #   volumes:
+  #     - chronograf_data:/var/lib/chronograf/
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.http.routers.chronograf.rule=Host(`chronograf.viewpoint.house`)
+  #     - traefik.http.routers.chronograf.entrypoints=websecure
+  #     - traefik.http.routers.chronograf.tls=true
+  #     - traefik.http.routers.chronograf.tls.certresolver=letsencrypt
+  #     - traefik.http.routers.chronograf.tls.domains[0].main=chronograf.viewpoint.house
+  #     - traefik.http.services.chronograf.loadbalancer.server.port=8888
+  #     - traefik.http.services.chronograf.loadbalancer.healthcheck.port=8888
+  #     - traefik.http.services.chronograf.loadbalancer.healthcheck.path=/
+  #     - homepage.group=Monitoring
+  #     - homepage.name=Chronograf
+  #     - homepage.icon=mdi-chart-line
+  #     - homepage.href=https://chronograf.viewpoint.house
+  #     - homepage.description=Chronograf
+  #     - com.centurylinklabs.watchtower.enable=true
+  #   logging:
+  #     driver: gelf
+  #     options:
+  #       gelf-address: "udp://172.24.32.13:12201"
+  #       tag: "{{.Name}}"
 
   # telegraf:
   #   image: telegraf:latest
@@ -800,39 +1180,8 @@ services:
     container_name: Watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - WATCHTOWER_CLEANUP=true
-      - WATCHTOWER_SCHEDULE=0 0 2 * * *
-      - WATCHTOWER_NOTIFICATIONS=${WATCHTOWER_NOTIFICATIONS}
-      - WATCHTOWER_NOTIFICATION_EMAIL_FROM=${WATCHTOWER_NOTIFICATION_EMAIL_FROM}
-      - WATCHTOWER_NOTIFICATION_EMAIL_TO=${WATCHTOWER_NOTIFICATION_EMAIL_TO}
-      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER=${WATCHTOWER_NOTIFICATION_EMAIL_SERVER}
-      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER=${WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER}
-      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT=${WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT}
-      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD=${WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD}
+    env_file:
+      - .watchtower.env
     labels:
-      - com.centurylinklabs.watchtower.enable=true
-    restart: unless-stopped
-
-  archiveTeamWarrior:
-    image: atdr.meo.ws/archiveteam/warrior-dockerfile
-    container_name: archiveTeamWarrior
-    hostname: archiveTeamWarrior
-    networks:
-      - traefik_proxy
-    volumes:
-      - warrior_data:/data/data
-      - warrior_config:/home/warrior/projects/
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.archiveteam.rule=Host(`archiveteam.viewpoint.house`)
-      - traefik.http.routers.archiveteam.entrypoints=web
-      - traefik.http.services.archiveteam.loadbalancer.server.port=8001
-      - traefik.http.services.archiveteam.loadbalancer.healthcheck.port=8001
-      - traefik.http.services.archiveteam.loadbalancer.healthcheck.path=/
-      - homepage.group=Media
-      - homepage.name=Archive Team Warrior
-      - homepage.href=http://archiveteam.viewpoint.house
-      - homepage.description=Archive Team Warrior Node
       - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
