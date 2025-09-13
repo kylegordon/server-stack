@@ -1,0 +1,100 @@
+---
+networks:
+  ollama-docker:
+
+  traefik_proxy:
+    external: true
+    name: frontend_traefik_proxy
+
+  homeautomation:
+    external: true
+    name: homeautomation
+
+volumes:
+  ollama:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/ollama/data/"
+
+  ollama-webui:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/ollama/webui/"
+
+services:
+#   app:
+#     build: .
+#     ports:
+#       - 8000:8000
+#       - 5678:5678
+#     volumes:
+#       - .:/code
+#     command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+#     restart: always
+#     depends_on:
+#       - ollama
+#       - ollama-webui
+#     networks:
+#       - ollama-docker
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - 7869:11434
+    volumes:
+      # - .:/code
+      - ollama:/root/.ollama
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    restart: always
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_HOST=0.0.0.0
+    networks:
+      - ollama-docker
+      - homeautomation
+
+  ollama-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: ollama-webui
+    volumes:
+      - ollama-webui:/app/backend/data
+    depends_on:
+      - ollama
+    # ports:
+    #   - 8080:8080
+    environment: # https://docs.openwebui.com/getting-started/env-configuration#default_models
+      - OLLAMA_BASE_URLS=${OLLAMA_BASE_URLS} #comma separated ollama hosts
+      - ENV=${ENV}
+      - WEBUI_AUTH=${WEBUI_AUTH}
+      - WEBUI_NAME=${WEBUI_NAME}
+      - WEBUI_URL=${WEBUI_URL}
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
+    env_file:
+      - .ollama.env
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    networks:
+      - ollama-docker
+      - traefik_proxy
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - traefik.enable=true
+      - traefik.docker.network=traefik_proxy
+      - traefik.http.routers.ollama-http.entrypoints=web
+      - traefik.http.routers.ollama-http.rule=Host(`ollama.viewpoint.house`)
+      - traefik.http.routers.ollama-http.middlewares=ollama-https
+      - traefik.http.middlewares.ollama-https.redirectscheme.scheme=https
+      - traefik.http.routers.ollama-webui.rule=Host(`ollama.viewpoint.house`)
+      - traefik.http.routers.ollama-webui.entrypoints=websecure
+      - traefik.http.routers.ollama-webui.tls.certresolver=letsencrypt
+      - traefik.http.routers.ollama-webui.tls.domains[0].main=ollama.viewpoint.house
+      - traefik.http.services.ollama-webui.loadbalancer.server.port=8080
+      - traefik.http.services.ollama-webui.loadbalancer.healthcheck.path=/
+      - traefik.http.services.ollama-webui.loadbalancer.healthcheck.port=8080
