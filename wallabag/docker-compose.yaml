@@ -8,20 +8,6 @@ services:
       - traefik_proxy
     env_file:
       - ".wallabag.env"
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - SYMFONY__ENV__DATABASE_DRIVER=${DATABASE_DRIVER}
-      - SYMFONY__ENV__DATABASE_HOST=${DATABASE_HOST}
-      - SYMFONY__ENV__DATABASE_PORT=${DATABASE_PORT}
-      - SYMFONY__ENV__DATABASE_NAME=${DATABASE_NAME}
-      - SYMFONY__ENV__DATABASE_USER=${DATABASE_USER}
-      - SYMFONY__ENV__DATABASE_PASSWORD=${WALLABAG_DATABASE_PASSWORD}
-      - SYMFONY__ENV__DATABASE_CHARSET=${DATABASE_CHARSET}
-      - SYMFONY__ENV__DATABASE_TABLE_PREFIX=${DATABASE_TABLE_PREFIX}
-      - SYMFONY__ENV__MAILER_DSN=${MAILER_DSN}
-      - SYMFONY__ENV__FROM_EMAIL=${FROM_EMAIL}
-      - SYMFONY__ENV__DOMAIN_NAME=${DOMAIN_NAME}
-      - SYMFONY__ENV__SERVER_NAME=${SERVER_NAME}
     # ports:
     #   - "80"
     volumes:
@@ -52,8 +38,6 @@ services:
       - wallabag
     env_file:
       - ".wallabag.env"
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
       - /docker/wallabag/data:/var/lib/mysql
     healthcheck:
