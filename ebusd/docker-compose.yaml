@@ -1,0 +1,31 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: frontend_traefik_proxy
+
+
+volumes:
+  ebusd:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/ebusd/config/"
+
+services:
+  ebusd:
+    # alternatively, use "john30/ebusd:devel" for the latest build of the current source code
+    image: john30/ebusd:latest
+    container_name: ebusd
+    restart: unless-stopped
+    ports:
+      - 8888:8888
+      # when enabling the HTTP port, add it to the published ports as well:
+      - 8081:8080
+    depends_on:
+      - eclipse-mosquitto
+    volumes:
+      - ebusd:/config
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
