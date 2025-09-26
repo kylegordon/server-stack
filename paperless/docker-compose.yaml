@@ -35,6 +35,16 @@ volumes:
 
 
 services:
+  paperless_broker:
+    image: docker.io/library/redis:7
+    restart: unless-stopped
+    networks:
+      - paperless
+    volumes:
+      - paperless_redisdata:/data
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
   paperless_db:
     image: docker.io/library/mariadb:10
     restart: unless-stopped
