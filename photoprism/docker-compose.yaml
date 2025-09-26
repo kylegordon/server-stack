@@ -1,0 +1,136 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: frontend_traefik_proxy
+  photoprism:
+    driver: bridge
+    name: photoprism
+
+volumes:
+  photoprism_db:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/photoprism/db/"
+  photoprism_storage:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/photoprism/storage/"
+  photoprism_pictures:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/media/Tank/Home/Pictures"
+      device: ":/srv/nfs4/home/Pictures/"
+
+services:
+
+# DOCKER COMPOSE COMMAND REFERENCE
+# --------------------------------------------------------------------------
+# Start    | docker-compose up -d
+# Stop     | docker-compose stop
+# Update   | docker-compose pull
+# Logs     | docker-compose logs --tail=25 -f
+# Terminal | docker-compose exec photoprism bash
+# Help     | docker-compose exec photoprism photoprism help
+# Config   | docker-compose exec photoprism photoprism config
+# Reset    | docker-compose exec photoprism photoprism reset
+# Backup   | docker-compose exec photoprism photoprism backup -a -i
+# Restore  | docker-compose exec photoprism photoprism restore -a -i
+# Index    | docker-compose exec photoprism photoprism index
+# Reindex  | docker-compose exec photoprism photoprism index -f
+# Import   | docker-compose exec photoprism photoprism import
+#
+# To search originals for faces without a complete rescan:
+# docker-compose exec photoprism photoprism faces index
+#
+# All commands may have to be prefixed with "sudo" when not running as root.
+# This will point the home directory placeholder ~ to /root in volume mounts.
+
+  photoprism:
+    ## Use photoprism/photoprism:preview for testing preview builds:
+    image: photoprism/photoprism:latest
+    networks:
+      - traefik_proxy
+      - photoprism
+    depends_on:
+      photoprism_mariadb:
+          condition: service_started
+    ## Only enable automatic restarts once your installation is properly
+    ## configured as it otherwise may get stuck in a restart loop,
+    ## see https://docs.photoprism.org/getting-started/faq/#why-is-photoprism-getting-stuck-in-a-restart-loop
+    restart: unless-stopped
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    ## Run as a specific, non-root user (see https://docs.docker.com/engine/reference/run/#user):
+    # user: "1000:1000"
+    env_file:
+      - .photoprism.env
+    ## Hardware devices for video transcoding and machine learning (optional):
+    # devices:
+    #  - "/dev/video11:/dev/video11" # Video4Linux (h264_v4l2m2m)
+    #  - "/dev/dri/renderD128:/dev/dri/renderD128" # Intel GPU
+    #  - "/dev/dri/card0:/dev/dri/card0"
+    working_dir: "/photoprism"
+    volumes:
+      - photoprism_pictures:/photoprism/originals"
+      - "photoprism_storage:/photoprism/storage"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2342"]
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.http.routers.photos-http.entrypoints=web
+      - traefik.http.routers.photos-http.rule=Host(`photos.viewpoint.house`)
+      - traefik.http.routers.photos-http.middlewares=photos-https
+      - traefik.http.middlewares.photos-https.redirectscheme.scheme=https
+      - traefik.http.routers.photos.rule=Host(`photos.viewpoint.house`)
+      - traefik.http.routers.photos.entrypoints=websecure
+      - traefik.http.routers.photos.tls=true
+      - traefik.http.routers.photos.tls.certresolver=letsencrypt
+      - traefik.http.routers.photos.tls.domains[0].main=photos.viewpoint.house
+      - traefik.http.services.photos.loadbalancer.server.port=2342
+      - traefik.http.services.photos.loadbalancer.healthcheck.path=/
+      - traefik.http.services.photos.loadbalancer.healthcheck.port=2342
+      - homepage.group=Media
+      - homepage.name=Photoprism
+      - homepage.icon=mdi-camera
+      - homepage.href=https://photos.viewpoint.house
+      - homepage.description=PhotoPrism Photo Album
+      - com.centurylinklabs.watchtower.enable=true
+
+  ## Database Server (recommended)
+  ## see https://docs.photoprism.org/getting-started/faq/#should-i-use-sqlite-mariadb-or-mysql
+  photoprism_mariadb:
+    restart: unless-stopped
+    image: mariadb:10.6
+    networks:
+      - photoprism
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    command: mysqld --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
+    volumes:
+      - "photoprism_db:/var/lib/mysql" # Never remove
+    environment:
+      - MYSQL_ROOT_PASSWORD=${PHOTOPRISM_MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${PHOTOPRISM_MYSQL_DATABASE}
+      - MYSQL_USER=${PHOTOPRISM_MYSQL_USER}
+      - MYSQL_PASSWORD=${PHOTOPRISM_MYSQL_PASSWORD}
+    # healthcheck:
+    #   test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+    #   start_period: 10s
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 3
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
