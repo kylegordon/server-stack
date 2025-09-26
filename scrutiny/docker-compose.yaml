@@ -1,0 +1,79 @@
+networks:
+  traefik_proxy:
+    external: true
+  scrutiny:
+    driver: bridge
+
+volumes:
+  scrutiny_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/scrutiny/config/"
+
+  scrutiny_influxdb:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/scrutiny/influxdb/"
+
+services:
+  scrutiny_web:
+    image: 'ghcr.io/analogj/scrutiny:master-web'
+    # ports:
+    #   - '8080:8080'
+    networks:
+      - traefik_proxy
+      - scrutiny
+    volumes:
+      - 'scrutiny_config:/opt/scrutiny/config'
+    restart: unless-stopped
+    environment:
+      SCRUTINY_WEB_INFLUXDB_HOST: 'scrutiny_influxdb'
+    depends_on:
+      scrutiny_influxdb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 10s
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_proxy
+      - traefik.http.routers.scrutiny-web-http.entrypoints=web
+      - traefik.http.routers.scrutiny-web-http.rule=Host(`scrutiny.viewpoint.house`)
+      - traefik.http.routers.scrutiny-web-http.middlewares=scrutiny-web-https
+      - traefik.http.middlewares.scrutiny-web-https.redirectscheme.scheme=https
+      - traefik.http.routers.scrutiny-web.rule=Host(`scrutiny.viewpoint.house`)
+      - traefik.http.routers.scrutiny-web.entrypoints=websecure
+      - traefik.http.routers.scrutiny-web.tls=true
+      - traefik.http.routers.scrutiny-web.tls.certresolver=letsencrypt
+      - traefik.http.routers.scrutiny-web.tls.domains=scrutiny.viewpoint.house
+      - traefik.http.services.scrutiny-web.loadbalancer.server.port=8080
+      - traefik.http.services.scrutiny-web.loadbalancer.healthcheck.path=/api/health
+      - traefik.http.services.scrutiny-web.loadbalancer.healthcheck.port=8080
+      - homepage.group=Monitoring
+      - homepage.name=Scrutiny Web
+      - homepage.href=https://scrutiny.viewpoint.house
+      - homepage.description=Scrutiny Web
+      - homepage.icon=si-scrutiny
+      - com.centurylinklabs.watchtower.enable=true
+
+  scrutiny_influxdb:
+    image: influxdb:2.2
+    # ports:
+    #   - '8086:8086'
+    networks:
+      - scrutiny
+    volumes:
+      - 'scrutiny_influxdb:/var/lib/influxdb2'
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
