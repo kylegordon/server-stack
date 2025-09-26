@@ -6,8 +6,8 @@ services:
     networks:
       - wallabag
       - traefik_proxy
-    env_file:
-      - ".wallabag.env"
+    # env_file:
+    #   - ".wallabag.env"
     # ports:
     #   - "80"
     volumes:
@@ -36,8 +36,8 @@ services:
     restart: unless-stopped
     networks:
       - wallabag
-    env_file:
-      - ".wallabag.env"
+    # env_file:
+    #   - ".wallabag.env"
     volumes:
       - /docker/wallabag/data:/var/lib/mysql
     healthcheck:
