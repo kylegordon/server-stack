@@ -1,0 +1,93 @@
+networks:
+  traefik_proxy:
+    external: true
+  paperless:
+    driver: bridge
+
+volumes:
+  paperless_redisdata:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/paperless/redis/data/"
+
+  paperless_dbdata:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/paperless/db/data/"
+
+  paperless_media:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/paperless/media/"
+
+  paperless_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/paperless/data/"
+
+
+services:
+  paperless_db:
+    image: docker.io/library/mariadb:10
+    restart: unless-stopped
+    networks:
+      - paperless
+    volumes:
+      - paperless_dbdata:/var/lib/mysql
+    env_file:
+      - .paperless.env
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+  paperless-ngx:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless-ngx
+    depends_on:
+      paperless_broker:
+          condition: service_started
+      paperless_db:
+          condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    env_file:
+      - .paperless.env
+    volumes:
+      - paperless_data:/usr/src/paperless/data
+      - paperless_media:/usr/src/paperless/media
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+      - paperless
+    labels:
+      - traefik.enable=true
+      - traefick.docker.network=frontend_traefik_proxy
+      - traefik.http.routers.paperless.rule=Host(`paperless.viewpoint.house`)
+      - traefik.http.routers.paperless.entrypoints=websecure
+      - traefik.http.routers.paperless.tls=true
+      - traefik.http.routers.paperless.tls.certresolver=letsencrypt
+      - traefik.http.routers.paperless.tls.domains[0].main=paperless.viewpoint.house
+      - traefik.http.services.paperless.loadbalancer.server.port=8000
+      # - traefik.http.routers.paperless.middlewares=authelia@docker
+      - homepage.group=Media
+      - homepage.icon=mdi-book-open-outline
+      - homepage.name=Paperless
+      - homepage.href=https://paperless.viewpoint.house
+      - homepage.description=Paperless
+      - com.centurylinklabs.watchtower.enable=true
