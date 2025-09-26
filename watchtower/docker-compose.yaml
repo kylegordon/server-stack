@@ -1,0 +1,15 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: frontend_traefik_proxy
+
+services:
+  Watchtower:
+    image: v2tec/watchtower:latest
+    command: "--label-enable"
+    container_name: Watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    restart: unless-stopped
