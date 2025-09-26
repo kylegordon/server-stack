@@ -22,8 +22,8 @@ services:
       - 8888:8888
       # when enabling the HTTP port, add it to the published ports as well:
       - 8081:8080
-    depends_on:
-      - eclipse-mosquitto
+    # depends_on:
+    #   - eclipse-mosquitto
     volumes:
       - ebusd:/config
     labels:
