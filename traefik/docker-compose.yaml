@@ -1,9 +1,9 @@
 ---
-version: '3.6'
 
 networks:
   traefik_proxy:
-    driver: bridge
+    # driver: overlay
+    # driver: bridge
 
 volumes:
 
@@ -12,14 +12,7 @@ volumes:
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/store/docker_nfs/traefik/letsencrypt/"
-
-  homepage_config:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/homepage/"
+      device: ":/srv/nfs4/docker_nfs/traefik/letsencrypt/"
 
 services:
   traefik:
@@ -29,11 +22,12 @@ services:
     # https://community.traefik.io/t/healthcheck-through-traefik/10000/6
     # https://doc.traefik.io/traefik/routing/services/#health-check
     # https://gist.github.com/jeroenhendricksen/7dfe273277bbbd1c2ea2cb7c647b24fa
-    image: "traefik:latest"
+    image: "traefik:3.2.3"
     container_name: "traefik"
     networks:
       - traefik_proxy
     command:
+      # - --providers.swarm.endpoint=unix:///var/run/docker.sock
       - --api.insecure=true
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
@@ -42,12 +36,16 @@ services:
       - --entrypoints.haweb.address=:8123
       - --log.level=DEBUG
       - --accesslog=true
+      - --tracing.otlp=true
+      - --tracing.otlp.http=true
+      - --tracing.otlp.http.endpoint=http://172.24.32.13:8200/v1/traces
+      - --metrics.otlp=true
+      - --metrics.otlp.http=true
+      - --metrics.otlp.http.endpoint=http://172.24.32.13:8200/v1/metrics
       - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
       - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=route53
       - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
-    env_file:
-      - docker.env
     ports:
       - "80:80"     # Web entrypoint
       - "443:443" # Websecure entrypoint
@@ -58,28 +56,8 @@ services:
       - traefik_letsencrypt:/letsencrypt
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     restart: unless-stopped
-
-  homepage:
-    image: ghcr.io/benphelps/homepage:latest
-    container_name: homepage
-    restart: unless-stopped
-    networks:
-      - traefik_proxy
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.homepage-http.entrypoints=web
-      - traefik.http.routers.homepage-http.rule=Host(`home.viewpoint.house`)
-      - traefik.http.routers.homepage-http.middlewares=homepage-https
-      - traefik.http.middlewares.homepage-https.redirectscheme.scheme=https
-      - traefik.http.routers.homepage.rule=Host(`home.viewpoint.house`)
-      - traefik.http.routers.homepage.entrypoints=websecure
-      - traefik.http.routers.homepage.tls=true
-      - traefik.http.routers.homepage.tls.certresolver=letsencrypt
-      - traefik.http.routers.homepage.tls.domains[0].main=home.viewpoint.house
-      - traefik.http.services.homepage.loadbalancer.server.port=3000
-      - traefik.http.services.homepage.loadbalancer.healthcheck.path=/
-      - traefik.http.services.homepage.loadbalancer.healthcheck.port=3000
-      - com.centurylinklabs.watchtower.enable=true
-    volumes:
-      - homepage_config:/app/config # Make sure your local config directory exists
-      - /var/run/docker.sock:/var/run/docker.sock:ro # (optional) For docker integrations
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: 3
