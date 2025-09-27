@@ -1,0 +1,43 @@
+volumes:
+  predbat_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/predbat/config/"
+
+services:
+  predbat:
+    container_name: predbat
+    image: nipar44/predbat_addon:latest
+    restart: unless-stopped
+    volumes:
+      # - /docker/predbat/config:/config:rw
+      - predbat_config:/config:rw
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - traefik_proxy
+      - homeautomation
+    depends_on:
+      GivTCP:
+          condition: service_started
+      home-assistant:
+          condition: service_healthy
+      pihole:
+          condition: service_healthy
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - traefik.enable=true
+      - traefik.docker.network=traefik_proxy
+      - traefik.http.routers.predbat.rule=Host(`predbat.viewpoint.house`)
+      - traefik.http.routers.predbat.entrypoints=websecure
+      - traefik.http.routers.predbat.tls.certresolver=letsencrypt
+      - traefik.http.routers.predbat.tls.domains[0].main=predbat.viewpoint.house
+      - traefik.http.services.predbat.loadbalancer.server.port=5052
+      - traefik.http.services.predbat.loadbalancer.healthcheck.path=/
+      - traefik.http.services.predbat.loadbalancer.healthcheck.port=5052
+      - homepage.group=Home Automation
+      - homepage.name=Predbat
+      - homepage.icon=mdi-home-assistant
+      - homepage.href=https://predbat.viewpoint.house
+      - homepage.description=Predbat
