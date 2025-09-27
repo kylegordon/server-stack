@@ -47,16 +47,6 @@ networks:
     # driver: bridge
 
 services:
-  #mysql:
-  #  image: mariadb
-  #  container_name: librenms-db
-  #  volumes:
-  #    - /docker/librenms/mysql:/var/lib/mysql
-  #    - /docker/librenms/50-server.cnf:/etc/mysql/mariadb.conf.d/50-server.cnf:ro
-  #  environment:
-  #    - MYSQL_ROOT_PASSWORD=pwd4librenms
-  #  restart: unless-stopped
-
   librenms:
     image: librenms/librenms:latest
     container_name: librenms
