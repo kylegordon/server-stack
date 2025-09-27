@@ -35,7 +35,7 @@ networks:
 
   traefik_proxy:
     external: true
-    name: frontend_traefik_proxy
+    name: traefik_traefik_proxy
 
 services:
 
@@ -50,7 +50,7 @@ services:
       - traefik_proxy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.cerebro.rule=Host(`cerebro.viewpoint.house`)
       - traefik.http.routers.cerebro.entrypoints=websecure
       - traefik.http.routers.cerebro.tls=true
@@ -72,7 +72,7 @@ services:
       - traefik_proxy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.elastichq.rule=Host(`elastichq.viewpoint.house`)
       - traefik.http.routers.elastichq.entrypoints=websecure
       - traefik.http.routers.elastichq.tls=true
@@ -315,7 +315,7 @@ services:
       ELASTICSEARCH_HOSTS: http://es01:9200
     labels:
       - traefik.enable=true
-      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.kibana01.rule=Host(`logs.viewpoint.house`)
       - traefik.http.routers.kibana01.entrypoints=websecure
       - traefik.http.routers.kibana01.tls=true
