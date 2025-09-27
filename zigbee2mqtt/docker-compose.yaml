@@ -1,0 +1,48 @@
+volumes:
+  zigbee2mqtt_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/zigbee2mqtt/data/"
+
+services:
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    image: koenkk/zigbee2mqtt:latest
+    restart: unless-stopped
+    healthcheck:
+      test: "wget --no-verbose --tries=1 --spider http://localhost:8080 || exit 1"
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - traefik_proxy
+      - homeautomation
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.z2m-http.entrypoints=web
+      - traefik.http.routers.z2m-http.rule=Host(`z2m.viewpoint.house`)
+      - traefik.http.routers.z2m-http.middlewares=z2m-https
+      - traefik.http.middlewares.z2m-https.redirectscheme.scheme=https
+      - traefik.http.routers.z2m.rule=Host(`z2m.viewpoint.house`)
+      - traefik.http.routers.z2m.entrypoints=websecure
+      - traefik.http.routers.z2m.tls=true
+      - traefik.http.routers.z2m.tls.certresolver=letsencrypt
+      - traefik.http.routers.z2m.tls.domains[0].main=z2m.viewpoint.house
+      - traefik.http.services.z2m.loadbalancer.server.port=8080
+      - traefik.http.services.z2m.loadbalancer.healthcheck.path=/
+      - traefik.http.services.z2m.loadbalancer.healthcheck.port=8080
+      - homepage.group=Home Automation
+      - homepage.name=Zigbee2MQTT
+      - homepage.icon=mdi-zigbee
+      - homepage.href=https://z2m.viewpoint.house
+      - homepage.description=Zigbee Management
+      - com.centurylinklabs.watchtower.enable=true
+    volumes:
+      - zigbee2mqtt_data:/app/data
+      - /run/udev:/run/udev:ro
+    # environment:
+    #   - TZ=Europe/London
