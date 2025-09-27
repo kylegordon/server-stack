@@ -38,17 +38,10 @@ volumes:
       o: addr=172.24.32.5,nolock,soft,rw
       device: ":/srv/nfs4/docker_nfs/smokeping/data/"
 
-  peanut_config:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=172.24.32.5,nolock,soft,rw
-      device: ":/srv/nfs4/docker_nfs/peanut/config/"
-
 networks:
   traefik_proxy:
     external: true
-    name: frontend_traefik_proxy
+    name: traefik_traefik_proxy
   monitoring:
     # driver: overlay
     # driver: bridge
@@ -101,7 +94,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.swarm.network=traefik_proxy
-      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.librenms-http.entrypoints=web
       - traefik.http.routers.librenms-http.rule=Host(`nms.viewpoint.house`)
       - traefik.http.routers.librenms-http.middlewares=librenms-https
@@ -322,42 +315,5 @@ services:
       - homepage.icon=mdi-book-open-outline
       - homepage.name=Smokeping
       - homepage.href=https://smokeping.viewpoint.house
-      - homepage.description=System Monitoring
-      - com.centurylinklabs.watchtower.enable=true
-
-  peanut:
-    image: brandawg93/peanut:latest
-    container_name: PeaNUT
-    restart: unless-stopped
-    volumes:
-      - peanut_config:/config
-    environment:
-      - WEB_PORT=8080
-    networks:
-      - traefik_proxy
-    healthcheck:
-      test: ["CMD", "wget", "-qO", "-", "http://127.0.0.1:8080/"]
-      start_period: 60s
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.peanut-http.entrypoints=web
-      - traefik.http.routers.peanut-http.rule=Host(`peanut.viewpoint.house`)
-      - traefik.http.routers.peanut-http.middlewares=peanut-https
-      - traefik.http.middlewares.peanut-https.redirectscheme.scheme=https
-      - traefik.http.routers.peanut.rule=Host(`peanut.viewpoint.house`)
-      - traefik.http.routers.peanut.entrypoints=websecure
-      - traefik.http.routers.peanut.tls=true
-      - traefik.http.routers.peanut.tls.certresolver=letsencrypt
-      - traefik.http.routers.peanut.tls.domains[0].main=peanut.viewpoint.house
-      - traefik.http.services.peanut.loadbalancer.server.port=8080
-      - traefik.http.services.peanut.loadbalancer.healthcheck.port=8080
-      - traefik.http.services.peanut.loadbalancer.healthcheck.path=/
-      - homepage.group=Monitoring
-      - homepage.icon=mdi-book-open-outline
-      - homepage.name=PeaNUT
-      - homepage.href=https://peanut.viewpoint.house
       - homepage.description=System Monitoring
       - com.centurylinklabs.watchtower.enable=true
