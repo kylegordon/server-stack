@@ -1,0 +1,73 @@
+networks:
+  traefik_proxy:
+    external: true
+
+volumes:
+  influxdb2_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/influxdb/data/"
+
+  influxdb_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/influxdb/config/"
+
+services:
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    restart: unless-stopped
+    volumes:
+      # Mount for influxdb data directory - this is an LVM volume on homeauto
+      # - /var/lib/influxdb:/var/lib/influxdb # unused
+      # - influxdb2:/home/influxdb/.influxdbv2 # surplus
+      - influxdb2_data:/var/lib/influxdb2
+      # Mount for influxdb configuration
+      - influxdb_config:/etc/influxdb/
+      # - influxdb_types:/usr/share/collectd/types.db
+      # - /docker/influxdb/config/:/etc/influxdb/
+      # - /docker/influxdb/types.db:/usr/share/collectd/types.db
+    networks:
+      - traefik_proxy
+    ports:
+      # The API for InfluxDB is served on port 8086
+      - "8086:8086"
+      - "8082:8082"
+      - "25826:25826"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.influxdb-http.entrypoints=web
+      - traefik.http.routers.influxdb-http.rule=Host(`influxdb.viewpoint.house`)
+      - traefik.http.routers.influxdb-http.middlewares=influxdb-https
+      - traefik.http.middlewares.influxdb-https.redirectscheme.scheme=https
+      - traefik.http.routers.influxdb.rule=Host(`influxdb.viewpoint.house`)
+      - traefik.http.routers.influxdb.entrypoints=websecure
+      - traefik.http.routers.influxdb.tls=true
+      - traefik.http.routers.influxdb.tls.certresolver=letsencrypt
+      - traefik.http.routers.influxdb.tls.domains[0].main=influxdb.viewpoint.house
+      - traefik.http.services.influxdb.loadbalancer.server.port=8086
+      - traefik.http.services.influxdb.loadbalancer.healthcheck.path=/
+      - traefik.http.services.influxdb.loadbalancer.healthcheck.port=8086
+      - homepage.group=Monitoring
+      - homepage.name=InfluxDB
+      - homepage.icon=si-influxdb
+      - homepage.href=http://influxdb.viewpoint.house
+      - homepage.description=InfluxDB
+      - com.centurylinklabs.watchtower.enable=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+
