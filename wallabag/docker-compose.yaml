@@ -1,0 +1,63 @@
+---
+services:
+  wallabag:
+    image: wallabag/wallabag
+    restart: unless-stopped
+    networks:
+      - wallabag
+      - traefik_proxy
+    # env_file:
+    #   - ".wallabag.env"
+    # ports:
+    #   - "80"
+    volumes:
+      - /docker/wallabag/images:/var/www/wallabag/web/assets/images
+    depends_on:
+      - db
+      - redis
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.http.routers.wallabag-http.entrypoints=web
+      - traefik.http.routers.wallabag-http.rule=Host(`pocket.glasgownet.com`)
+      - traefik.http.routers.wallabag-http.middlewares=wallabag-https
+      - traefik.http.middlewares.wallabag-https.redirectscheme.scheme=https
+      - traefik.http.routers.wallabag.rule=Host(`pocket.glasgownet.com`)
+      - traefik.http.routers.wallabag.entrypoints=websecure
+      - traefik.http.routers.wallabag.tls=true
+      - traefik.http.routers.wallabag.tls.certresolver=letsencrypt
+      - traefik.http.routers.wallabag.tls.domains[0].main=pocket.glasgownet.com
+      - traefik.http.services.wallabag.loadbalancer.server.port=80
+      - traefik.http.services.wallabag.loadbalancer.healthcheck.path=/
+      - traefik.http.services.wallabag.loadbalancer.healthcheck.port=80
+
+  db:
+    image: mariadb
+    restart: unless-stopped
+    networks:
+      - wallabag
+    # env_file:
+    #   - ".wallabag.env"
+    volumes:
+      - /docker/wallabag/data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh", "--innodb_initialized"]
+      interval: 20s
+      timeout: 3s
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    networks:
+      - wallabag
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 20s
+      timeout: 3s
+
+networks:
+  wallabag:
+
+  traefik_proxy:
+    external: true
+    name: frontend_traefik_proxy

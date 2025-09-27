@@ -1,0 +1,27 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+  recyclarr:
+    name: recyclarr
+
+volumes:
+  recyclarr_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/recyclarr/config/"
+
+services:
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr
+    container_name: recyclarr
+    user: 1000:1000
+    networks:
+      - recyclarr
+      - traefik_proxy
+    volumes:
+      - recyclarr_config:/config
+    environment:
+      - TZ=Europe/London

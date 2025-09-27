@@ -1,18 +1,33 @@
-version: '3.4'
 
 volumes:
+
+  logstash_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/logstash/config/"
+
   data01:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/media/sata_ssd/elasticsearch/data01/"
+      device: ":/media/Tank/Elasticsearch/data01/"
+      # device: ":/var/lib/libvirt/kvm_ssd/elasticsearch/data01/"
   data02:
     driver: local
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,rw
-      device: ":/media/sata_ssd/elasticsearch/data02/"
+      device: ":/media/Tank/Elasticsearch/data02/"
+      # device: ":/var/lib/libvirt/kvm_ssd/elasticsearch/data02/"
+  data03:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/media/Tank/Elasticsearch/data03/"
 
 networks:
   elastic:
@@ -20,7 +35,7 @@ networks:
 
   traefik_proxy:
     external: true
-    name: frontend_traefik_proxy
+    name: traefik_traefik_proxy
 
 services:
 
@@ -35,7 +50,7 @@ services:
       - traefik_proxy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.cerebro.rule=Host(`cerebro.viewpoint.house`)
       - traefik.http.routers.cerebro.entrypoints=websecure
       - traefik.http.routers.cerebro.tls=true
@@ -57,7 +72,7 @@ services:
       - traefik_proxy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.elastichq.rule=Host(`elastichq.viewpoint.house`)
       - traefik.http.routers.elastichq.entrypoints=websecure
       - traefik.http.routers.elastichq.tls=true
@@ -69,10 +84,11 @@ services:
       - homepage.description=ELK - ElasticHQ
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:7.17.0
+    image: docker.elastic.co/logstash/logstash:8.17.0
     container_name: logstash
     restart: unless-stopped
     volumes:
+      # - logstash_config:/usr/share/logstash/config/:ro
       - type: bind
         source: /docker/logstash/config/logstash.yml
         target: /usr/share/logstash/config/logstash.yml
@@ -94,6 +110,8 @@ services:
       - "514:5514/udp"
       - "515:515/tcp"
       - "515:515/udp"
+      - "516:516/tcp"
+      - "516:516/udp"
       - "4739:4739/udp"
       - "4739:4739/tcp"
       - "12201:12201/tcp"
@@ -108,20 +126,21 @@ services:
       - elastic
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:7.17.29
+    image: docker.elastic.co/beats/filebeat:8.17.0
     container_name: filebeat
     restart: unless-stopped
     user: root #To read the docker socket
+    command: ["--environment", "container"]  #TODO: Remove after 8.17.1/8.18.0
     volumes:
       - type: bind
         source: /docker/filebeat/config/filebeat.yml
         target: /usr/share/filebeat/filebeat.yml
         read_only: true
-    healthcheck:
-      test: filebeat test config
-      interval: 30s
-      timeout: 15s
-      retries: 5
+    # healthcheck:
+    #   test: filebeat test config
+    #   interval: 30s
+    #   timeout: 15s
+    #   retries: 5
     ports:
       - "2055:2055/udp"
       - "2055:2055/tcp"
@@ -132,79 +151,87 @@ services:
       options:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
+    labels:
+      - traefik.enable=false
 
-  # auditbeat:
-  #   image: docker.elastic.co/beats/auditbeat:7.17.0
-  #   container_name: auditbeat
-  #   restart: unless-stopped
-  #   user: root #To read the docker socket
-  #   cap_add:
-  #     - AUDIT_CONTROL
-  #     - AUDIT_READ
-  #   command: auditbeat -e -strict.perms=false
-  #   pid: "host" # Set the required permissions with pid and cap_add for Auditbeat
-  #   volumes:
-  #     - type: bind
-  #       source: /docker/auditbeat/config/auditbeat.yml
-  #       target: /usr/share/auditbeat/auditbeat.yml
-  #       read_only: true
-  #   healthcheck:
-  #     test: auditbeat test config
-  #     interval: 30s
-  #     timeout: 15s
-  #     retries: 5
-  #   networks:
-  #     - elastic
-  #   logging:
-  #     driver: gelf
-  #     options:
-  #       gelf-address: "udp://172.24.32.13:12201"
-  #       tag: "{{.Name}}"
+  auditbeat:
+    image: docker.elastic.co/beats/auditbeat:8.17.0
+    container_name: auditbeat
+    restart: unless-stopped
+    user: root #To read the docker socket
+    cap_add:
+      - AUDIT_CONTROL
+      - AUDIT_READ
+    command: auditbeat -e -strict.perms=false
+    pid: "host" # Set the required permissions with pid and cap_add for Auditbeat
+    volumes:
+      - type: bind
+        source: /docker/auditbeat/config/auditbeat.yml
+        target: /usr/share/auditbeat/auditbeat.yml
+        read_only: true
+    healthcheck:
+      test: auditbeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
+    networks:
+      - elastic
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+    labels:
+      - traefik.enable=false
 
-  # apm-server:
-  #   image: docker.elastic.co/apm/apm-server:7.17.0
-  #   container_name: apm-server
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - es01
-  #     - es02
-  #     - kibana01
-  #   cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
-  #   cap_drop: ["ALL"]
-  #   ports:
-  #   - 8200:8200
-  #   networks:
-  #   - elastic
-  #   command: >
-  #      apm-server -e
-  #        -E apm-server.rum.enabled=true
-  #        -E setup.kibana.host=kibana01:5601
-  #        -E setup.template.settings.index.number_of_replicas=0
-  #        -E apm-server.kibana.enabled=true
-  #        -E apm-server.kibana.host=kibana01:5601
-  #        -E output.elasticsearch.hosts='["es01:9200","es02:9200"]'
-  #   healthcheck:
-  #     interval: 10s
-  #     retries: 12
-  #     test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8200/
-
-
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:8.17.0
+    container_name: apm-server
+    restart: unless-stopped
+    depends_on:
+      - es01
+      - es02
+      - kibana01
+    cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
+    cap_drop: ["ALL"]
+    ports:
+      - 8200:8200
+    networks:
+      - elastic
+    command: >
+       apm-server -e
+         -E apm-server.rum.enabled=true
+         -E setup.kibana.host=kibana01:5601
+         -E setup.template.settings.index.number_of_replicas=0
+         -E apm-server.kibana.enabled=true
+         -E apm-server.kibana.host=kibana01:5601
+         -E output.elasticsearch.hosts='["es01:9200","es02:9200"]'
+    healthcheck:
+      interval: 10s
+      retries: 12
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8200/
+    labels:
+      - traefik.enable=false
   es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.29
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
     container_name: es01
     restart: unless-stopped
     # network_mode: host
     environment:
       - node.name=es01
+      # Security disabled for now - enable by changing to ${XPACK_SECURITY_ENABLED:-true}
+      # and uncomment env_file below. Requires additional setup steps.
       - xpack.security.enabled=false
-      - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es01,es02
-      - cluster.initial_master_nodes=es01,es02
-      - cluster.routing.allocation.disk.watermark.low=97%
-      - cluster.routing.allocation.disk.watermark.high=98%
-      - cluster.routing.allocation.disk.watermark.flood_stage=99%
+      - cluster.name=${CLUSTER_NAME:-es-docker-cluster}
+      - discovery.seed_hosts=${DISCOVERY_SEED_HOSTS:-es01,es02,es03}
+      - cluster.initial_master_nodes=${CLUSTER_INITIAL_MASTER_NODES:-es01,es02}
+      - cluster.routing.allocation.disk.watermark.low=${CLUSTER_ROUTING_ALLOCATION_DISK_WATERMARK_LOW:-97%}
+      - cluster.routing.allocation.disk.watermark.high=${CLUSTER_ROUTING_ALLOCATION_DISK_WATERMARK_HIGH:-98%}
+      - cluster.routing.allocation.disk.watermark.flood_stage=${CLUSTER_ROUTING_ALLOCATION_DISK_WATERMARK_FLOOD_STAGE:-99%}
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
+      - "ES_JAVA_OPTS=${ES_JAVA_OPTS:--Xms4g -Xmx4g}"
+    # env_file:
+    #   - .elk.env  # Uncomment when enabling security
     ulimits:
       memlock:
         soft: -1
@@ -216,9 +243,11 @@ services:
       - 9300:9300
     networks:
       - elastic
+    labels:
+      - traefik.enable=false
 
   es02:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.29
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
     container_name: es02
     restart: unless-stopped
     # network_mode: host
@@ -230,6 +259,7 @@ services:
       - cluster.routing.allocation.disk.watermark.low=97%
       - cluster.routing.allocation.disk.watermark.high=98%
       - cluster.routing.allocation.disk.watermark.flood_stage=99%
+      - xpack.security.enabled=false
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
     ulimits:
@@ -242,19 +272,50 @@ services:
       - 9201:9200
     networks:
       - elastic
+    labels:
+      - traefik.enable=false
+
+  es03:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    container_name: es03
+    restart: unless-stopped
+    # network_mode: host
+    environment:
+      - node.name=es03
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02
+      - cluster.routing.allocation.disk.watermark.low=97%
+      - cluster.routing.allocation.disk.watermark.high=98%
+      - cluster.routing.allocation.disk.watermark.flood_stage=99%
+      - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data03:/usr/share/elasticsearch/data
+    ports:
+      - 9202:9200
+    networks:
+      - elastic
+    labels:
+      - traefik.enable=false
 
   kibana01:
-    image: docker.elastic.co/kibana/kibana:7.17.0
+    image: docker.elastic.co/kibana/kibana:8.17.0
     container_name: kibana
     restart: unless-stopped
-    ports:
-      - 5601:5601
+    # ports:
+    #   - 5601:5601
     environment:
       ELASTICSEARCH_URL: http://es01:9200
       ELASTICSEARCH_HOSTS: http://es01:9200
     labels:
       - traefik.enable=true
-      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.kibana01.rule=Host(`logs.viewpoint.house`)
       - traefik.http.routers.kibana01.entrypoints=websecure
       - traefik.http.routers.kibana01.tls=true
@@ -271,27 +332,31 @@ services:
       - elastic
       - traefik_proxy
 
-  # metricbeat:
-  #   image: docker.elastic.co/beats/metricbeat:7.12.1
-  #   container_name: metricbeat
-  #   command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
-  #   restart: unless-stopped
-  #   environment: 
-  #     - ELASTICSEARCH_HOSTS: '["http://es01:9200","http://es02:9200","http://es03:9200"]'
-  #     - KIBANA_HOST: "http://kibana01:5601"
-  #   volumes:
-  #     # - type: bind
-  #     #   source: /docker/metricbeat/config/metricbeat.yml
-  #     #   target: /usr/share/metricbeat/metricbeat.yml
-  #     #   read_only: true
-  #     - /proc:/hostfs/proc:ro
-  #     - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
-  #     - /:/hostfs:ro
-  #  networks:
-  #    - elastic
-  #  healthcheck:
-  #    test: metricbeat test config
-  #    interval: 30s
-  #    timeout: 15s
-  #    retries: 5
-
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:8.17.0
+    container_name: metricbeat
+    command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
+    restart: unless-stopped
+    cap_add:
+      - SYS_PTRACE
+      - DAC_READ_SEARCH
+    # environment:
+    #   ELASTICSEARCH_HOSTS: '["http://es01:9200","http://es02:9200"]'
+    #   KIBANA_HOST: 'http://kibana01:5601'
+    volumes:
+      - type: bind
+        source: /docker/metricbeat/config/metricbeat.yml
+        target: /usr/share/metricbeat/metricbeat.yml
+        read_only: true
+      - /proc:/hostfs/proc:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /:/hostfs:ro
+    networks:
+      - elastic
+    healthcheck:
+      test: metricbeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
+    labels:
+      - traefik.enable=false

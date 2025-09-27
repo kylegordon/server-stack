@@ -1,0 +1,44 @@
+volumes:
+  mosquitto_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/mosquitto/config/"
+
+  mosquitto_logs:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/mosquitto/log/"
+
+  mosquitto_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/mosquitto/data/"
+
+services:
+  eclipse-mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: eclipse-mosquitto
+    restart: unless-stopped
+    ports:
+      - 1883:1883
+      - 9001:9001
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    networks:
+      - traefik_proxy
+      - homeautomation
+    volumes:
+        - mosquitto_config:/mosquitto/config
+        - mosquitto_data:/mosquitto/data
+        - mosquitto_logs:/mosquitto/log
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"

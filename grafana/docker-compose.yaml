@@ -1,0 +1,56 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  grafana:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/grafana/"
+
+services:
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - traefik_proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.grafana-http.entrypoints=web
+      - traefik.http.routers.grafana-http.rule=Host(`grafana.viewpoint.house`)
+      - traefik.http.routers.grafana-http.middlewares=grafana-https
+      - traefik.http.middlewares.grafana-https.redirectscheme.scheme=https
+      - traefik.http.routers.grafana.rule=Host(`grafana.viewpoint.house`)
+      - traefik.http.routers.grafana.entrypoints=websecure
+      - traefik.http.routers.grafana.tls=true
+      - traefik.http.routers.grafana.tls.certresolver=letsencrypt
+      - traefik.http.routers.grafana.tls.domains[0].main=grafana.viewpoint.house
+      - traefik.http.services.grafana.loadbalancer.server.port=3000
+      - traefik.http.services.grafana.loadbalancer.healthcheck.path=/
+      - traefik.http.services.grafana.loadbalancer.healthcheck.port=3000
+      - homepage.group=Monitoring
+      - homepage.name=Grafana
+      - homepage.icon=si-grafana
+      - homepage.href=https://grafana.viewpoint.house
+      - homepage.description=Grafana
+      - com.centurylinklabs.watchtower.enable=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      # test: ["CMD", "wget", "--spider", "-tries=1", "--quiet", "http://172.24.32.13:3000/api/health"]
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - grafana:/var/lib/grafana/
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"

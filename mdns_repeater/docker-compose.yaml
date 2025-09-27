@@ -1,0 +1,9 @@
+services:
+  mdns_repeater:
+    image: jdbeeler/mdns-repeater:latest
+    network_mode: "host"
+    privileged: true
+    env_file:
+      - .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

@@ -1,16 +1,28 @@
+export DOCKER_HOST=ssh://bagpuss@172.24.32.13
 echo "Pulling core stack"
-docker-compose -H ssh://bagpuss@172.24.32.13 -f core-stack/docker-compose.yaml pull
-echo "Pulling FrontEnd stack"
-docker-compose -H ssh://bagpuss@172.24.32.13 --env-file frontend/docker.env -f frontend/docker-compose.yaml pull
+docker compose -f core-stack/docker-compose.yaml pull
+echo "Pulling Traefik stack"
+docker compose -f traefik/docker-compose.yaml pull
 echo "Pulling HA stack"
-docker-compose -H ssh://bagpuss@172.24.32.13 -f ha-stack/docker-compose.yaml pull
+docker compose -f ha-stack/docker-compose.yaml pull
 echo "Pulling media stack"
-docker-compose -H ssh://bagpuss@172.24.32.13 -f media-stack/docker-compose.yaml pull
+docker compose -f media-stack/docker-compose.yaml pull
 echo "Pulling elk stack"
-docker-compose -H ssh://bagpuss@172.24.32.13 -f elk-stack/docker-compose.yaml pull
+docker compose -f elk-stack/docker-compose.yaml pull
 echo "Pulling monitoring stack"
-docker-compose -H ssh://bagpuss@172.24.32.13 -f monitoring-stack/docker-compose.yaml pull
+docker compose -f monitoring-stack/docker-compose.yaml pull
+docker compose -f dawarich/docker-compose.yml pull
+docker compose -f warrior.yaml pull
+docker compose -f ollama/docker-compose.yaml pull
+
+export DOCKER_HOST=ssh://bagpuss@172.24.32.5
+docker compose -f scrutiny/docker-compose-blackbird.yaml up -d
+
+export DOCKER_HOST=ssh://bagpuss@deepcore.glasgownet.com
 echo "Pulling deepcore stacks"
-docker-compose -H ssh://bagpuss@deepcore.glasgownet.com --env-file frontend/docker-deepcore.env -f frontend/docker-compose-deepcore.yaml pull
-docker-compose -H ssh://bagpuss@deepcore.glasgownet.com -f pixelfed/docker-compose.yaml pull
-docker-compose -H ssh://bagpuss@deepcore.glasgownet.com -f social-stack/docker-compose.yaml pull
+docker compose -f traefik/docker-compose-deepcore.yaml pull
+docker compose -f pixelfed/docker-compose.yaml pull
+docker compose -f social-stack/docker-compose.yaml pull
+docker compose -f rss/docker-compose.yaml pull
+docker compose -f obsidian-sync/docker-compose.yaml pull
+docker compose -f wallabag/docker-compose.yaml pull

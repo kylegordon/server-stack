@@ -1,2 +1,4 @@
+# Environment files with secrets (but allow .env.example files)
 .env
-social-stack/docker.env
+*.env
+!*.env.example

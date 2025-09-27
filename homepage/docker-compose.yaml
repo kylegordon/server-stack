@@ -1,0 +1,38 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  homepage_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/homepage/"
+services:
+  homepage:
+    image: ghcr.io/benphelps/homepage:latest
+    container_name: homepage
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.homepage-http.entrypoints=web
+      - traefik.http.routers.homepage-http.rule=Host(`home.viewpoint.house`)
+      - traefik.http.routers.homepage-http.middlewares=homepage-https
+      - traefik.http.middlewares.homepage-https.redirectscheme.scheme=https
+      - traefik.http.routers.homepage.rule=Host(`home.viewpoint.house`)
+      - traefik.http.routers.homepage.entrypoints=websecure
+      - traefik.http.routers.homepage.tls=true
+      - traefik.http.routers.homepage.tls.certresolver=letsencrypt
+      - traefik.http.routers.homepage.tls.domains[0].main=home.viewpoint.house
+      - traefik.http.services.homepage.loadbalancer.server.port=3000
+      - traefik.http.services.homepage.loadbalancer.healthcheck.path=/
+      - traefik.http.services.homepage.loadbalancer.healthcheck.port=3000
+      - com.centurylinklabs.watchtower.enable=true
+    volumes:
+      - homepage_config:/app/config # Make sure your local config directory exists
+      - /var/run/docker.sock:/var/run/docker.sock:ro # (optional) For docker integrations

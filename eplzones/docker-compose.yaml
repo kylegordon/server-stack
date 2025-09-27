@@ -1,0 +1,39 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+  homeautomation:
+    external: true
+
+services:
+  EPLZones:
+    image: everythingsmarthome/everything-presence-mmwave-configurator:latest
+    container_name: everything-presence-mmwave-configurator
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+      - homeautomation
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8099"]
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - traefik.enable=true
+      - traefik.docker.network=traefik_proxy
+      - traefik.http.routers.EPLZones.rule=Host(`eplzones.viewpoint.house`)
+      - traefik.http.routers.EPLZones.entrypoints=websecure
+      - traefik.http.routers.EPLZones.tls.certresolver=letsencrypt
+      - traefik.http.routers.EPLZones.tls.domains[0].main=eplzones.viewpoint.house
+      - traefik.http.services.EPLZones.loadbalancer.server.port=8099
+      - traefik.http.services.EPLZones.loadbalancer.healthcheck.path=/
+      - traefik.http.services.EPLZones.loadbalancer.healthcheck.port=8099
+      - homepage.group=Home Automation
+      - homepage.name=EPL Zones
+      - homepage.icon=mdi-home-assistant
+      - homepage.href=https://eplzones.viewpoint.house
+      - homepage.description=EPL Zones

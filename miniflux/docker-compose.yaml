@@ -1,0 +1,66 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+  miniflux:
+    driver: bridge
+
+volumes:
+  miniflux-db:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/miniflux/db/"
+
+services:
+  miniflux:
+    image: miniflux/miniflux:latest
+    depends_on:
+      miniflux_db:
+          condition: service_healthy
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+      - miniflux
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.miniflux-http.entrypoints=web
+      - traefik.http.routers.miniflux-http.rule=Host(`news.viewpoint.house`)
+      - traefik.http.routers.miniflux-http.middlewares=miniflux-https
+      - traefik.http.middlewares.miniflux-https.redirectscheme.scheme=https
+      - traefik.http.routers.miniflux.rule=Host(`news.viewpoint.house`)
+      - traefik.http.routers.miniflux.entrypoints=websecure
+      - traefik.http.routers.miniflux.tls=true
+      - traefik.http.routers.miniflux.tls.certresolver=letsencrypt
+      - traefik.http.routers.miniflux.tls.domains[0].main=news.viewpoint.house
+      - traefik.http.services.miniflux.loadbalancer.server.port=8080
+      # - traefik.http.services.miniflux.loadbalancer.healthcheck.port=8080
+      # - traefik.http.services.miniflux.loadbalancer.healthcheck.path=/
+      - homepage.group=Media
+      - homepage.icon=mdi-newspaper
+      - homepage.name=Miniflux News
+      - homepage.href=http://news.viewpoint.house
+      - homepage.description=News RSS Aggegrator
+      - com.centurylinklabs.watchtower.enable=true
+    healthcheck:
+      test: ["CMD", "/usr/bin/miniflux", "-healthcheck", "auto"]
+
+  miniflux_db:
+    image: postgres:15
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - miniflux
+    volumes:
+      - miniflux-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "miniflux"]
+      interval: 10s
+      start_period: 30s
+    labels:
+      - com.centurylinklabs.watchtower.enable=true

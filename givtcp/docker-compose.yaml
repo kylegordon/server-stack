@@ -1,0 +1,49 @@
+volumes:
+  givtcp:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw,sync,rsize=0,wsize=0
+      device: ":/srv/nfs4/docker_nfs/givtcp/"
+
+services:
+  GivTCP:
+    # https://wiki.terravolt.co.uk/docs/givtcp-installation-version-2-0/
+    container_name: GivTCP
+    image: britkat/giv_tcp-ma:latest
+    # ports:
+    #   - "8099:8099"                   # REST and Config web server (https on 8098)
+    #   - "3030:3030"                   # WEB Dashboard
+    #   - "6345:6345"
+    depends_on:
+      - eclipse-mosquitto
+    networks:
+      - traefik_proxy
+      - homeautomation
+    volumes:
+      - givtcp:/config/GivTCP
+    restart: unless-stopped
+    privileged: true
+    healthcheck:
+      # Must be a hostname or address of the container itself. Does not listen on localhost
+      test: "wget --no-verbose --tries=1 --spider http://GivTCP:8099 || exit 1"
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - traefik.enable=true
+      - traefik.docker.network=traefik_proxy
+      - traefik.http.routers.givtcp.rule=Host(`givtcp.viewpoint.house`)
+      - traefik.http.routers.givtcp.entrypoints=websecure
+      - traefik.http.routers.givtcp.tls.certresolver=letsencrypt
+      - traefik.http.routers.givtcp.tls.domains[0].main=givtcp.viewpoint.house
+      - traefik.http.services.givtcp.loadbalancer.server.port=8099
+      - traefik.http.services.givtcp.loadbalancer.healthcheck.path=/
+      - traefik.http.services.givtcp.loadbalancer.healthcheck.port=8099
+      - homepage.group=Home Automation
+      - homepage.name=GivTCP
+      - homepage.icon=mdi-home-assistant
+      - homepage.href=https://givtcp.viewpoint.house
+      - homepage.description=GivTCP

@@ -1,5 +1,4 @@
 ---
-version: '3.6'
 
 networks:
   traefik_proxy:
@@ -32,8 +31,6 @@ services:
       - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=route53
       - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
-    env_file:
-      - docker-deepcore.env
     ports:
       - "80:80"     # Web entrypoint
       - "443:443" # Websecure entrypoint

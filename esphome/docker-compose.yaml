@@ -1,0 +1,58 @@
+volumes:
+  esphome_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/home-assistant/config/esphome/"
+
+services:
+  esphome:
+    image: ghcr.io/esphome/esphome:latest
+    container_name: esphome
+    # depends_on:
+    #   - mdns-repeater
+    networks:
+      - traefik_proxy
+      - homeautomation
+    # network_mode: host
+    # https://doc.traefik.io/traefik/providers/docker/#host-networking
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/London
+      # - ESPHOME_DASHBOARD_USE_PING=true
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_proxy
+      - traefik.http.routers.esphome-http.entrypoints=web
+      - traefik.http.routers.esphome-http.rule=Host(`esphome.viewpoint.house`)
+      - traefik.http.routers.esphome-http.middlewares=esphome-https
+      - traefik.http.middlewares.esphome-https.redirectscheme.scheme=https
+      - traefik.http.routers.esphome.rule=Host(`esphome.viewpoint.house`)
+      - traefik.http.routers.esphome.entrypoints=websecure
+      - traefik.http.routers.esphome.tls=true
+      - traefik.http.routers.esphome.tls.certresolver=letsencrypt
+      - traefik.http.routers.esphome.tls.domains[0].main=esphome.viewpoint.house
+      - traefik.http.services.esphome.loadbalancer.server.port=6052
+      - traefik.http.services.esphome.loadbalancer.healthcheck.path=/
+      - traefik.http.services.esphome.loadbalancer.healthcheck.port=6052
+      - homepage.group=Home Automation
+      - homepage.name=ESPHome
+      - homepage.icon=mdi-chip
+      - homepage.href=https://esphome.viewpoint.house
+      - homepage.description=IOT Firmware Management
+      - com.centurylinklabs.watchtower.enable=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6052"]
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      # - /docker/home-assistant/config/esphome:/config
+      - esphome_config:/config
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"

@@ -1,0 +1,309 @@
+
+volumes:
+  librenms_logs:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=172.24.32.5,nolock,soft,rw
+      device: ":/srv/nfs4/docker_nfs/librenms/logs/"
+  librenms_data:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=172.24.32.5,nolock,soft,rw
+      device: ":/srv/nfs4/docker_nfs/librenms/data/"
+  librenms_rrd:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=172.24.32.5,nolock,soft,rw
+      device: ":/srv/nfs4/docker_nfs/librenms/data/rrd/"
+  librenms_rrd_journal:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=172.24.32.5,nolock,soft,rw
+      device: ":/srv/nfs4/docker_nfs/librenms/rrd_journal/"
+
+  smokeping_config:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=172.24.32.5,nolock,soft,rw
+      device: ":/srv/nfs4/docker_nfs/smokeping/config/"
+  smokeping_data:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=172.24.32.5,nolock,soft,rw
+      device: ":/srv/nfs4/docker_nfs/smokeping/data/"
+
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+  monitoring:
+    # driver: overlay
+    # driver: bridge
+
+services:
+  librenms:
+    image: librenms/librenms:latest
+    container_name: librenms
+    hostname: librenms
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    networks:
+      - monitoring
+      - traefik_proxy
+    ports:
+      - target: 8000
+        published: 8000
+        protocol: tcp
+    # depends_on:
+    #   - db
+    #   - memcached
+    #   - msmtpd
+    volumes:
+      - "librenms_data:/data"
+      - "librenms_logs:/opt/librenms/storage/logs/"
+    env_file:
+      - ".librenms.env"
+    environment:
+      - "TZ=${TZ}"
+      - "PUID=${PUID}"
+      - "PGID=${PGID}"
+      - "DB_HOST=${MYSQL_HOST}"
+      - "DB_NAME=${MYSQL_DATABASE}"
+      - "DB_USER=${MYSQL_USER}"
+      - "DB_PASSWORD=${MYSQL_PASSWORD}"
+      - "DB_TIMEOUT=60"
+      - "ENABLE_SYSLOG=true"
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.swarm.network=traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.librenms-http.entrypoints=web
+      - traefik.http.routers.librenms-http.rule=Host(`nms.viewpoint.house`)
+      - traefik.http.routers.librenms-http.middlewares=librenms-https
+      - traefik.http.middlewares.librenms-https.redirectscheme.scheme=https
+      - traefik.http.routers.librenms.rule=Host(`nms.viewpoint.house`)
+      - traefik.http.routers.librenms.entrypoints=websecure
+      - traefik.http.routers.librenms.tls=true
+      - traefik.http.routers.librenms.tls.certresolver=letsencrypt
+      - traefik.http.routers.librenms.tls.domains[0].main=nms.viewpoint.house
+      - traefik.http.services.librenms.loadbalancer.server.port=8000
+      # - traefik.http.services.librenms.loadbalancer.healthcheck.port=8000
+      # - traefik.http.services.librenms.loadbalancer.healthcheck.path=/
+      - homepage.group=Monitoring
+      - homepage.icon=mdi-book-open-outline
+      - homepage.name=LibreNMS
+      - homepage.href=https://nms.viewpoint.house
+      - homepage.description=System Monitoring
+      # - com.centurylinklabs.watchtower.enable=true
+
+  dispatcher:
+    image: librenms/librenms:latest
+    container_name: librenms_dispatcher
+    hostname: librenms-dispatcher
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    networks:
+      - monitoring
+    depends_on:
+      - librenms
+    volumes:
+      - "librenms_data:/data"
+      - "librenms_logs:/opt/librenms/storage/logs/"
+    env_file:
+      - ".librenms.env"
+    environment:
+      - "TZ=${TZ}"
+      - "PUID=${PUID}"
+      - "PGID=${PGID}"
+      - "DB_HOST=${MYSQL_HOST}"
+      - "DB_NAME=${MYSQL_DATABASE}"
+      - "DB_USER=${MYSQL_USER}"
+      - "DB_PASSWORD=${MYSQL_PASSWORD}"
+      - "DB_TIMEOUT=60"
+      - "DISPATCHER_NODE_ID=dispatcher1"
+      - "REDIS_HOST=redis"
+      - "REDIS_PORT=6379"
+      - "REDIS_DB=0"
+      - "SIDECAR_DISPATCHER=1"
+    restart: always
+    labels:
+      - traefik.enable=false
+
+  # cron:
+  #   image: librenms/librenms:latest
+  #   container_name: librenms_cron
+  #   domainname: glasgownet.com
+  #   hostname: librenms
+  #   depends_on:
+  #     - librenms
+  #   volumes:
+  #     - "/docker/librenms/data:/data"
+  #   environment:
+  #     - "TZ=${TZ}"
+  #     - "PUID=${PUID}"
+  #     - "PGID=${PGID}"
+  #     - "DB_HOST=${MYSQL_HOST}"
+  #     - "DB_NAME=${MYSQL_DATABASE}"
+  #     - "DB_USER=${MYSQL_USER}"
+  #     - "DB_PASSWORD=${MYSQL_PASSWORD}"
+  #     - "DB_TIMEOUT=30"
+  #     - "SIDECAR_CRON=1"
+  #   env_file:
+  #     - ".librenms.env"
+  #   restart: always
+
+  syslog-ng:
+    image: librenms/librenms:latest
+    container_name: librenms_syslog
+    # domainname: viewpoint.house
+    hostname: librenms
+    depends_on:
+      - librenms
+    networks:
+      - monitoring
+    # ports:
+    #   - target: 514
+    #     published: 514
+    #     protocol: tcp
+    #   - target: 514
+    #     published: 514
+    #     protocol: udp
+    volumes:
+      - "librenms_data:/data"
+    environment:
+      - "TZ=${TZ}"
+      - "PUID=${PUID}"
+      - "PGID=${PGID}"
+      - "DB_HOST=${MYSQL_HOST}"
+      - "DB_NAME=${MYSQL_DATABASE}"
+      - "DB_USER=${MYSQL_USER}"
+      - "DB_PASSWORD=${MYSQL_PASSWORD}"
+      - "DB_TIMEOUT=30"
+      - "SIDECAR_SYSLOGNG=1"
+    env_file:
+      - ".librenms.env"
+    restart: unless-stopped
+    labels:
+      - traefik.enable=false
+
+  memcached:
+    image: memcached:alpine
+    container_name: librenms_memcached
+    networks:
+      - monitoring
+    env_file:
+      - ".librenms.env"
+    # environment:
+    #   - "TZ=${TZ}"
+    restart: unless-stopped
+    labels:
+      - traefik.enable=false
+
+  rrdcached:
+    image: crazymax/rrdcached
+    container_name: librenms_rrdcached
+    networks:
+      - monitoring
+    volumes:
+      - librenms_rrd:/data/db/
+      - librenms_rrd_journal:/data/journal
+    env_file:
+      - ".librenms.env"
+    # environment:
+    #   - "TZ=${TZ}"
+    #   - "PUID=${PUID}"
+    #   - "PGID=${PGID}"
+    #   - "LOG_LEVEL=LOG_INFO"
+    #   - "WRITE_TIMEOUT=1800"
+    #   - "WRITE_JITTER=1800"
+    #   - "WRITE_THREADS=4"
+    #   - "FLUSH_DEAD_DATA_INTERVAL=3600"
+    restart: unless-stopped
+    labels:
+      - traefik.enable=false
+
+  speedtest:
+    restart: unless-stopped
+    container_name: openspeedtest
+    # ports:
+    #     - '3000:3000'
+    #     - '3001:3001'
+    networks:
+      - traefik_proxy
+    image: openspeedtest/latest
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.speedtest-http.entrypoints=web
+      - traefik.http.routers.speedtest-http.rule=Host(`speedtest.viewpoint.house`)
+      - traefik.http.routers.speedtest-http.middlewares=speedtest-https
+      - traefik.http.middlewares.speedtest-https.redirectscheme.scheme=https
+      - traefik.http.routers.speedtest.rule=Host(`speedtest.viewpoint.house`)
+      - traefik.http.routers.speedtest.entrypoints=websecure
+      - traefik.http.routers.speedtest.tls=true
+      - traefik.http.routers.speedtest.tls.certresolver=letsencrypt
+      - traefik.http.routers.speedtest.tls.domains[0].main=speedtest.viewpoint.house
+      - traefik.http.services.speedtest.loadbalancer.server.port=3000
+      - traefik.http.services.speedtest.loadbalancer.healthcheck.port=3000
+      - traefik.http.services.speedtest.loadbalancer.healthcheck.path=/
+      - traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=10000000000
+      - traefik.http.routers.openspeedtest.middlewares=limit
+      - homepage.group=Monitoring
+      - homepage.icon=mdi-book-open-outline
+      - homepage.name=Speedtest
+      - homepage.href=https://speedtest.viewpoint.house
+      - homepage.description=System Monitoring
+      - com.centurylinklabs.watchtower.enable=true
+
+  smokeping:
+    image: linuxserver/smokeping:latest
+    container_name: smokeping
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+    environment:
+      - PGID=200
+      - PUID=200
+    volumes:
+      - smokeping_config:/config
+      - smokeping_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.smokeping-http.entrypoints=web
+      - traefik.http.routers.smokeping-http.rule=Host(`smokeping.viewpoint.house`)
+      - traefik.http.routers.smokeping-http.middlewares=smokeping-https
+      - traefik.http.middlewares.smokeping-https.redirectscheme.scheme=https
+      - traefik.http.routers.smokeping.rule=Host(`smokeping.viewpoint.house`)
+      - traefik.http.routers.smokeping.entrypoints=websecure
+      - traefik.http.routers.smokeping.tls=true
+      - traefik.http.routers.smokeping.tls.certresolver=letsencrypt
+      - traefik.http.routers.smokeping.tls.domains[0].main=smokeping.viewpoint.house
+      - traefik.http.services.smokeping.loadbalancer.server.port=80
+      - traefik.http.services.smokeping.loadbalancer.healthcheck.port=80
+      - traefik.http.services.smokeping.loadbalancer.healthcheck.path=/
+      - homepage.group=Monitoring
+      - homepage.icon=mdi-book-open-outline
+      - homepage.name=Smokeping
+      - homepage.href=https://smokeping.viewpoint.house
+      - homepage.description=System Monitoring
+      - com.centurylinklabs.watchtower.enable=true

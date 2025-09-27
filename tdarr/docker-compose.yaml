@@ -1,0 +1,95 @@
+networks:
+  traefik_proxy:
+    external: true
+
+volumes:
+  tdarr_server:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/tdarr/server/"
+
+  tdarr_configs:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/tdarr/configs/"
+
+  tdarr_logs:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/tdarr/logs/"
+
+
+services:
+  tdarr:
+    container_name: tdarr
+    image: ghcr.io/haveagitgat/tdarr:latest
+    restart: unless-stopped
+    network_mode: bridge
+    ports:
+      - 8265:8265 # webUI port
+      - 8266:8266 # server port
+    environment:
+      - TZ=Europe/London
+      - PUID=${TDARR_PUID}
+      - PGID=${TDARR_PGID}
+      - UMASK_SET=002
+      - serverIP=0.0.0.0
+      - serverPort=8266
+      - webUIPort=8265
+      - internalNode=true
+      - inContainer=true
+      - nodeName=MyInternalNode
+    volumes:
+      - tdarr_server:/app/server
+      - tdarr_configs:/app/configs
+      - tdarr_logs:/app/logs
+      - /media/store/test:/media
+      - /media/store/transcode_cache:/temp
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.tdarr-http.entrypoints=web
+      - traefik.http.routers.tdarr-http.rule=Host(`tdarr.viewpoint.house`)
+      - traefik.http.routers.tdarr-http.middlewares=tdarr-https
+      - traefik.http.middlewares.tdarr-https.redirectscheme.scheme=https
+      - traefik.http.routers.tdarr.rule=Host(`tdarr.viewpoint.house`)
+      - traefik.http.routers.tdarr.entrypoints=websecure
+      - traefik.http.routers.tdarr.tls=true
+      - traefik.http.routers.tdarr.tls.certresolver=letsencrypt
+      - traefik.http.routers.tdarr.tls.domains[0].main=tdarr.viewpoint.house
+      - traefik.http.services.tdarr.loadbalancer.server.port=8265
+      - traefik.http.services.tdarr.loadbalancer.healthcheck.port=8265
+      - traefik.http.services.tdarr.loadbalancer.healthcheck.path=/
+      - homepage.group=Media
+      - homepage.icon=mdi-movie-open-outline
+      - homepage.name=Tdarr
+      - homepage.href=https://tdarr.viewpoint.house
+      - homepage.description=Tdarr Transcoding
+      - com.centurylinklabs.watchtower.enable=true
+
+  tdarr-node:
+    container_name: tdarr-node
+    image: ghcr.io/haveagitgat/tdarr_node:latest
+    restart: unless-stopped
+    network_mode: service:tdarr
+    environment:
+      - TZ=Europe/London
+      - PUID=${TDARR_PUID}
+      - PGID=${TDARR_PGID}
+      - UMASK_SET=002
+      - nodeName=MyExternalNode
+      - serverIP=0.0.0.0
+      - serverPort=8266
+      - inContainer=true
+    volumes:
+      - tdarr_configs:/app/configs
+      - tdarr_logs:/app/logs
+      - /media/store/test:/media
+      - /media/store/transcode_cache:/temp
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
