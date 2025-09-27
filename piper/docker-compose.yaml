@@ -1,0 +1,33 @@
+networks:
+  homeautomation:
+    external: true
+
+volumes:
+  piper:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/piper"
+
+services:
+  piper:
+    container_name: piper
+    restart: unless-stopped
+    # image: rhasspy/wyoming-piper:latest
+    image: lscr.io/linuxserver/piper:latest
+    #  command: --voice nl-nathalie-x-low
+    # command: --voice en-gb-southern_english_female-low
+    # network_mode: host
+    networks:
+      - homeautomation
+    volumes:
+      - piper:/data
+    env_file:
+      - .env
+    environment:
+      - TZ=Europe/London
+    ports:
+      - 10200:10200
+    labels:
+      - com.centurylinklabs.watchtower.enable=true

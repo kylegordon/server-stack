@@ -1,0 +1,29 @@
+networks:
+  homeautomation:
+    external: true
+
+volumes:
+  whisper:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/whisper/"
+
+services:
+  whisper:
+    container_name: whisper
+    restart: unless-stopped
+    command: --model small --language en
+    image: rhasspy/wyoming-whisper:latest
+    # network_mode: host
+    networks:
+      - homeautomation
+    volumes:
+      - whisper:/data
+    # environment:
+    #   - TZ=Europe/London
+    ports:
+      - 10300:10300
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
