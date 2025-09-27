@@ -4,7 +4,7 @@ networks:
     traefik_proxy:
       external: true
       # driver: overlay
-      name: frontend_traefik_proxy
+      name: traefik_traefik_proxy
 
 volumes:
   kea:
