@@ -51,56 +51,6 @@ services:
   #     - 80:80
   #   restart: unless-stopped
 
-  miniflux:
-    image: miniflux/miniflux:latest
-    depends_on:
-      miniflux_db:
-          condition: service_healthy
-    env_file:
-      - .miniflux.env
-    restart: unless-stopped
-    networks:
-      - traefik_proxy
-      - miniflux
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=frontend_traefik_proxy
-      - traefik.http.routers.miniflux-http.entrypoints=web
-      - traefik.http.routers.miniflux-http.rule=Host(`news.viewpoint.house`)
-      - traefik.http.routers.miniflux-http.middlewares=miniflux-https
-      - traefik.http.middlewares.miniflux-https.redirectscheme.scheme=https
-      - traefik.http.routers.miniflux.rule=Host(`news.viewpoint.house`)
-      - traefik.http.routers.miniflux.entrypoints=websecure
-      - traefik.http.routers.miniflux.tls=true
-      - traefik.http.routers.miniflux.tls.certresolver=letsencrypt
-      - traefik.http.routers.miniflux.tls.domains[0].main=news.viewpoint.house
-      - traefik.http.services.miniflux.loadbalancer.server.port=8080
-      # - traefik.http.services.miniflux.loadbalancer.healthcheck.port=8080
-      # - traefik.http.services.miniflux.loadbalancer.healthcheck.path=/
-      - homepage.group=Media
-      - homepage.icon=mdi-newspaper
-      - homepage.name=Miniflux News
-      - homepage.href=http://news.viewpoint.house
-      - homepage.description=News RSS Aggegrator
-      - com.centurylinklabs.watchtower.enable=true
-    healthcheck:
-      test: ["CMD", "/usr/bin/miniflux", "-healthcheck", "auto"]
-
-  miniflux_db:
-    image: postgres:15
-    env_file:
-      - .miniflux.env
-    restart: unless-stopped
-    networks:
-      - miniflux
-    volumes:
-      - miniflux-db:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "miniflux"]
-      interval: 10s
-      start_period: 30s
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
 
 
   ## Music Assistant disabled whilst I figure out the MDNS/5353/Openhome stuff
@@ -270,19 +220,7 @@ services:
       timeout: 10s
       retries: 5
 
-  recyclarr:
-    image: ghcr.io/recyclarr/recyclarr
-    container_name: recyclarr
-    user: 1000:1000
-    env_file:
-      - .recyclarr.env
-    networks:
-      - recyclarr
-      - traefik_proxy
-    volumes:
-      - recyclarr_config:/config
-    environment:
-      - TZ=Europe/London
+
 
   sonarr:
     image: linuxserver/sonarr:latest
@@ -296,10 +234,10 @@ services:
       retries: 5
     networks:
       - traefik_proxy
-      - recyclarr
+      # - recyclarr
     labels:
       - traefik.enable=true
-      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.sonarr-http.entrypoints=web
       - traefik.http.routers.sonarr-http.rule=Host(`tv.viewpoint.house`)
       - traefik.http.routers.sonarr-http.middlewares=sonarr-https
@@ -344,10 +282,10 @@ services:
     restart: unless-stopped
     networks:
       - traefik_proxy
-      - recyclarr
+      # - recyclarr
     labels:
       - traefik.enable=true
-      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.radarr-http.entrypoints=web
       - traefik.http.routers.radarr-http.rule=Host(`movies.viewpoint.house`)
       - traefik.http.routers.radarr-http.middlewares=radarr-https
@@ -626,112 +564,6 @@ services:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
 
-# DOCKER COMPOSE COMMAND REFERENCE
-# --------------------------------------------------------------------------
-# Start    | docker-compose up -d
-# Stop     | docker-compose stop
-# Update   | docker-compose pull
-# Logs     | docker-compose logs --tail=25 -f
-# Terminal | docker-compose exec photoprism bash
-# Help     | docker-compose exec photoprism photoprism help
-# Config   | docker-compose exec photoprism photoprism config
-# Reset    | docker-compose exec photoprism photoprism reset
-# Backup   | docker-compose exec photoprism photoprism backup -a -i
-# Restore  | docker-compose exec photoprism photoprism restore -a -i
-# Index    | docker-compose exec photoprism photoprism index
-# Reindex  | docker-compose exec photoprism photoprism index -f
-# Import   | docker-compose exec photoprism photoprism import
-#
-# To search originals for faces without a complete rescan:
-# docker-compose exec photoprism photoprism faces index
-#
-# All commands may have to be prefixed with "sudo" when not running as root.
-# This will point the home directory placeholder ~ to /root in volume mounts.
-
-  photoprism:
-    ## Use photoprism/photoprism:preview for testing preview builds:
-    image: photoprism/photoprism:latest
-    networks:
-      - traefik_proxy
-      - photoprism
-    depends_on:
-      photoprism_mariadb:
-          condition: service_started
-    ## Only enable automatic restarts once your installation is properly
-    ## configured as it otherwise may get stuck in a restart loop,
-    ## see https://docs.photoprism.org/getting-started/faq/#why-is-photoprism-getting-stuck-in-a-restart-loop
-    restart: unless-stopped
-    security_opt:
-      - seccomp:unconfined
-      - apparmor:unconfined
-    ## Run as a specific, non-root user (see https://docs.docker.com/engine/reference/run/#user):
-    # user: "1000:1000"
-    env_file:
-      - .photoprism.env
-    ## Hardware devices for video transcoding and machine learning (optional):
-    # devices:
-    #  - "/dev/video11:/dev/video11" # Video4Linux (h264_v4l2m2m)
-    #  - "/dev/dri/renderD128:/dev/dri/renderD128" # Intel GPU
-    #  - "/dev/dri/card0:/dev/dri/card0"
-    working_dir: "/photoprism"
-    volumes:
-      - photoprism_pictures:/photoprism/originals"
-      - "photoprism_storage:/photoprism/storage"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:2342"]
-      start_period: 15s
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=frontend_traefik_proxy
-      - traefik.http.routers.photos-http.entrypoints=web
-      - traefik.http.routers.photos-http.rule=Host(`photos.viewpoint.house`)
-      - traefik.http.routers.photos-http.middlewares=photos-https
-      - traefik.http.middlewares.photos-https.redirectscheme.scheme=https
-      - traefik.http.routers.photos.rule=Host(`photos.viewpoint.house`)
-      - traefik.http.routers.photos.entrypoints=websecure
-      - traefik.http.routers.photos.tls=true
-      - traefik.http.routers.photos.tls.certresolver=letsencrypt
-      - traefik.http.routers.photos.tls.domains[0].main=photos.viewpoint.house
-      - traefik.http.services.photos.loadbalancer.server.port=2342
-      - traefik.http.services.photos.loadbalancer.healthcheck.path=/
-      - traefik.http.services.photos.loadbalancer.healthcheck.port=2342
-      - homepage.group=Media
-      - homepage.name=Photoprism
-      - homepage.icon=mdi-camera
-      - homepage.href=https://photos.viewpoint.house
-      - homepage.description=PhotoPrism Photo Album
-      - com.centurylinklabs.watchtower.enable=true
-
-  ## Database Server (recommended)
-  ## see https://docs.photoprism.org/getting-started/faq/#should-i-use-sqlite-mariadb-or-mysql
-  photoprism_mariadb:
-    restart: unless-stopped
-    image: mariadb:10.6
-    networks:
-      - photoprism
-    security_opt:
-      - seccomp:unconfined
-      - apparmor:unconfined
-    command: mysqld --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
-    volumes:
-      - "photoprism_db:/var/lib/mysql" # Never remove
-    environment:
-      - MYSQL_ROOT_PASSWORD=${PHOTOPRISM_MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${PHOTOPRISM_MYSQL_DATABASE}
-      - MYSQL_USER=${PHOTOPRISM_MYSQL_USER}
-      - MYSQL_PASSWORD=${PHOTOPRISM_MYSQL_PASSWORD}
-    # healthcheck:
-    #   test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-    #   start_period: 10s
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 3
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-
   # immich-server:
   #   container_name: immich_server
   #   image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
@@ -793,72 +625,6 @@ services:
   #     - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
   #   restart: always
 
-  paperless_broker:
-    image: docker.io/library/redis:7
-    restart: unless-stopped
-    networks:
-      - paperless
-    volumes:
-      - paperless_redisdata:/data
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-
-  paperless_db:
-    image: docker.io/library/mariadb:10
-    restart: unless-stopped
-    networks:
-      - paperless
-    volumes:
-      - paperless_dbdata:/var/lib/mysql
-    env_file:
-      - .paperless.env
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      start_period: 10s
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-
-  paperless-ngx:
-    image: ghcr.io/paperless-ngx/paperless-ngx:latest
-    container_name: paperless-ngx
-    depends_on:
-      paperless_broker:
-          condition: service_started
-      paperless_db:
-          condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    env_file:
-      - .paperless.env
-    volumes:
-      - paperless_data:/usr/src/paperless/data
-      - paperless_media:/usr/src/paperless/media
-    restart: unless-stopped
-    networks:
-      - traefik_proxy
-      - paperless
-    labels:
-      - traefik.enable=true
-      - traefick.docker.network=frontend_traefik_proxy
-      - traefik.http.routers.paperless.rule=Host(`paperless.viewpoint.house`)
-      - traefik.http.routers.paperless.entrypoints=websecure
-      - traefik.http.routers.paperless.tls=true
-      - traefik.http.routers.paperless.tls.certresolver=letsencrypt
-      - traefik.http.routers.paperless.tls.domains[0].main=paperless.viewpoint.house
-      - traefik.http.services.paperless.loadbalancer.server.port=8000
-      # - traefik.http.routers.paperless.middlewares=authelia@docker
-      - homepage.group=Media
-      - homepage.icon=mdi-book-open-outline
-      - homepage.name=Paperless
-      - homepage.href=https://paperless.viewpoint.house
-      - homepage.description=Paperless
-      - com.centurylinklabs.watchtower.enable=true
 
   # homebox:
   #   image: ghcr.io/hay-kot/homebox:latest
@@ -903,84 +669,11 @@ services:
   #       gelf-address: "udp://172.24.32.13:12201"
   #       tag: "{{.Name}}"
 
-  tdarr:
-    container_name: tdarr
-    image: ghcr.io/haveagitgat/tdarr:latest
-    restart: unless-stopped
-    network_mode: bridge
-    ports:
-      - 8265:8265 # webUI port
-      - 8266:8266 # server port
-    environment:
-      - TZ=Europe/London
-      - PUID=${TDARR_PUID}
-      - PGID=${TDARR_PGID}
-      - UMASK_SET=002
-      - serverIP=0.0.0.0
-      - serverPort=8266
-      - webUIPort=8265
-      - internalNode=true
-      - inContainer=true
-      - nodeName=MyInternalNode
-    volumes:
-      - tdarr_server:/app/server
-      - tdarr_configs:/app/configs
-      - tdarr_logs:/app/logs
-      - /media/store/test:/media
-      - /media/store/transcode_cache:/temp
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.tdarr-http.entrypoints=web
-      - traefik.http.routers.tdarr-http.rule=Host(`tdarr.viewpoint.house`)
-      - traefik.http.routers.tdarr-http.middlewares=tdarr-https
-      - traefik.http.middlewares.tdarr-https.redirectscheme.scheme=https
-      - traefik.http.routers.tdarr.rule=Host(`tdarr.viewpoint.house`)
-      - traefik.http.routers.tdarr.entrypoints=websecure
-      - traefik.http.routers.tdarr.tls=true
-      - traefik.http.routers.tdarr.tls.certresolver=letsencrypt
-      - traefik.http.routers.tdarr.tls.domains[0].main=tdarr.viewpoint.house
-      - traefik.http.services.tdarr.loadbalancer.server.port=8265
-      - traefik.http.services.tdarr.loadbalancer.healthcheck.port=8265
-      - traefik.http.services.tdarr.loadbalancer.healthcheck.path=/
-      - homepage.group=Media
-      - homepage.icon=mdi-movie-open-outline
-      - homepage.name=Tdarr
-      - homepage.href=https://tdarr.viewpoint.house
-      - homepage.description=Tdarr Transcoding
-      - com.centurylinklabs.watchtower.enable=true
-
-  tdarr-node:
-    container_name: tdarr-node
-    image: ghcr.io/haveagitgat/tdarr_node:latest
-    restart: unless-stopped
-    network_mode: service:tdarr
-    environment:
-      - TZ=Europe/London
-      - PUID=${TDARR_PUID}
-      - PGID=${TDARR_PGID}
-      - UMASK_SET=002
-      - nodeName=MyExternalNode
-      - serverIP=0.0.0.0
-      - serverPort=8266
-      - inContainer=true
-    volumes:
-      - tdarr_configs:/app/configs
-      - tdarr_logs:/app/logs
-      - /media/store/test:/media
-      - /media/store/transcode_cache:/temp
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
 
 volumes:
 
   homebox_data:
   immich-model-cache:
-  recyclarr_config:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/recyclarr/config/"
 
   nzbget_config:
     driver: local
@@ -1079,55 +772,6 @@ volumes:
       # device: ":/srv/nfs4/store/Audio Books"
       device: ":/media/Tank/Books/Audio Books/"
 
-  tdarr_server:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/tdarr/server/"
-
-  tdarr_configs:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/tdarr/configs/"
-
-  tdarr_logs:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/tdarr/logs/"
-
-  paperless_redisdata:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/paperless/redis/data/"
-
-  paperless_dbdata:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/paperless/db/data/"
-
-  paperless_media:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/paperless/media/"
-
-  paperless_data:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/paperless/data/"
-
   nginx_core_conf:
     driver: local
     driver_opts:
@@ -1149,32 +793,6 @@ volumes:
       o: addr=172.24.32.5,rw
       device: ":/srv/nfs4/docker_nfs/readarr/"
 
-  miniflux-db:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/miniflux/db/"
-
-  photoprism_db:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/photoprism/db/"
-  photoprism_storage:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/photoprism/storage/"
-  photoprism_pictures:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      # device: ":/media/Tank/Home/Pictures"
-      device: ":/srv/nfs4/home/Pictures/"
 
   complete:
     driver: local
@@ -1245,17 +863,8 @@ volumes:
 networks:
     traefik_proxy:
       external: true
-      name: frontend_traefik_proxy
-    photoprism:
-      # driver: overlay
-      # driver: bridge
-    miniflux:
+      name: traefik_traefik_proxy
       # driver: overlay
       # driver: bridge
     # ombi_network:
     #   name: ombi_network
-    paperless:
-      name: paperless
-      # driver: overlay
-    recyclarr:
-      name: recyclarr
