@@ -1,0 +1,91 @@
+volumes:
+  frigate_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/frigate/config/"
+
+  frigate_db:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/frigate/db/"
+
+  frigate_cctv:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/cctv/frigate/"
+      device: ":/media/Tank/CCTV/frigate/"
+
+services:
+  frigate:
+    container_name: frigate
+    privileged: true # this may not be necessary for all setups
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+      - homeautomation
+    depends_on:
+      eclipse-mosquitto:
+          condition: service_started
+    image: ghcr.io/blakeblackshear/frigate:stable
+    devices:
+        - /dev/dri
+        - /dev/kfd
+    #   - /dev/bus/usb:/dev/bus/usb
+    #   - /dev/dri/card0 # for intel hwaccel, needs to be updated for your hardware
+    shm_size: "2g"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - frigate_cctv:/media/frigate
+      - frigate_db:/frigate_db
+      - frigate_config:/config
+      - type: tmpfs # Optional: 1GB of memory, reduces SSD/SD Card wear
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
+    ports:
+      # - "4999:5000"
+      # - "1935:1935" # RTMP feeds (deprecated) - move to Traefik TCP
+      - "1984:1984" # API
+      - "8554:8554" # RTSP feeds
+      - "8443:8443" # SRTP feeds
+      - "8555:8555" # WEBRTC feeds
+    healthcheck:
+      test: ["CMD", "curl", "-sI", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 1s
+      retries: 10
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.frigate-http.entrypoints=web
+      - traefik.http.routers.frigate-http.rule=Host(`cctv.viewpoint.house`)
+      - traefik.http.routers.frigate-http.middlewares=frigate-https
+      - traefik.http.middlewares.frigate-https.redirectscheme.scheme=https
+      - traefik.http.routers.frigate.rule=Host(`cctv.viewpoint.house`)
+      - traefik.http.routers.frigate.entrypoints=websecure
+      - traefik.http.routers.frigate.tls=true
+      - traefik.http.routers.frigate.tls.certresolver=letsencrypt
+      - traefik.http.routers.frigate.tls.domains[0].main=cctv.viewpoint.house
+      - traefik.http.services.frigate.loadbalancer.server.port=5000
+      - traefik.http.services.frigate.loadbalancer.healthcheck.path=/
+      - traefik.http.services.frigate.loadbalancer.healthcheck.port=5000
+
+      - homepage.group=Home Automation
+      - homepage.icon=mdi-cctv
+      - homepage.name=Frigate
+      - homepage.href=http://cctv.viewpoint.house
+      - homepage.description=CCTV
+      - com.centurylinklabs.watchtower.enable=true
+    #logging:
+    #  driver: gelf
+    #  options:
+    #    gelf-address: "udp://172.24.32.13:12201"
+    #    tag: "{{.Name}}"
+    env_file:
+      - .env
