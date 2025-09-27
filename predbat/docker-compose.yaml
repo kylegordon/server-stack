@@ -23,8 +23,6 @@ services:
           condition: service_started
       home-assistant:
           condition: service_healthy
-      pihole:
-          condition: service_healthy
     labels:
       - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
