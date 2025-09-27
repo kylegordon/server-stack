@@ -1,0 +1,22 @@
+services:
+  eclipse-mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: eclipse-mosquitto
+    restart: unless-stopped
+    ports:
+      - 1883:1883
+      - 9001:9001
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    networks:
+      - traefik_proxy
+      - homeautomation
+    volumes:
+        - mosquitto_config:/mosquitto/config
+        - mosquitto_data:/mosquitto/data
+        - mosquitto_logs:/mosquitto/log
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
