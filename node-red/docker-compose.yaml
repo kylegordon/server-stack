@@ -1,0 +1,57 @@
+volumes:
+  node-red_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/node-red/data/"
+
+services:
+  nodered:
+    restart: unless-stopped
+    image: nodered/node-red:latest
+    container_name: node-red
+    depends_on:
+      eclipse-mosquitto:
+          condition: service_started
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.nodered-http.entrypoints=web
+      - traefik.http.routers.nodered-http.rule=Host(`nodered.viewpoint.house`)
+      - traefik.http.routers.nodered-http.middlewares=nodered-https
+      - traefik.http.middlewares.nodered-https.redirectscheme.scheme=https
+      - traefik.http.routers.nodered.rule=Host(`nodered.viewpoint.house`)
+      - traefik.http.routers.nodered.entrypoints=websecure
+      - traefik.http.routers.nodered.tls=true
+      - traefik.http.routers.nodered.tls.certresolver=letsencrypt
+      - traefik.http.routers.nodered.tls.domains[0].main=nodered.viewpoint.house
+      - traefik.http.services.nodered.loadbalancer.server.port=1880
+      - traefik.http.services.nodered.loadbalancer.healthcheck.path=/
+      - traefik.http.services.nodered.loadbalancer.healthcheck.port=1880
+      - homepage.group=Home Automation
+      - homepage.name=Node Red
+      - homepage.href=http://nodered.viewpoint.house
+      - homepage.icon=si-node-red
+      - homepage.description=MQTT Management
+      - com.centurylinklabs.watchtower.enable=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1880"]
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - traefik_proxy
+      - homeautomation
+    # environment:
+    #   TZ: Europe/London
+    user: root:root
+    volumes:
+      - node-red_data:/data
+      - /etc/localtime:/etc/localtime:ro
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
