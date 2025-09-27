@@ -1,0 +1,55 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  uptime-kuma:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: "/srv/nfs4/docker_nfs/uptime-kuma/"
+
+
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    restart: unless-stopped
+    volumes:
+      - uptime-kuma:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik_proxy
+    healthcheck:
+      test: ["CMD", "curl", "-sI", "http://localhost:3001/"]
+      interval: 30s
+      timeout: 1s
+      retries: 10
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.uptime-http.entrypoints=web
+      - traefik.http.routers.uptime-http.rule=Host(`uptime.viewpoint.house`)
+      - traefik.http.routers.uptime-http.middlewares=uptime-https
+      - traefik.http.middlewares.uptime-https.redirectscheme.scheme=https
+      - traefik.http.routers.uptime.rule=Host(`uptime.viewpoint.house`)
+      - traefik.http.routers.uptime.entrypoints=websecure
+      - traefik.http.routers.uptime.tls=true
+      - traefik.http.routers.uptime.tls.certresolver=letsencrypt
+      - traefik.http.routers.uptime.tls.domains[0].main=uptime.viewpoint.house
+      - traefik.http.services.uptime.loadbalancer.server.port=3001
+      - traefik.http.services.uptime.loadbalancer.healthcheck.path=/
+      - traefik.http.services.uptime.loadbalancer.healthcheck.port=3001
+      # - traefik.http.routers.uptime.middlewares=authelia@docker
+      - homepage.group=Monitoring
+      - homepage.name=Uptime Kuma
+      - homepage.href=https://uptime.viewpoint.house
+      - homepage.description=Uptime Kuma
+      - homepage.icon=si-uptime-kuma
+      - com.centurylinklabs.watchtower.enable=true
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://72.24.32.13:12201"
+        tag: "{{.Name}}"
