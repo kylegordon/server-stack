@@ -1,3 +1,25 @@
+volumes:
+  mosquitto_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/mosquitto/config/"
+
+  mosquitto_logs:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/mosquitto/log/"
+
+  mosquitto_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/mosquitto/data/"
+
 services:
   eclipse-mosquitto:
     image: eclipse-mosquitto:latest
