@@ -1,6 +1,9 @@
 networks:
   traefik_proxy:
     external: true
+    # Failure to specify the full external network name as below will result in:
+    # Error response from daemon: failed to set up container networking: invalid cluster node while attaching to network
+    name: traefik_traefik_proxy
   paperless:
     driver: bridge
 
