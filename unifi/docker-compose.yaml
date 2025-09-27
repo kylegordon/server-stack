@@ -1,0 +1,65 @@
+networks:
+  traefik_proxy:
+    external: true
+    # Failure to provide the correct external network name results in:
+    # Error response from daemon: failed to set up container networking: invalid cluster node while attaching to network
+    name: traefik_traefik_proxy
+
+  unifi:
+    name: unifi
+
+
+services:
+  unifi-network-application:
+    image: lscr.io/linuxserver/unifi-network-application:latest
+    container_name: unifi-network-application
+    networks:
+      - unifi
+    depends_on:
+      - unifi-db
+    env_file:
+      - .env
+    volumes:
+      - /docker/unifi-network-application:/config
+    # networks:
+    #   - enp0s31f6
+#    ports:
+#      - "10.0.1.102:7878:7878"
+    ports:
+      - 8444:8443
+      - 3478:3478/udp
+      - 10001:10001/udp
+      - 8080:8080
+      # - 1900:1900/udp #optional
+      - 8843:8843 #optional
+      - 8880:8880 #optional
+      - 6789:6789 #optional
+      - 5514:5514/udp #optional
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.unifi-controller.rule=Host(`unifi.viewpoint.house`)
+      - traefik.http.routers.unifi-controller.entrypoints=websecure
+      - traefik.http.routers.unifi-controller.tls=true
+      - traefik.http.routers.unifi-controller.tls.certresolver=letsencrypt
+      - traefik.http.routers.unifi-controller.tls.domains[0].main=unifi.viewpoint.house
+      - traefik.http.services.unifi-controller.loadbalancer.server.port=8081
+      - traefik.http.services.unifi-controller.loadbalancer.server.scheme=https
+      # - traefik.http.services.unifi-controller.loadbalancer.healthcheck.path=/
+      # - traefik.http.services.unifi-controller.loadbalancer.healthcheck.port=8080
+      - homepage.group=Management
+      - homepage.name=Unifi Wifi
+      - homepage.icon=mdi-wifi
+      - homepage.href=https://unifi.viewpoint.house:8444
+      - homepage.description=Unifi Wireless Management
+    restart: unless-stopped
+
+  unifi-db:
+    image: docker.io/mongo:4
+    # I have to use v4, as v5+ requires a CPU with AVX support
+    # container_name: unifi-db
+    networks:
+      - unifi
+    volumes:
+      - /docker/unifi-network-application-database:/data/db
+      - /docker/unifi-network-application/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    restart: unless-stopped
