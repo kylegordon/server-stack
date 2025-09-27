@@ -1,8 +1,7 @@
 networks:
   traefik_proxy:
     external: true
-    name: frontend_traefik_proxy
-
+    name: traefik_traefik_proxy
 
 volumes:
   ebusd:
@@ -18,11 +17,14 @@ services:
     image: john30/ebusd:latest
     container_name: ebusd
     restart: unless-stopped
+    env_file:
+      - .env
     ports:
       - 8888:8888
       # when enabling the HTTP port, add it to the published ports as well:
       - 8081:8080
     # depends_on:
+    # pull this together with includes later - https://docs.docker.com/compose/how-tos/multiple-compose-files/include/
     #   - eclipse-mosquitto
     volumes:
       - ebusd:/config

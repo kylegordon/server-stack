@@ -43,7 +43,7 @@ services:
       start_period: 10s
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.scrutiny-web-http.entrypoints=web
       - traefik.http.routers.scrutiny-web-http.rule=Host(`scrutiny.viewpoint.house`)
       - traefik.http.routers.scrutiny-web-http.middlewares=scrutiny-web-https

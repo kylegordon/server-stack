@@ -1,8 +1,3 @@
-networks:
-  traefik_proxy:
-    external: true
-    name: frontend_traefik_proxy
-
 services:
   Watchtower:
     image: v2tec/watchtower:latest

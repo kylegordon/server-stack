@@ -4,7 +4,8 @@ networks:
 
   traefik_proxy:
     external: true
-    name: frontend_traefik_proxy
+    # name: frontend_traefik_proxy
+    name: traefik_traefik_proxy
 
   homeautomation:
     external: true
