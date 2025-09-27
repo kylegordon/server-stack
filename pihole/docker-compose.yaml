@@ -1,0 +1,65 @@
+networks:
+  traefik_proxy:
+    external: true
+    # Failure to provide the correct external network name results in:
+    # Error response from daemon: failed to set up container networking: invalid cluster node while attaching to network
+    name: traefik_traefik_proxy
+
+volumes:
+  pihole_etc:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw,sync,rsize=0,wsize=0
+      device: ":/srv/nfs4/docker_nfs/pihole/etc/"
+  pihole_dnsmasq:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw,sync,rsize=0,wsize=0
+      device: ":/srv/nfs4/docker_nfs/pihole/dnsmasq/"
+
+services:
+  pihole:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.pihole-http.entrypoints=web
+      - traefik.http.routers.pihole-http.rule=Host(`pihole.viewpoint.house`)
+      - traefik.http.routers.pihole-http.middlewares=pihole-https
+      - traefik.http.middlewares.pihole-https.redirectscheme.scheme=https
+      - traefik.http.routers.pihole.rule=Host(`pihole.viewpoint.house`)
+      - traefik.http.routers.pihole.tls=true
+      - traefik.http.routers.pihole.tls.certresolver=letsencrypt
+      - traefik.http.routers.pihole.tls.domains[0].main=pihole.viewpoint.house
+      - traefik.http.routers.pihole.entrypoints=websecure
+      - traefik.http.services.pihole.loadbalancer.server.port=80
+      - traefik.http.services.pihole.loadbalancer.healthcheck.path=/admin/login.php
+      - traefik.http.services.pihole.loadbalancer.healthcheck.port=80
+      - homepage.group=Management
+      - homepage.icon=mdi-wifi
+      - homepage.name=Pi-hole
+      - homepage.href=https://pihole.viewpoint.house/admin/login.php
+    container_name: pihole
+    image: pihole/pihole:latest
+    # image: pihole/pihole@sha256:0def896a596e8d45780b6359dbf82fc8c75ef05b97e095452e67a0a4ccc95377
+    # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
+    ports:
+      - "172.24.32.13:53:53/tcp"
+      - "172.24.32.13:53:53/udp"
+      # - "67:67/udp" # Only required if you are using Pi-hole as your DHCP server
+      - "90:80/tcp"
+    networks:
+      - traefik_proxy
+    env_file:
+      - .env
+    volumes:
+      - 'pihole_etc:/etc/pihole'
+      - 'pihole_dnsmasq:/etc/dnsmasq.d'
+    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+    cap_add:
+      - CAP_SYS_NICE
+      - CAP_NET_BIND_SERVICE
+      - CAP_NET_RAW
+      - CAP_CHOWN
+    #   - NET_ADMIN # Required if you are using Pi-hole as your DHCP server, else not needed
+    restart: unless-stopped
