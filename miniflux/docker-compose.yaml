@@ -1,7 +1,7 @@
 networks:
   traefik_proxy:
     external: true
-    name: frontend_traefik_proxy
+    name: traefik_traefik_proxy
   miniflux:
     driver: bridge
 
@@ -20,14 +20,14 @@ services:
       miniflux_db:
           condition: service_healthy
     env_file:
-      - .miniflux.env
+      - .env
     restart: unless-stopped
     networks:
       - traefik_proxy
       - miniflux
     labels:
       - traefik.enable=true
-      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.miniflux-http.entrypoints=web
       - traefik.http.routers.miniflux-http.rule=Host(`news.viewpoint.house`)
       - traefik.http.routers.miniflux-http.middlewares=miniflux-https
@@ -52,7 +52,7 @@ services:
   miniflux_db:
     image: postgres:15
     env_file:
-      - .miniflux.env
+      - .env
     restart: unless-stopped
     networks:
       - miniflux
