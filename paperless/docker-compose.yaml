@@ -53,7 +53,7 @@ services:
     volumes:
       - paperless_dbdata:/var/lib/mysql
     env_file:
-      - .paperless.env
+      - .env
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       start_period: 10s
@@ -77,7 +77,7 @@ services:
       timeout: 10s
       retries: 5
     env_file:
-      - .paperless.env
+      - .env
     volumes:
       - paperless_data:/usr/src/paperless/data
       - paperless_media:/usr/src/paperless/media
@@ -87,7 +87,7 @@ services:
       - paperless
     labels:
       - traefik.enable=true
-      - traefick.docker.network=frontend_traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.paperless.rule=Host(`paperless.viewpoint.house`)
       - traefik.http.routers.paperless.entrypoints=websecure
       - traefik.http.routers.paperless.tls=true
