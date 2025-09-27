@@ -78,8 +78,8 @@ services:
     #  - "/dev/dri/card0:/dev/dri/card0"
     working_dir: "/photoprism"
     volumes:
-      - photoprism_pictures:/photoprism/originals"
-      - "photoprism_storage:/photoprism/storage"
+      - photoprism_pictures:/photoprism/originals
+      - photoprism_storage:/photoprism/storage
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:2342"]
       start_period: 15s
