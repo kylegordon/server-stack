@@ -1,0 +1,52 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  nginx_core_conf:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nginx_core/conf/"
+
+  nginx_core_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nginx_core/html"
+
+services:
+  nginx_core:
+    image: nginx:latest
+    container_name: nginx_core
+    restart: unless-stopped
+    volumes:
+      - nginx_core_conf:/etc/nginx
+      - nginx_core_data:/var/www
+    networks:
+      - traefik_proxy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.nginx_core.rule=Host(`core.vpn.glasgownet.com`)
+      - traefik.http.routers.nginx_core.entrypoints=web
+      - traefik.http.routers.nginx_core-viewpoint.rule=Host(`core.viewpoint.house`)
+      - traefik.http.routers.nginx_core-viewpoint.entrypoints=web
+      - traefik.http.routers.nginx_core-https.rule=Host(`core.viewpoint.house`)
+      - traefik.http.routers.nginx_core-https.entrypoints=websecure
+      - traefik.http.routers.nginx_core-https.tls=true
+      - traefik.http.routers.nginx_core-https.tls.certresolver=letsencrypt
+      - traefik.http.routers.nginx_core-https.tls.domains[0].main=core.viewpoint.house
+      - homepage.group=Management
+      - homepage.name=Core Web
+      - homepage.href=https://core.viewpoint.house
+      - homepage.description=Core Web Files
+      - com.centurylinklabs.watchtower.enable=true
