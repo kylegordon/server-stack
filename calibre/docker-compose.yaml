@@ -1,0 +1,88 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  calibre_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/calibre/config/"
+
+  ebooks:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/ebooks/"
+      device: ":/media/Tank/Books/ebooks/"
+
+  ebooks_import:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/ebooks_import/"
+      device: ":/media/Tank/Books/ebooks_import/"
+
+services:
+  calibre:
+    image: lscr.io/linuxserver/calibre:latest
+    container_name: calibre
+    security_opt:
+      - seccomp:unconfined #optional
+    networks:
+      - traefik_proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - PASSWORD= #optional
+      - CLI_ARGS= #optional
+    volumes:
+      - calibre_config:/config
+      - ebooks:/books
+      - ebooks_import:/books_import
+    # ports:
+    #  - 8080:8080 # Internal http port
+    #  - 8181:8181 # Internal https port
+    #  - 8081:8081 # Internal built in webserver port
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.calibre-http.entrypoints=web
+      - traefik.http.routers.calibre-http.rule=Host(`calibre.viewpoint.house`)
+      - traefik.http.routers.calibre-http.middlewares=calibre-https
+      - traefik.http.middlewares.calibre-https.redirectscheme.scheme=https
+      - traefik.http.routers.calibre.rule=Host(`calibre.viewpoint.house`)
+      - traefik.http.routers.calibre.entrypoints=websecure
+      - traefik.http.routers.calibre.service=calibre
+      - traefik.http.routers.calibre.tls=true
+      - traefik.http.routers.calibre.tls.certresolver=letsencrypt
+      - traefik.http.routers.calibre.tls.domains[0].main=calibre.viewpoint.house
+      - traefik.http.services.calibre.loadbalancer.server.port=8080
+      - traefik.http.services.calibre.loadbalancer.healthcheck.port=8080
+      - traefik.http.services.calibre.loadbalancer.healthcheck.path=/
+
+      - traefik.http.routers.calibre-web-https.tls=true
+      - traefik.http.routers.calibre-web-https.tls.certresolver=letsencrypt
+      - traefik.http.routers.calibre-web-https.tls.domains[0].main=calibre-web.viewpoint.house
+      - traefik.http.routers.calibre-web-https.rule=Host(`calibre-web.viewpoint.house`)
+      - traefik.http.routers.calibre-web-https.entrypoints=websecure
+      - traefik.http.routers.calibre-web-https.service=calibre-web-https
+      - traefik.http.services.calibre-web-https.loadbalancer.server.port=8081
+      - traefik.http.services.calibre-web-https.loadbalancer.healthcheck.path=/
+      - traefik.http.services.calibre-web-https.loadbalancer.healthcheck.port=8081
+      - homepage.group=Media
+      - homepage.icon=mdi-book-open-outline
+      - homepage.name=Calibre Books
+      - homepage.href=https://calibre.viewpoint.house
+      - homepage.description=Books Management
+      - com.centurylinklabs.watchtower.enable=true
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"

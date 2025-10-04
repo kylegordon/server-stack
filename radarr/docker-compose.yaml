@@ -1,0 +1,60 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  radarr_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw,sync,rsize=0,wsize=0
+      device: ":/srv/nfs4/docker_nfs/radarr/config/"
+
+services:
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7878"]
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+      # - recyclarr
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.radarr-http.entrypoints=web
+      - traefik.http.routers.radarr-http.rule=Host(`movies.viewpoint.house`)
+      - traefik.http.routers.radarr-http.middlewares=radarr-https
+      - traefik.http.middlewares.radarr-https.redirectscheme.scheme=https
+      - traefik.http.routers.radarr.rule=Host(`movies.viewpoint.house`)
+      - traefik.http.routers.radarr.entrypoints=websecure
+      - traefik.http.routers.radarr.tls=true
+      - traefik.http.routers.radarr.tls.certresolver=letsencrypt
+      - traefik.http.routers.radarr.tls.domains[0].main=movies.viewpoint.house
+      - traefik.http.services.radarr.loadbalancer.server.port=7878
+      - traefik.http.services.radarr.loadbalancer.healthcheck.port=7878
+      - traefik.http.services.radarr.loadbalancer.healthcheck.path=/
+      - homepage.group=Media
+      - homepage.name=Radarr
+      - homepage.icon=mdi-movie-open-outline
+      - homepage.href=https://movies.viewpoint.house
+      - homepage.description=Movie Management
+      - com.centurylinklabs.watchtower.enable=true
+    # environment:
+      # - PUID=200
+      # - PGID=200
+    volumes:
+      - radarr_config:/config
+      - complete:/complete
+      - movies:/movies
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"

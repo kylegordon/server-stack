@@ -1,0 +1,30 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+services:
+  phpmyadmin:
+    image: phpmyadmin
+    restart: unless-stopped
+    # ports:
+    #   - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
+    networks:
+      - traefik_proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.phpmyadmin-http.rule=Host(`phpmyadmin.viewpoint.house`)
+      - traefik.http.routers.phpmyadmin-http.entrypoints=web
+      - traefik.http.routers.phpmyadmin-http.middlewares=phpmyadmin-https
+      - traefik.http.middlewares.phpmyadmin-https.redirectscheme.scheme=https
+      - traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.viewpoint.house`)
+      - traefik.http.routers.phpmyadmin.entrypoints=websecure
+      - traefik.http.routers.phpmyadmin.tls=true
+      - traefik.http.routers.phpmyadmin.tls.certresolver=letsencrypt
+      - traefik.http.routers.phpmyadmin.tls.domains[0].main=phpmyadmin.viewpoint.house
+      - traefik.http.services.phpmyadmin.loadbalancer.server.port=80
+      - traefik.http.services.phpmyadmin.loadbalancer.healthcheck.port=80
+      - traefik.http.services.phpmyadmin.loadbalancer.healthcheck.path=/
+      - com.centurylinklabs.watchtower.enable=true

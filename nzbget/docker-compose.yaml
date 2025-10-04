@@ -1,0 +1,71 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  nzbget_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nzbget/config/"
+
+  nzbget_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nzbget/data/"
+
+  # downloads_intermediate:
+  #   external: true
+  #   name: downloads_intermediate
+
+  # downloads_complete:
+  #   external: true
+  #   name: downloads_complete
+
+services:
+  nzbget:
+    image: linuxserver/nzbget:latest
+    container_name: nzbget
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+    environment:
+      - NZBGET_TRACK=stable
+      # - PUID=200
+      # - PGID=200
+    volumes:
+      - nzbget_config:/config
+      - nzbget_data:/downloads
+      - downloads_intermediate:/intermediate
+      - downloads_complete:/complete
+      - downloads_tmp:/downloads/tmp
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.nzbget-http.entrypoints=web
+      - traefik.http.routers.nzbget-http.rule=Host(`nzbget.viewpoint.house`)
+      - traefik.http.routers.nzbget-http.middlewares=nzbget-https
+      - traefik.http.middlewares.nzbget-https.redirectscheme.scheme=https
+      - traefik.http.routers.nzbget.rule=Host(`nzbget.viewpoint.house`)
+      - traefik.http.routers.nzbget.entrypoints=websecure
+      - traefik.http.routers.nzbget.tls=true
+      - traefik.http.routers.nzbget.tls.certresolver=letsencrypt
+      - traefik.http.routers.nzbget.tls.domains[0].main=nzbget.viewpoint.house
+      - traefik.http.services.nzbget.loadbalancer.server.port=6789
+      # - traefik.http.services.nzbget.loadbalancer.healthcheck.port=6789
+      # - traefik.http.services.nzbget.loadbalancer.healthcheck.path=/
+      - homepage.group=Media
+      - homepage.name=NZBGet
+      - homepage.icon=mdi-cloud-download
+      - homepage.href=https://nzbget.viewpoint.house
+      - homepage.description=Usenet Downloader
+      - com.centurylinklabs.watchtower.enable=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6789"]
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5

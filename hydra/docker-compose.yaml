@@ -1,0 +1,63 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  nzbhydra_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nzbhydra/config/"
+
+  nzbhydra_downloads:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nzbhydra/downloads/"
+
+services:
+  hydra:
+    image: linuxserver/nzbhydra2:latest
+    container_name: hydra
+    restart: unless-stopped
+    environment:
+      - PUID=200
+      - PGID=200
+    networks:
+      - traefik_proxy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5076"]
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.hydra-http.entrypoints=web
+      - traefik.http.routers.hydra-http.rule=Host(`hydra.viewpoint.house`)
+      - traefik.http.routers.hydra-http.middlewares=hydra-https
+      - traefik.http.middlewares.hydra-https.redirectscheme.scheme=https
+      - traefik.http.routers.hydra.rule=Host(`hydra.viewpoint.house`)
+      - traefik.http.routers.hydra.entrypoints=websecure
+      - traefik.http.routers.hydra.tls=true
+      - traefik.http.routers.hydra.tls.certresolver=letsencrypt
+      - traefik.http.routers.hydra.tls.domains[0].main=hydra.viewpoint.house
+      - traefik.http.services.hydra.loadbalancer.server.port=5076
+      - traefik.http.services.hydra.loadbalancer.healthcheck.port=5076
+      - traefik.http.services.hydra.loadbalancer.healthcheck.path=/
+      - homepage.group=Media
+      - homepage.name=Hydra Usenet Index Meta-Search
+      - homepage.href=https://hydra.viewpoint.house
+      - homepage.description=Hydra Indexer
+      - com.centurylinklabs.watchtower.enable=true
+    volumes:
+      - nzbhydra_config:/config
+      - nzbhydra_downloads:/downloads
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
