@@ -1,0 +1,67 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  jellyfin_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/jellyfin/config/"
+
+  jellyfin_cache:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/jellyfin/cache/"
+
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    networks:
+      - traefik_proxy
+    restart: unless-stopped
+    volumes:
+      - jellyfin_config:/config
+      - jellyfin_cache:/cache
+      - tv:/media/tv
+      - movies:/media/movies
+      - music:/media/music
+      - ebooks:/ebooks
+      - audiobooks:/audiobooks
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.jellyfin-http.entrypoints=web
+      - traefik.http.routers.jellyfin-http.rule=Host(`jellyfin.viewpoint.house`)
+      - traefik.http.routers.jellyfin-http.middlewares=jellyfin-https
+      - traefik.http.middlewares.jellyfin-https.redirectscheme.scheme=https
+      - traefik.http.routers.jellyfin.rule=Host(`jellyfin.viewpoint.house`)
+      - traefik.http.routers.jellyfin.entrypoints=websecure
+      - traefik.http.routers.jellyfin.tls=true
+      - traefik.http.routers.jellyfin.tls.certresolver=letsencrypt
+      - traefik.http.routers.jellyfin.tls.domains[0].main=jellyfin.viewpoint.house
+      - traefik.http.services.jellyfin.loadbalancer.server.port=8096
+      - traefik.http.services.jellyfin.loadbalancer.healthcheck.port=8096
+      - traefik.http.services.jellyfin.loadbalancer.healthcheck.path=/
+      - homepage.group=Media
+      - homepage.icon=mdi-movie-open-play
+      - homepage.name=Jellyfin
+      - homepage.href=https://jellyfin.viewpoint.house
+      - homepage.description=Jellyfin Media Playback
+      - com.centurylinklabs.watchtower.enable=true
+    # Traefik filters out unhealthy services
+    # healthcheck:
+    #   test: ["CMD", "apt", "install", "-y", "curl", "curl", "-f", "http://172.24.32.13:8096/web/index.html"]
+    #   start_period: 60s
+    #   interval: 300s
+    #   timeout: 10s
+    #   retries: 5
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"

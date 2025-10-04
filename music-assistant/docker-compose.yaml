@@ -1,0 +1,52 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+  homeautomation:
+    external: true
+    name: homeautomation
+
+volumes:
+  music-assistant:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/music-assistant/"
+
+services:
+  # Music Assistant disabled whilst I figure out the MDNS/5353/Openhome stuff
+  music-assistant-server:
+    image: ghcr.io/music-assistant/server:latest
+    container_name: music-assistant-server
+    restart: unless-stopped
+    # Network mode must be set to host for MA to work correctly
+    network_mode: host
+    # networks:
+    #   - traefik_proxy
+    #   - homeautomation
+    volumes:
+      - music-assistant:/data/
+      - music:/music/
+    # privileged caps needed to mount smb folders within the container
+    cap_add:
+      - SYS_ADMIN
+      - DAC_READ_SEARCH
+    privileged: true
+    environment:
+      # Provide logging level as environment variable.
+      # default=info, possible=(critical, error, warning, info, debug, verbose)
+      - LOG_LEVEL=info
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.music-http.entrypoints=web
+      - traefik.http.routers.music-http.rule=Host(`music.viewpoint.house`)
+      - traefik.http.routers.music-http.middlewares=music-https
+      - traefik.http.middlewares.music-https.redirectscheme.scheme=https
+      - traefik.http.routers.music.rule=Host(`music.viewpoint.house`)
+      - traefik.http.routers.music.entrypoints=websecure
+      - traefik.http.routers.music.tls=true
+      - traefik.http.routers.music.tls.certresolver=letsencrypt
+      - traefik.http.routers.music.tls.domains[0].main=music.viewpoint.house
+      - traefik.http.services.music.loadbalancer.server.port=8095
