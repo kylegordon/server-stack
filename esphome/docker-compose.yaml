@@ -23,7 +23,7 @@ services:
       # - ESPHOME_DASHBOARD_USE_PING=true
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.esphome-http.entrypoints=web
       - traefik.http.routers.esphome-http.rule=Host(`esphome.viewpoint.house`)
       - traefik.http.routers.esphome-http.middlewares=esphome-https
