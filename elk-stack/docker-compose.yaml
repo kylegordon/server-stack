@@ -126,7 +126,7 @@ services:
       - elastic
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:8.17.0
+    image: docker.elastic.co/beats/filebeat:8.19.4
     container_name: filebeat
     restart: unless-stopped
     user: root #To read the docker socket
@@ -155,7 +155,7 @@ services:
       - traefik.enable=false
 
   auditbeat:
-    image: docker.elastic.co/beats/auditbeat:8.17.0
+    image: docker.elastic.co/beats/auditbeat:8.19.4
     container_name: auditbeat
     restart: unless-stopped
     user: root #To read the docker socket
@@ -185,7 +185,7 @@ services:
       - traefik.enable=false
 
   apm-server:
-    image: docker.elastic.co/apm/apm-server:8.17.0
+    image: docker.elastic.co/apm/apm-server:8.19.4
     container_name: apm-server
     restart: unless-stopped
     depends_on:
@@ -213,7 +213,7 @@ services:
     labels:
       - traefik.enable=false
   es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.4
     container_name: es01
     restart: unless-stopped
     # network_mode: host
@@ -247,7 +247,7 @@ services:
       - traefik.enable=false
 
   es02:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.4
     container_name: es02
     restart: unless-stopped
     # network_mode: host
@@ -276,7 +276,7 @@ services:
       - traefik.enable=false
 
   es03:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.4
     container_name: es03
     restart: unless-stopped
     # network_mode: host
@@ -305,7 +305,7 @@ services:
       - traefik.enable=false
 
   kibana01:
-    image: docker.elastic.co/kibana/kibana:8.17.0
+    image: docker.elastic.co/kibana/kibana:8.19.4
     container_name: kibana
     restart: unless-stopped
     # ports:
@@ -333,7 +333,7 @@ services:
       - traefik_proxy
 
   metricbeat:
-    image: docker.elastic.co/beats/metricbeat:8.17.0
+    image: docker.elastic.co/beats/metricbeat:8.19.4
     container_name: metricbeat
     command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
     restart: unless-stopped
