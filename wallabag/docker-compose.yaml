@@ -1,11 +1,13 @@
 ---
 services:
   wallabag:
-    image: wallabag/wallabag
+    image: wallabag/wallabag:latest
     restart: unless-stopped
     networks:
       - wallabag
       - traefik_proxy
+    env_file:
+      - .env
     # env_file:
     #   - ".wallabag.env"
     # ports:
@@ -17,7 +19,7 @@ services:
       - redis
     labels:
       - traefik.enable=true
-      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.wallabag-http.entrypoints=web
       - traefik.http.routers.wallabag-http.rule=Host(`pocket.glasgownet.com`)
       - traefik.http.routers.wallabag-http.middlewares=wallabag-https
@@ -36,6 +38,8 @@ services:
     restart: unless-stopped
     networks:
       - wallabag
+    env_file:
+      - .env
     # env_file:
     #   - ".wallabag.env"
     volumes:
@@ -60,4 +64,4 @@ networks:
 
   traefik_proxy:
     external: true
-    name: frontend_traefik_proxy
+    name: traefik_traefik_proxy
