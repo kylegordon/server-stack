@@ -40,6 +40,9 @@ services:
       # pihole:
       #     condition: service_healthy
     restart: unless-stopped
+    # privileged: true
+    # cap_add:
+    #   - CAP_NET_BIND_SERVICE
     labels:
       # https://techoverflow.net/2022/03/27/how-to-fix-traefik-could-not-define-the-service-name-for-the-router-too-many-services/
       - traefik.enable=true
