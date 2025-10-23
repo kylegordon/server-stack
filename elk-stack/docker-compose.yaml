@@ -162,7 +162,7 @@ services:
     cap_add:
       - AUDIT_CONTROL
       - AUDIT_READ
-    command: auditbeat -e -strict.perms=false
+    command: auditbeat -e --strict.perms=false
     pid: "host" # Set the required permissions with pid and cap_add for Auditbeat
     volumes:
       - type: bind
