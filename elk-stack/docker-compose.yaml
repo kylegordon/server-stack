@@ -185,7 +185,7 @@ services:
       - traefik.enable=false
 
   apm-server:
-    image: docker.elastic.co/apm/apm-server:8.19.6
+    image: docker.elastic.co/apm/apm-server:9.2.0
     container_name: apm-server
     restart: unless-stopped
     depends_on:
