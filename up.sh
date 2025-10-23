@@ -25,15 +25,20 @@ docker compose -f homepage/docker-compose.yaml up -d
 docker compose -f uptime-kuma/docker-compose.yaml up -d
 docker compose -f influxdb/docker-compose.yaml up -d
 docker compose -f mdns_repeater/docker-compose.yaml up -d
+docker compose -f nginx_core/docker-compose.yaml up -d
+docker compose -f phpmyadmin/docker-compose.yaml up -d
+# docker compose -f homebox/docker-compose.yaml up -d
+docker compose -f matter-hub/docker-compose.yaml up -d
+docker compose -f whatsupdocker/docker-compose.yaml up -d
 
 export DOCKER_HOST=ssh://bagpuss@172.24.32.5
 docker compose -f scrutiny/docker-compose-blackbird.yaml up -d
 
 export DOCKER_HOST=ssh://bagpuss@deepcore.glasgownet.com
-# docker compose -f scrutiny/docker-compose-deepcore.yaml up -d
+docker compose -f scrutiny/docker-compose-deepcore.yaml up -d
 docker compose -f traefik/docker-compose-deepcore.yaml up -d
-docker compose -f social-stack/docker-compose.yaml up -d
-docker compose -f pixelfed/docker-compose.yaml up -d
-docker compose -f rss/docker-compose.yaml up -d
-docker compose -f obsidian-sync/docker-compose.yaml up -d
 docker compose -f wallabag/docker-compose.yaml up -d
+docker compose -f rss/docker-compose.yaml up -d
+# docker compose -f pixelfed/docker-compose.yaml up -d
+docker compose -f social-stack/docker-compose.yaml up -d
+# docker compose -f obsidian-sync/docker-compose.yaml up -d
