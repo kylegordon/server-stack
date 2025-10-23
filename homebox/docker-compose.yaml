@@ -1,0 +1,56 @@
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  homebox_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/homebox/config/"
+
+services:
+  homebox:
+    image: ghcr.io/hay-kot/homebox:latest
+    container_name: homebox
+    environment:
+      - TZ=Europe/London
+    volumes:
+      - homebox_data:/data
+    networks:
+      - traefik_proxy
+    healthcheck:
+      # test: ["CMD", "curl", "-f", "http://localhost:7745"]
+      test: "wget --no-verbose --tries=1 --spider http://localhost:7745 || exit 1"
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.homebox-http.entrypoints=web
+      - traefik.http.routers.homebox-http.rule=Host(`parts.viewpoint.house`)
+      - traefik.http.routers.homebox-http.middlewares=homebox-https
+      - traefik.http.middlewares.homebox-https.redirectscheme.scheme=https
+      - traefik.http.routers.homebox.rule=Host(`parts.viewpoint.house`)
+      - traefik.http.routers.homebox.entrypoints=websecure
+      - traefik.http.routers.homebox.tls=true
+      - traefik.http.routers.homebox.tls.certresolver=letsencrypt
+      - traefik.http.routers.homebox.tls.domains[0].main=parts.viewpoint.house
+      - traefik.http.services.homebox.loadbalancer.server.port=7745
+      - traefik.http.services.homebox.loadbalancer.healthcheck.port=7745
+      - traefik.http.services.homebox.loadbalancer.healthcheck.path=/
+      - homepage.group=Media
+      - homepage.icon=mdi-book-open-outline
+      - homepage.name=Parts
+      - homepage.href=https://parts.viewpoint.house
+      - homepage.description=Parts Management
+      - com.centurylinklabs.watchtower.enable=true
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
