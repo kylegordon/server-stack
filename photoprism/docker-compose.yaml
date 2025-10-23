@@ -112,7 +112,7 @@ services:
   ## see https://docs.photoprism.org/getting-started/faq/#should-i-use-sqlite-mariadb-or-mysql
   photoprism_mariadb:
     restart: unless-stopped
-    image: mariadb:10.6
+    image: mariadb:10.11
     networks:
       - photoprism
     security_opt:
