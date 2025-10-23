@@ -11,7 +11,7 @@ networks:
 
   traefik_proxy:
     external: true
-    name: frontend_traefik_proxy
+    name: traefik_traefik_proxy
 
 services:
   sharkey_web:
@@ -43,7 +43,7 @@ services:
         max-file: 3
     labels:
       - traefik.enable=true
-      - traefik.docker.network=frontend_traefik_proxy
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.firefish-http.entrypoints=web
       - traefik.http.routers.firefish-http.rule=Host(`social.glasgownet.com`)
       - traefik.http.routers.firefish-http.middlewares=firefish-https
@@ -89,7 +89,7 @@ services:
     networks:
       - calcnet
     env_file:
-      - .sharkey.env
+      - .env
     volumes:
       - /docker/firefish/db_15/db:/var/lib/postgresql/data
     healthcheck:
@@ -108,7 +108,7 @@ services:
     restart: unless-stopped
     image: getmeili/meilisearch:v1.3.4
     env_file:
-      - .sharkey.env
+      - .env
     networks:
       - calcnet
     logging:
