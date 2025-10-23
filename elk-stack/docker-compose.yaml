@@ -126,7 +126,7 @@ services:
       - elastic
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:8.19.4
+    image: docker.elastic.co/beats/filebeat:8.19.6
     container_name: filebeat
     restart: unless-stopped
     user: root #To read the docker socket
