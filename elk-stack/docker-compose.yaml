@@ -84,7 +84,7 @@ services:
       - homepage.description=ELK - ElasticHQ
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:8.19.4
+    image: docker.elastic.co/logstash/logstash:9.2.0
     container_name: logstash
     restart: unless-stopped
     volumes:
@@ -126,7 +126,7 @@ services:
       - elastic
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:8.19.6
+    image: docker.elastic.co/beats/filebeat:9.2.0
     container_name: filebeat
     restart: unless-stopped
     user: root #To read the docker socket
@@ -185,7 +185,7 @@ services:
       - traefik.enable=false
 
   apm-server:
-    image: docker.elastic.co/apm/apm-server:8.19.6
+    image: docker.elastic.co/apm/apm-server:9.2.0
     container_name: apm-server
     restart: unless-stopped
     depends_on:
