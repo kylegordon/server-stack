@@ -106,7 +106,7 @@ services:
 
   meilisearch:
     restart: unless-stopped
-    image: getmeili/meilisearch:v1.24.0
+    image: getmeili/meilisearch:v1.3.4
     env_file:
       - .env
     networks:
