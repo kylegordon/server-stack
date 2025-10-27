@@ -22,7 +22,7 @@ volumes:
 
 services:
   eclipse-mosquitto:
-    image: eclipse-mosquitto:latest
+    image: eclipse-mosquitto:2.0
     container_name: eclipse-mosquitto
     restart: unless-stopped
     ports:
