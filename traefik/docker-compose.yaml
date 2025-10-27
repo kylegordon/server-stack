@@ -23,7 +23,7 @@ services:
     # https://doc.traefik.io/traefik/routing/services/#health-check
     # https://gist.github.com/jeroenhendricksen/7dfe273277bbbd1c2ea2cb7c647b24fa
     # image: "traefik:3.2.3"
-    image: "traefik:latest"
+    image: "traefik:v3.5.3"
     container_name: "traefik"
     networks:
       - traefik_proxy

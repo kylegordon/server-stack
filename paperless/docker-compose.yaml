@@ -67,7 +67,7 @@ services:
       - com.centurylinklabs.watchtower.enable=true
 
   paperless-ngx:
-    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    image: ghcr.io/paperless-ngx/paperless-ngx:v2.19.2
     container_name: paperless-ngx
     depends_on:
       paperless_broker:
