@@ -27,7 +27,7 @@ docker compose -f influxdb/docker-compose.yaml up -d
 docker compose -f mdns_repeater/docker-compose.yaml up -d
 docker compose -f nginx_core/docker-compose.yaml up -d
 docker compose -f phpmyadmin/docker-compose.yaml up -d
-# docker compose -f homebox/docker-compose.yaml up -d
+docker compose -f homebox/docker-compose.yaml up -d
 docker compose -f matter-hub/docker-compose.yaml up -d
 docker compose -f whatsupdocker/docker-compose.yaml up -d
 
