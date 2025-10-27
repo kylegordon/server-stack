@@ -13,7 +13,7 @@ volumes:
 
 services:
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:v12.2.0
     container_name: grafana
     restart: unless-stopped
     env_file:

@@ -53,7 +53,7 @@ services:
 
   photoprism:
     ## Use photoprism/photoprism:preview for testing preview builds:
-    image: photoprism/photoprism:latest
+    image: photoprism/photoprism:250707-d28b3101e
     networks:
       - traefik_proxy
       - photoprism
