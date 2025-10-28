@@ -20,7 +20,7 @@ volumes:
 
 services:
   nginx_core:
-    image: nginx:1.28
+    image: nginx:1.29
     container_name: nginx_core
     restart: unless-stopped
     volumes:
