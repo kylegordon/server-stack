@@ -13,7 +13,7 @@ volumes:
 
 services:
   radarr:
-    image: linuxserver/radarr:latest
+    image: linuxserver/radarr:version-5.28.0.10274
     container_name: radarr
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:7878"]

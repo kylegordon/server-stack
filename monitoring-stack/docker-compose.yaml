@@ -48,7 +48,7 @@ networks:
 
 services:
   librenms:
-    image: librenms/librenms:latest
+    image: librenms/librenms:25.9.1
     container_name: librenms
     hostname: librenms
     cap_add:
@@ -105,7 +105,7 @@ services:
       # - com.centurylinklabs.watchtower.enable=true
 
   dispatcher:
-    image: librenms/librenms:latest
+    image: librenms/librenms:25.9.1
     container_name: librenms_dispatcher
     hostname: librenms-dispatcher
     cap_add:
@@ -139,7 +139,7 @@ services:
       - traefik.enable=false
 
   # cron:
-  #   image: librenms/librenms:latest
+  #   image: librenms/librenms:25.9.1
   #   container_name: librenms_cron
   #   domainname: glasgownet.com
   #   hostname: librenms
@@ -162,7 +162,7 @@ services:
   #   restart: always
 
   syslog-ng:
-    image: librenms/librenms:latest
+    image: librenms/librenms:25.9.1
     container_name: librenms_syslog
     # domainname: viewpoint.house
     hostname: librenms
@@ -270,7 +270,7 @@ services:
       - com.centurylinklabs.watchtower.enable=true
 
   smokeping:
-    image: linuxserver/smokeping:latest
+    image: linuxserver/smokeping:version-2.9.0
     container_name: smokeping
     restart: unless-stopped
     networks:

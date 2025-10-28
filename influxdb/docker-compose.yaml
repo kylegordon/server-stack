@@ -22,7 +22,7 @@ volumes:
 
 services:
   influxdb:
-    image: influxdb:latest
+    image: influxdb:2.7.12
     container_name: influxdb
     restart: unless-stopped
     volumes:
