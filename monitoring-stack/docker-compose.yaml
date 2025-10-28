@@ -270,7 +270,7 @@ services:
       - com.centurylinklabs.watchtower.enable=true
 
   smokeping:
-    image: linuxserver/smokeping:version-2.9.0
+    image: linuxserver/smokeping:2.9.0
     container_name: smokeping
     restart: unless-stopped
     networks:
