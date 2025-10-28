@@ -40,7 +40,7 @@ networks:
 services:
 
   cerebro:
-    image: lmenezes/cerebro:latest
+    image: lmenezes/cerebro:0.9.4
     container_name: cerebro
     restart: unless-stopped
     ports:

@@ -16,7 +16,7 @@ volumes:
 services:
   double-take:
     container_name: double-take
-    image: jakowenko/double-take:latest
+    image: jakowenko/double-take:1.13.2
     networks:
       - traefik_proxy
     restart: unless-stopped

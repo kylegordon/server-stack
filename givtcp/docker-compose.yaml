@@ -10,7 +10,7 @@ services:
   GivTCP:
     # https://wiki.terravolt.co.uk/docs/givtcp-installation-version-2-0/
     container_name: GivTCP
-    image: britkat/giv_tcp-ma:latest
+    image: britkat/giv_tcp-ma:3.4.1
     # ports:
     #   - "8099:8099"                   # REST and Config web server (https on 8098)
     #   - "3030:3030"                   # WEB Dashboard
