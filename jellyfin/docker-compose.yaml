@@ -20,7 +20,7 @@ volumes:
 
 services:
   jellyfin:
-    image: jellyfin/jellyfin:10.11.1
+    image: jellyfin/jellyfin:10.11.2
     container_name: jellyfin
     networks:
       - traefik_proxy
