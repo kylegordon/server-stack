@@ -40,7 +40,7 @@ services:
       - homepage.name=Pi-hole
       - homepage.href=https://pihole.viewpoint.house/admin/login.php
     container_name: pihole
-    image: pihole/pihole:2025.10.3
+    image: pihole/pihole:2025.11.0
     # image: pihole/pihole@sha256:0def896a596e8d45780b6359dbf82fc8c75ef05b97e095452e67a0a4ccc95377
     # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
     ports:
