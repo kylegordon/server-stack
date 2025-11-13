@@ -9,7 +9,7 @@ volumes:
 services:
   predbat:
     container_name: predbat
-    image: nipar44/predbat_addon:v8.26.4
+    image: nipar44/predbat_addon:v8.27.15
     restart: unless-stopped
     volumes:
       # - /docker/predbat/config:/config:rw
