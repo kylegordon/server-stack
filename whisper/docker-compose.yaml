@@ -15,7 +15,7 @@ services:
     container_name: whisper
     restart: unless-stopped
     command: --model small --language en
-    image: rhasspy/wyoming-whisper:2.5.0
+    image: rhasspy/wyoming-whisper:3.0.2
     # network_mode: host
     networks:
       - homeautomation
