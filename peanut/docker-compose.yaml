@@ -15,7 +15,7 @@ networks:
 
 services:
   peanut:
-    image: brandawg93/peanut:5.16.0
+    image: brandawg93/peanut:5.17.0
     container_name: PeaNUT
     restart: unless-stopped
     volumes:
