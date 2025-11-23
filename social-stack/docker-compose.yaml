@@ -16,7 +16,7 @@ networks:
 services:
   sharkey_web:
     #image: registry.activitypub.software/transfem-org/sharkey:latest
-    image: registry.activitypub.software/transfem-org/sharkey:2025.4.2
+    image: registry.activitypub.software/transfem-org/sharkey:2025.4.4
     # build: .
     restart: always
     links:
