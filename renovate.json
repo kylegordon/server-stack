@@ -3,5 +3,14 @@
   "extends": [
     "config:recommended",
     "docker.enableMajor"
-  ]
+  ],
+  "docker": {
+    "enabled": true
+  },
+  "docker-compose": {
+    "enabled": true,
+    "digest": {
+      "enabled": false
+    }
+  }
 }
