@@ -1,11 +1,13 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended",
-    "docker.enableMajor"
+    "config:recommended"
   ],
   "docker": {
-    "enabled": true
+    "enabled": true,
+    "major": {
+      "enabled": true
+    }
   },
   "docker-compose": {
     "enabled": true,
