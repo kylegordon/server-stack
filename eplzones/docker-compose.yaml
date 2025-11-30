@@ -7,7 +7,7 @@ networks:
 
 services:
   EPLZones:
-    image: everythingsmarthome/everything-presence-mmwave-configurator:2.0.0
+    image: everythingsmarthome/everything-presence-mmwave-configurator:2.0.4
     container_name: everything-presence-mmwave-configurator
     restart: unless-stopped
     networks:
