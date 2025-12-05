@@ -1,0 +1,42 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  beszel_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/beszel/"
+
+services:
+  beszel:
+    image: henrygd/beszel:0.17.0
+    container_name: beszel
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+    volumes:
+      - beszel_data:/beszel_data
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.beszel-http.entrypoints=web
+      - traefik.http.routers.beszel-http.rule=Host(`beszel.viewpoint.house`)
+      - traefik.http.routers.beszel-http.middlewares=beszel-https
+      - traefik.http.middlewares.beszel-https.redirectscheme.scheme=https
+      - traefik.http.routers.beszel.rule=Host(`beszel.viewpoint.house`)
+      - traefik.http.routers.beszel.entrypoints=websecure
+      - traefik.http.routers.beszel.tls=true
+      - traefik.http.routers.beszel.tls.certresolver=letsencrypt
+      - traefik.http.routers.beszel.tls.domains[0].main=beszel.viewpoint.house
+      - traefik.http.services.beszel.loadbalancer.server.port=8090
+      - traefik.http.services.beszel.loadbalancer.healthcheck.port=8090
+      - homepage.group=Monitoring
+      - homepage.name=Beszel
+      - homepage.icon=si-beszel
+      - homepage.href=http://beszel.viewpoint.house
+      - homepage.description=Beszel
+      - com.centurylinklabs.watchtower.enable=true
