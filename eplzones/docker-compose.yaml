@@ -10,7 +10,7 @@ volumes:
     driver: local
     driver_opts:
       type: nfs4
-      o: addr=172.24.32.13,rw
+      o: addr=172.24.32.5,rw
       device: ":/srv/nfs4/docker_nfs/eplzones/"
 
 services:
