@@ -5,6 +5,7 @@ networks:
     name: traefik_traefik_proxy
 
 volumes:
+  beszel_agent_data:
   beszel_data:
     driver: local
     driver_opts:
@@ -40,3 +41,19 @@ services:
       - homepage.href=http://beszel.viewpoint.house
       - homepage.description=Beszel
       - com.centurylinklabs.watchtower.enable=true
+
+  beszel-agent:
+    image: henrygd/beszel-agent:0.17.0
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./beszel_agent_data:/var/lib/beszel-agent
+      # monitor other disks / partitions by mounting a folder in /extra-filesystems
+      # - /mnt/disk/.beszel:/extra-filesystems/sda1:ro
+    environment:
+      LISTEN: 45876
+      KEY: ${HOMEAUTO_KEY}
+      TOKEN: ${HOMEAUTO_TOKEN}
+      HUB_URL: https://beszel.viewpoint.house
