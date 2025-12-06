@@ -19,6 +19,7 @@ services:
     network_mode: host
     # networks:
     #   - traefik_proxy
+    restart: unless-stopped
     env_file:
       - .env
     volumes:
