@@ -14,5 +14,11 @@
     "digest": {
       "enabled": false
     }
-  }
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor"],
+      "automerge": true
+    }
+  ]
 }
