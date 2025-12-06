@@ -1,0 +1,47 @@
+  fr24feed:
+    # Working feed
+    # Credit to https://github.com/mikenye/docker-flightradar24
+    # image: mikenye/fr24feed:latest
+    image: ghcr.io/sdr-enthusiasts/docker-flightradar24:1.0.48-0
+    tty: true
+    container_name: fr24feed
+    restart: unless-stopped
+    env_file:
+      - .env
+    # ports:
+      # - 8754:8754
+    networks:
+      - adsbnet
+      - traefik_proxy
+    environment:
+      - TZ=${TZ}
+      - BEASTHOST=${BEASTHOST}
+      - MLAT=yes
+      - FR24KEY=${FR24KEY}
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8754"]
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.fr24feed.rule=Host(`fr24feed.viewpoint.house`)
+      - traefik.http.routers.fr24feed.entrypoints=websecure
+      - traefik.http.routers.fr24feed.tls=true
+      - traefik.http.routers.fr24feed.tls.certresolver=letsencrypt
+      - traefik.http.services.fr24feed.loadbalancer.server.port=8754
+      - traefik.http.services.fr24feed.loadbalancer.healthcheck.path=/
+      - traefik.http.services.fr24feed.loadbalancer.healthcheck.port=8754
+      - homepage.group=SDR
+      - homepage.name=FR24Feed
+      - homepage.icon=mdi-airplane
+      - homepage.href=https://fr24feed.viewpoint.house
+      - homepage.description=FR24Feed
+      - com.centurylinklabs.watchtower.enable=true
