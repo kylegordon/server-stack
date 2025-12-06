@@ -8,7 +8,7 @@ volumes:
 
 services:
   esphome:
-    image: ghcr.io/esphome/esphome:2025.11.2
+    image: ghcr.io/esphome/esphome:2025.11.4
     container_name: esphome
     # depends_on:
     #   - mdns-repeater
