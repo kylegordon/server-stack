@@ -1,0 +1,39 @@
+  pfclient:
+    # Working feed
+    # Credit to https://github.com/mikenye/docker-planefinder
+    image: ghcr.io/sdr-enthusiasts/docker-planefinder:5.0.161
+    tty: true
+    container_name: pfclient
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - adsbnet
+      - traefik_proxy
+    environment:
+      - TZ=${TZ}
+      - BEASTHOST=${BEASTHOST}
+      - LAT=${LATITUDE}
+      - LONG=${LONGITUDE}
+      - SHARECODE=${PLANEFINDER_KEY}
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.planefinder.rule=Host(`planefinder.viewpoint.house`)
+      - traefik.http.routers.planefinder.entrypoints=websecure
+      - traefik.http.routers.planefinder.tls=true
+      - traefik.http.routers.planefinder.tls.certresolver=letsencrypt
+      - traefik.http.services.planefinder.loadbalancer.server.port=30053
+      - traefik.http.services.planefinder.loadbalancer.healthcheck.path=/
+      - traefik.http.services.planefinder.loadbalancer.healthcheck.port=30053
+      - homepage.group=SDR
+      - homepage.name=PlaneFinder
+      - homepage.icon=mdi-airplane
+      - homepage.href=https://planefinder.viewpoint.house
+      - homepage.description=PlaneFinder
+      - com.centurylinklabs.watchtower.enable=true
