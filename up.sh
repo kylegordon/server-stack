@@ -1,4 +1,6 @@
 export DOCKER_HOST=ssh://bagpuss@172.24.32.13
+# docker compose -f adsbnet.yaml up -d
+
 docker compose -f pihole/docker-compose.yaml up -d
 docker compose -f core-stack/docker-compose.yaml up -d
 docker compose -f traefik/docker-compose.yaml up -d
@@ -17,11 +19,10 @@ docker compose -f warrior.yaml up -d
 docker compose -f ollama/docker-compose.yaml up -d
 docker compose -f homepage/docker-compose.yaml up -d
 docker compose -f peanut/docker-compose.yaml up -d
-docker compose -f miniflux/docker-compose.yaml up -d
+# docker compose -f miniflux/docker-compose.yaml up -d
 docker compose -f scrutiny/docker-compose.yaml up -d
 docker compose -f ebusd/docker-compose.yaml up -d
 # docker compose -f watchtower/docker-compose.yaml up -d
-docker compose -f homepage/docker-compose.yaml up -d
 docker compose -f uptime-kuma/docker-compose.yaml up -d
 docker compose -f influxdb/docker-compose.yaml up -d
 docker compose -f mdns_repeater/docker-compose.yaml up -d
@@ -30,9 +31,13 @@ docker compose -f phpmyadmin/docker-compose.yaml up -d
 docker compose -f homebox/docker-compose.yaml up -d
 docker compose -f matter-hub/docker-compose.yaml up -d
 docker compose -f whatsupdocker/docker-compose.yaml up -d
+docker compose -f beszel/docker-compose.yaml up -d
+
+docker compose -f opensky/docker-compose.yaml up -d
 
 export DOCKER_HOST=ssh://bagpuss@172.24.32.5
 docker compose -f scrutiny/docker-compose-blackbird.yaml up -d
+docker compose -f beszel/docker-compose-blackbird.yaml up -d
 
 export DOCKER_HOST=ssh://bagpuss@deepcore.glasgownet.com
 docker compose -f scrutiny/docker-compose-deepcore.yaml up -d
