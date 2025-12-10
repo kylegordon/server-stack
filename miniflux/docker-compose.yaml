@@ -15,7 +15,7 @@ volumes:
 
 services:
   miniflux:
-    image: miniflux/miniflux:2.2.14
+    image: miniflux/miniflux:2.2.15
     depends_on:
       miniflux_db:
           condition: service_healthy
