@@ -1,3 +1,10 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+services:
   fr24feed:
     # Working feed
     # Credit to https://github.com/mikenye/docker-flightradar24
@@ -11,7 +18,7 @@
     # ports:
       # - 8754:8754
     networks:
-      - adsbnet
+      # - adsbnet
       - traefik_proxy
     environment:
       - TZ=${TZ}

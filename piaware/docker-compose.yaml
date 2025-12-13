@@ -1,4 +1,10 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
 
+services:
   piaware:
     # Working feed
     # Credit to https://github.com/mikenye/docker-piaware
@@ -15,7 +21,7 @@
       - 30003:30003
       - 30005:30005
     networks:
-      - adsbnet
+      # - adsbnet
       - traefik_proxy
     environment:
       - TZ=${TZ}

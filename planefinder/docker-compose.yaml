@@ -1,3 +1,10 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+services:
   pfclient:
     # Working feed
     # Credit to https://github.com/mikenye/docker-planefinder
@@ -8,7 +15,7 @@
     env_file:
       - .env
     networks:
-      - adsbnet
+      # - adsbnet
       - traefik_proxy
     environment:
       - TZ=${TZ}
