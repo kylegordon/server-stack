@@ -94,9 +94,9 @@ services:
     environment:
       - PUID=200
       - PGID=200
-    # Not supported in Swarm
-    # devices:
-    #   - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A1WRPEJT-if00-port0:/dev/ttyUSB0
+    # Not supported in Swarm mode
+    devices:
+      - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A1WRPEJT-if00-port0:/dev/ttyUSB0
     volumes:
       - home-assistant_config:/config
       - frigate_cctv:/media/frigate_cctv

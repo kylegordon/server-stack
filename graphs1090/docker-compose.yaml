@@ -1,0 +1,65 @@
+---
+networks:
+  adsbnet:
+    driver: bridge
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  graphs1090_rrd:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/graphs1090_rrd/"
+
+services:
+  graphs1090:
+    # Credit to https://github.com/mikenye/docker-graphs1090
+    image: mikenye/graphs1090:latest
+    tty: true
+    container_name: graphs1090
+    restart: always
+    volumes:
+      - graphs1090_rrd:/var/lib/collectd/rrd
+    networks:
+      - adsbnet
+      - traefik_proxy
+    env_file:
+      - .env
+    environment:
+      - BEASTHOST=${BEASTHOST}
+      - BEASTPORT=${BEASTPORT}
+      - MLATHOST=piaware
+      - TZ=${TZ}
+      - LAT=${LATITUDE}
+      - LONG=${LONGITUDE}
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+    # healthcheck:
+    #   # test: ["CMD", "wget", "--spider", "-tries=1", "--quiet", "http://viewpoint.house:8088"]
+    #   test: ["CMD", "timeout", "10s", "bash", "-c", "':>", "/dev/tcp/127.0.0.1/800'", "||", "exit", "1"]
+    #   start_period: 60s
+    #   interval: 30s
+    #   timeout: 10s
+    #   test: ["CMD", "timeout", "10s", "bash", "-c", "':>", "/dev/tcp/127.0.0.1/80'", "||", "exit", "1"]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.graphs1090.rule=Host(`graphs1090.viewpoint.house`)
+      - traefik.http.routers.graphs1090.entrypoints=websecure
+      - traefik.http.routers.graphs1090.tls=true
+      - traefik.http.routers.graphs1090.tls.certresolver=letsencrypt
+      - traefik.http.services.graphs1090.loadbalancer.server.port=80
+      - traefik.http.services.graphs1090.loadbalancer.healthcheck.path=/
+      - traefik.http.services.graphs1090.loadbalancer.healthcheck.port=80
+      - homepage.group=SDR
+      - homepage.name=Graphs1090
+      - homepage.icon=mdi-airplane
+      - homepage.href=https://graphs1090.viewpoint.house
+      - homepage.description=Graphs1090
+      - com.centurylinklabs.watchtower.enable=true

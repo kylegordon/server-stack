@@ -29,7 +29,7 @@ volumes:
 
 services:
   calibre:
-    image: lscr.io/linuxserver/calibre:latest
+    image: lscr.io/linuxserver/calibre:4.23.0-v4
     container_name: calibre
     security_opt:
       - seccomp:unconfined #optional

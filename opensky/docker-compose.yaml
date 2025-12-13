@@ -1,0 +1,28 @@
+---
+# networks:
+#   adsbnet:
+#     external:
+#       name: adsbnet
+#     name: adsbnet
+
+services:
+  opensky:
+    # Credit to https://github.com/mikenye/docker-opensky-network
+    image: ghcr.io/sdr-enthusiasts/docker-opensky-network:2.1.7-1
+    tty: true
+    container_name: opensky
+    restart: unless-stopped
+    # networks:
+    #   - adsbnet
+    env_file:
+      - .env
+    environment:
+      - TZ=${TZ}
+      - BEASTHOST=${BEASTHOST}
+      - LAT=${LATITUDE}
+      - LONG=${LONGITUDE}
+      - ALT=${ALTITUDE_METERS}
+      - OPENSKY_USERNAME=${OPENSKY_USERNAME}
+      - OPENSKY_SERIAL=${OPENSKY_SERIAL}
+    labels:
+      - com.centurylinklabs.watchtower.enable=true

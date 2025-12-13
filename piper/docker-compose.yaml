@@ -14,8 +14,7 @@ services:
   piper:
     container_name: piper
     restart: unless-stopped
-    # image: rhasspy/wyoming-piper:latest
-    image: lscr.io/linuxserver/piper:latest
+    image: lscr.io/linuxserver/piper:2.1.2
     #  command: --voice nl-nathalie-x-low
     # command: --voice en-gb-southern_english_female-low
     # network_mode: host

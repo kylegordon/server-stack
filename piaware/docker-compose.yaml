@@ -1,0 +1,59 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+services:
+  piaware:
+    # Working feed
+    # Credit to https://github.com/mikenye/docker-piaware
+    image: ghcr.io/sdr-enthusiasts/docker-piaware:v10.0
+    tty: true
+    container_name: piaware
+    restart: unless-stopped
+    env_file:
+      - .env
+    # Forego USB devices in favour of BEASTHOST and BEASTPORT
+    # devices:
+    #   - /dev/bus/usb/001/004:/dev/bus/usb/001/004
+    ports:
+      - 30003:30003
+      - 30005:30005
+    networks:
+      # - adsbnet
+      - traefik_proxy
+    environment:
+      - TZ=${TZ}
+      - LAT=${LATITUDE}
+      - LONG=${LONGITUDE}
+      - BEASTHOST=${BEASTHOST}
+      - BEASTPORT=${BEASTPORT}
+      - FEEDER_ID=${PIAWARE_FEEDERID}
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+    healthcheck:
+      test: "wget --no-verbose --tries=1 --spider http://localhost:8080 || exit 1"
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.piaware.rule=Host(`piaware.viewpoint.house`)
+      - traefik.http.routers.piaware.entrypoints=websecure
+      - traefik.http.routers.piaware.tls=true
+      - traefik.http.routers.piaware.tls.certresolver=letsencrypt
+      - traefik.http.services.piaware01.loadbalancer.server.port=8080
+      - traefik.http.services.piaware01.loadbalancer.healthcheck.path=/
+      - traefik.http.services.piaware01.loadbalancer.healthcheck.port=8080
+      - homepage.group=SDR
+      - homepage.name=PiAware
+      - homepage.icon=mdi-airplane
+      - homepage.href=https://piaware.viewpoint.house
+      - homepage.description=PiAware
+      - com.centurylinklabs.watchtower.enable=true

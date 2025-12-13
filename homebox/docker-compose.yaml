@@ -13,7 +13,6 @@ volumes:
 
 services:
   homebox:
-    # image: ghcr.io/hay-kot/homebox:latest
     image: ghcr.io/sysadminsmedia/homebox:0.21.0
     container_name: homebox
     environment:
