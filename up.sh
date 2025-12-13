@@ -1,5 +1,5 @@
+echo "----- Deploying to homeauto -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.13
-# docker compose -f adsbnet.yaml up -d
 
 docker compose -f pihole/docker-compose.yaml up -d
 docker compose -f core-stack/docker-compose.yaml up -d
@@ -34,11 +34,16 @@ docker compose -f whatsupdocker/docker-compose.yaml up -d
 docker compose -f beszel/docker-compose.yaml up -d
 
 docker compose -f opensky/docker-compose.yaml up -d
+docker compose -f piaware/docker-compose.yaml up -d
+docker compose -f planefinder/docker-compose.yaml up -d
+docker compose -f fr24feed/docker-compose.yaml up -d
 
+echo "----- Deploying to Blackbird -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.5
 docker compose -f scrutiny/docker-compose-blackbird.yaml up -d
 docker compose -f beszel/docker-compose-blackbird.yaml up -d
 
+echo "----- Deploying to Deepcore -----"
 export DOCKER_HOST=ssh://bagpuss@deepcore.glasgownet.com
 docker compose -f scrutiny/docker-compose-deepcore.yaml up -d
 docker compose -f traefik/docker-compose-deepcore.yaml up -d
