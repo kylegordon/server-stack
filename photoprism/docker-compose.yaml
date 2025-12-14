@@ -52,8 +52,7 @@ services:
 # This will point the home directory placeholder ~ to /root in volume mounts.
 
   photoprism:
-    ## Use photoprism/photoprism:preview for testing preview builds:
-    image: photoprism/photoprism:250707-d28b3101e
+    image: photoprism/photoprism:250707
     networks:
       - traefik_proxy
       - photoprism
@@ -70,7 +69,7 @@ services:
     ## Run as a specific, non-root user (see https://docs.docker.com/engine/reference/run/#user):
     # user: "1000:1000"
     env_file:
-      - .photoprism.env
+      - .env
     ## Hardware devices for video transcoding and machine learning (optional):
     # devices:
     #  - "/dev/video11:/dev/video11" # Video4Linux (h264_v4l2m2m)
