@@ -49,7 +49,7 @@ services:
       - com.centurylinklabs.watchtower.enable=true
 
   paperless_db:
-    image: docker.io/library/mariadb:10
+    image: docker.io/library/mariadb:12
     restart: unless-stopped
     networks:
       - paperless
