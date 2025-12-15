@@ -52,7 +52,7 @@ services:
 # This will point the home directory placeholder ~ to /root in volume mounts.
 
   photoprism:
-    image: photoprism/photoprism:250707
+    image: photoprism/photoprism:20220121
     networks:
       - traefik_proxy
       - photoprism
