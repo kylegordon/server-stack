@@ -84,7 +84,7 @@ services:
       - homepage.description=ELK - ElasticHQ
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:9.2.2
+    image: docker.elastic.co/logstash/logstash:9.2.3
     container_name: logstash
     restart: unless-stopped
     volumes:
