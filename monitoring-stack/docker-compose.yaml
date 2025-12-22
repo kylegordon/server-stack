@@ -48,7 +48,7 @@ networks:
 
 services:
   librenms:
-    image: librenms/librenms:25.11.0
+    image: librenms/librenms:25.12.0
     container_name: librenms
     hostname: librenms
     cap_add:
@@ -105,7 +105,7 @@ services:
       # - com.centurylinklabs.watchtower.enable=true
 
   dispatcher:
-    image: librenms/librenms:25.11.0
+    image: librenms/librenms:25.12.0
     container_name: librenms_dispatcher
     hostname: librenms-dispatcher
     cap_add:
@@ -162,7 +162,7 @@ services:
   #   restart: always
 
   syslog-ng:
-    image: librenms/librenms:25.11.0
+    image: librenms/librenms:25.12.0
     container_name: librenms_syslog
     # domainname: viewpoint.house
     hostname: librenms
