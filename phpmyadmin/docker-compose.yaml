@@ -7,6 +7,10 @@ networks:
     external: true
     name: paperless_paperless
 
+  photoprism:
+    external: true
+    name: photoprism_photoprism
+
 services:
   phpmyadmin:
     image: phpmyadmin
@@ -16,6 +20,7 @@ services:
     networks:
       - traefik_proxy
       - paperless
+      - photoprism
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik_traefik_proxy
