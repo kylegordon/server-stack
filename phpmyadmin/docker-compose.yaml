@@ -3,18 +3,22 @@ networks:
     external: true
     name: traefik_traefik_proxy
 
+  paperless:
+    external: true
+    name: paperless_paperless
+
 services:
   phpmyadmin:
     image: phpmyadmin
     restart: unless-stopped
-    # ports:
-    #   - 8080:80
     environment:
       - PMA_ARBITRARY=1
     networks:
       - traefik_proxy
+      - paperless
     labels:
       - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.phpmyadmin-http.rule=Host(`phpmyadmin.viewpoint.house`)
       - traefik.http.routers.phpmyadmin-http.entrypoints=web
       - traefik.http.routers.phpmyadmin-http.middlewares=phpmyadmin-https
