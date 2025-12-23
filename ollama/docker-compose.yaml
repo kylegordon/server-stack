@@ -59,6 +59,12 @@ services:
     networks:
       - ollama-docker
       - homeautomation
+    healthcheck:
+      test: ollama --version || exit 1
+      start_period: 30s
+      interval: 10s
+      timeout: 10s
+      retries: 3
 
   ollama-webui:
     image: ghcr.io/open-webui/open-webui:main
