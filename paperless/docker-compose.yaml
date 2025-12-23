@@ -91,6 +91,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.paperless-http.entrypoints=web
+      - traefik.http.routers.paperless-http.rule=Host(`paperless.viewpoint.house`)
+      - traefik.http.routers.paperless-http.middlewares=paperless-https
+      - traefik.http.middlewares.paperless-https.redirectscheme.scheme=https
       - traefik.http.routers.paperless.rule=Host(`paperless.viewpoint.house`)
       - traefik.http.routers.paperless.entrypoints=websecure
       - traefik.http.routers.paperless.tls=true
