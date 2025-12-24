@@ -49,4 +49,7 @@ services:
       - traefik.http.routers.music.tls=true
       - traefik.http.routers.music.tls.certresolver=letsencrypt
       - traefik.http.routers.music.tls.domains[0].main=music.viewpoint.house
-      - traefik.http.services.music.loadbalancer.server.port=8095
+      # - traefik.http.services.music.loadbalancer.server.port=8095
+      - traefik.http.services.music.loadbalancer.server.url=http://172.24.32.13:8095
+      - traefik.http.services.music.loadbalancer.healthcheck.hostname=172.24.32.13
+      - traefik.http.services.music.loadbalancer.healthcheck.port=8095

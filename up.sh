@@ -27,7 +27,6 @@ docker compose -f uptime-kuma/docker-compose.yaml up -d
 docker compose -f influxdb/docker-compose.yaml up -d
 docker compose -f mdns_repeater/docker-compose.yaml up -d
 docker compose -f nginx_core/docker-compose.yaml up -d
-docker compose -f phpmyadmin/docker-compose.yaml up -d
 docker compose -f homebox/docker-compose.yaml up -d
 docker compose -f matter-hub/docker-compose.yaml up -d
 docker compose -f whatsupdocker/docker-compose.yaml up -d
@@ -38,6 +37,10 @@ docker compose -f opensky/docker-compose.yaml up -d
 docker compose -f piaware/docker-compose.yaml up -d
 docker compose -f planefinder/docker-compose.yaml up -d
 docker compose -f fr24feed/docker-compose.yaml up -d
+
+### PHPMyAdmin needs access to other services' networks
+docker compose -f phpmyadmin/docker-compose.yaml up -d
+
 
 echo "----- Deploying to Blackbird -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.5
