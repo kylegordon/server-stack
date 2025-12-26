@@ -198,8 +198,9 @@ services:
       - 8200:8200
     networks:
       - elastic
+    entrypoint: /usr/share/apm-server/apm-server
     command: >
-       apm-server -e
+      -e
          -E apm-server.rum.enabled=true
          -E setup.kibana.host=kibana01:5601
          -E setup.template.settings.index.number_of_replicas=0
