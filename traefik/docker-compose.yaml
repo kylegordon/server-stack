@@ -22,7 +22,7 @@ services:
     # https://community.traefik.io/t/healthcheck-through-traefik/10000/6
     # https://doc.traefik.io/traefik/routing/services/#health-check
     # https://gist.github.com/jeroenhendricksen/7dfe273277bbbd1c2ea2cb7c647b24fa
-    image: "traefik:v3.6.5"
+    image: "traefik:v3.6.6"
     container_name: "traefik"
     networks:
       - traefik_proxy
