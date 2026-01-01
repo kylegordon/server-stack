@@ -36,7 +36,7 @@ services:
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --entrypoints.haweb.address=:8123
-      - --log.level=DEBUG
+      - --log.level=INFO
       - --accesslog=true
       - --tracing.otlp=true
       - --tracing.otlp.http=true

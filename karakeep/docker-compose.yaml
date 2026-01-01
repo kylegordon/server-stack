@@ -1,0 +1,85 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+  karakeep:
+    driver: bridge
+
+services:
+  web:
+    image: ghcr.io/karakeep-app/karakeep:${KARAKEEP_VERSION:-release}
+    container_name: karakeep
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+      - karakeep
+    volumes:
+      - /docker/karakeep/data:/data
+    # ports:
+    #   - 3000:3000
+    env_file:
+      - .env
+    environment:
+      MEILI_ADDR: http://meilisearch:7700
+      BROWSER_WEB_URL: http://chrome:9222
+      # OPENAI_API_KEY: ...
+
+      # You almost never want to change the value of the DATA_DIR variable.
+      # If you want to mount a custom directory, change the volume mapping above instead.
+      DATA_DIR: /data # DON'T CHANGE THIS
+    depends_on:
+      - meilisearch
+      - chrome
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.karakeep-http.entrypoints=web
+      - traefik.http.routers.karakeep-http.rule=Host(`karakeep.glasgownet.com`)
+      - traefik.http.routers.karakeep-http.middlewares=karakeep-https
+      - traefik.http.middlewares.karakeep-https.redirectscheme.scheme=https
+      - traefik.http.routers.karakeep.rule=Host(`karakeep.glasgownet.com`)
+      - traefik.http.routers.karakeep.entrypoints=websecure
+      - traefik.http.routers.karakeep.tls=true
+      - traefik.http.routers.karakeep.tls.certresolver=letsencrypt
+      - traefik.http.routers.karakeep.tls.domains[0].main=karakeep.glasgownet.com
+      - traefik.http.services.karakeep.loadbalancer.server.port=3000
+      - traefik.http.services.karakeep.loadbalancer.healthcheck.port=3000
+      - traefik.http.services.karakeep.loadbalancer.healthcheck.path=/
+      - homepage.group=Media
+      - homepage.icon=mdi-book-bookmark
+      - homepage.name=KaraKeep
+      - homepage.href=https://karakeep.glasgownet.com
+      - homepage.description=Bookmark Manager
+      - com.centurylinklabs.watchtower.enable=true
+
+  chrome:
+    image: gcr.io/zenika-hub/alpine-chrome:124
+    container_name: karakeep-chrome
+    restart: unless-stopped
+    networks:
+      - karakeep
+    command:
+      - --no-sandbox
+      - --disable-gpu
+      - --disable-dev-shm-usage
+      - --remote-debugging-address=0.0.0.0
+      - --remote-debugging-port=9222
+      - --hide-scrollbars
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.13.3
+    container_name: karakeep-meilisearch
+    restart: unless-stopped
+    networks:
+      - karakeep
+    env_file:
+      - .env
+    environment:
+      MEILI_NO_ANALYTICS: "true"
+    volumes:
+      - /docker/karakeep/meilisearch:/meili_data
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
