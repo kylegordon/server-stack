@@ -1,0 +1,54 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  warpgate_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/warpgate/"
+
+services:
+  warpgate:
+    image: ghcr.io/warp-tech/warpgate:v0.19.0
+    container_name: warpgate
+    hostname: homeauto
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+    ports:
+      - "2222:2222"   # SSH
+      - "33306:33306" # MySQL
+      - "55432:55432" # PostgreSQL
+    volumes:
+      - warpgate_data:/data
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.warpgate-http.entrypoints=web
+      - traefik.http.routers.warpgate-http.rule=Host(`warpgate.viewpoint.house`)
+      - traefik.http.routers.warpgate-http.middlewares=warpgate-https
+      - traefik.http.middlewares.warpgate-https.redirectscheme.scheme=https
+      - traefik.http.routers.warpgate.rule=Host(`warpgate.viewpoint.house`)
+      - traefik.http.routers.warpgate.entrypoints=websecure
+      - traefik.http.routers.warpgate.tls=true
+      - traefik.http.routers.warpgate.tls.certresolver=letsencrypt
+      - traefik.http.routers.warpgate.tls.domains[0].main=warpgate.viewpoint.house
+      - traefik.http.services.warpgate.loadbalancer.server.port=8888
+      - traefik.http.services.warpgate.loadbalancer.healthcheck.path=/
+      - traefik.http.services.warpgate.loadbalancer.healthcheck.port=8888
+      - homepage.group=Infrastructure
+      - homepage.name=Warpgate
+      - homepage.href=https://warpgate.viewpoint.house
+      - homepage.description=SSH/HTTP/MySQL/Postgres Bastion
+      - homepage.icon=mdi-shield-lock
+      - com.centurylinklabs.watchtower.enable=true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

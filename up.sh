@@ -32,6 +32,7 @@ docker compose -f matter-hub/docker-compose.yaml up -d
 docker compose -f whatsupdocker/docker-compose.yaml up -d
 docker compose -f beszel/docker-compose.yaml up -d
 docker compose -f photoprism/docker-compose.yaml up -d
+docker compose -f warpgate/docker-compose.yaml up -d
 
 docker compose -f opensky/docker-compose.yaml up -d
 docker compose -f piaware/docker-compose.yaml up -d
