@@ -22,8 +22,6 @@ services:
       - traefik_proxy
     ports:
       - "2222:2222"   # SSH
-      - "33306:33306" # MySQL
-      - "55432:55432" # PostgreSQL
     volumes:
       - warpgate_data:/data
     labels:
@@ -44,7 +42,7 @@ services:
       - homepage.group=Infrastructure
       - homepage.name=Warpgate
       - homepage.href=https://warpgate.viewpoint.house
-      - homepage.description=SSH/HTTP/MySQL/Postgres Bastion
+      - homepage.description=SSH/HTTP Bastion
       - homepage.icon=mdi-shield-lock
       - com.centurylinklabs.watchtower.enable=true
     logging:
