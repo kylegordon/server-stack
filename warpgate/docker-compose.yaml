@@ -14,7 +14,7 @@ volumes:
 
 services:
   warpgate:
-    image: ghcr.io/warp-tech/warpgate:0.19.0
+    image: ghcr.io/warp-tech/warpgate:0.19.1
     container_name: warpgate
     hostname: homeauto
     restart: unless-stopped
@@ -22,6 +22,7 @@ services:
       - traefik_proxy
     ports:
       - "2222:2222"   # SSH
+      - "9999:9999"   # HTTP (for testing; Traefik handles external access)
     volumes:
       - warpgate_data:/data
     labels:
@@ -36,9 +37,9 @@ services:
       - traefik.http.routers.warpgate.tls=true
       - traefik.http.routers.warpgate.tls.certresolver=letsencrypt
       - traefik.http.routers.warpgate.tls.domains[0].main=warpgate.viewpoint.house
-      - traefik.http.services.warpgate.loadbalancer.server.port=8888
-      - traefik.http.services.warpgate.loadbalancer.healthcheck.path=/
-      - traefik.http.services.warpgate.loadbalancer.healthcheck.port=8888
+      - traefik.http.services.warpgate.loadbalancer.server.port=9999
+      # - traefik.http.services.warpgate.loadbalancer.healthcheck.path=/
+      # - traefik.http.services.warpgate.loadbalancer.healthcheck.port=9999
       - homepage.group=Infrastructure
       - homepage.name=Warpgate
       - homepage.href=https://warpgate.viewpoint.house
