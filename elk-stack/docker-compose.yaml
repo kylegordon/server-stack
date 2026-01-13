@@ -84,7 +84,7 @@ services:
       - homepage.description=ELK - ElasticHQ
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:9.2.3
+    image: docker.elastic.co/logstash/logstash:9.2.4
     container_name: logstash
     restart: unless-stopped
     volumes:
@@ -306,7 +306,7 @@ services:
   #     - traefik.enable=false
 
   kibana01:
-    image: docker.elastic.co/kibana/kibana:9.2.3
+    image: docker.elastic.co/kibana/kibana:9.2.4
     container_name: kibana
     restart: unless-stopped
     # ports:
