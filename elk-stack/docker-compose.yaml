@@ -224,7 +224,7 @@ services:
       # and uncomment env_file below. Requires additional setup steps.
       - xpack.security.enabled=false
       - cluster.name=${CLUSTER_NAME:-es-docker-cluster}
-      - discovery.seed_hosts=${DISCOVERY_SEED_HOSTS:-es01,es02,es03}
+      - discovery.seed_hosts=${DISCOVERY_SEED_HOSTS:-es01,es02}
       - cluster.initial_master_nodes=${CLUSTER_INITIAL_MASTER_NODES:-es01,es02}
       - cluster.routing.allocation.disk.watermark.low=${CLUSTER_ROUTING_ALLOCATION_DISK_WATERMARK_LOW:-97%}
       - cluster.routing.allocation.disk.watermark.high=${CLUSTER_ROUTING_ALLOCATION_DISK_WATERMARK_HIGH:-98%}
@@ -276,34 +276,34 @@ services:
     labels:
       - traefik.enable=false
 
-  es03:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.3
-    container_name: es03
-    restart: unless-stopped
-    # network_mode: host
-    environment:
-      - node.name=es03
-      - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es01,es02
-      - cluster.initial_master_nodes=es01,es02
-      - cluster.routing.allocation.disk.watermark.low=97%
-      - cluster.routing.allocation.disk.watermark.high=98%
-      - cluster.routing.allocation.disk.watermark.flood_stage=99%
-      - xpack.security.enabled=false
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - data03:/usr/share/elasticsearch/data
-    ports:
-      - 9202:9200
-    networks:
-      - elastic
-    labels:
-      - traefik.enable=false
+  # es03:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:9.2.3
+  #   container_name: es03
+  #   restart: unless-stopped
+  #   # network_mode: host
+  #   environment:
+  #     - node.name=es03
+  #     - cluster.name=es-docker-cluster
+  #     - discovery.seed_hosts=es01,es02
+  #     - cluster.initial_master_nodes=es01,es02
+  #     - cluster.routing.allocation.disk.watermark.low=97%
+  #     - cluster.routing.allocation.disk.watermark.high=98%
+  #     - cluster.routing.allocation.disk.watermark.flood_stage=99%
+  #     - xpack.security.enabled=false
+  #     - bootstrap.memory_lock=true
+  #     - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   volumes:
+  #     - data03:/usr/share/elasticsearch/data
+  #   ports:
+  #     - 9202:9200
+  #   networks:
+  #     - elastic
+  #   labels:
+  #     - traefik.enable=false
 
   kibana01:
     image: docker.elastic.co/kibana/kibana:9.2.3
