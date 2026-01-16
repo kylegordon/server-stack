@@ -181,6 +181,8 @@ services:
     restart: unless-stopped
     environment:
       - TZ=Europe/London
+    networks:
+      - traefik_proxy
     labels:
       - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
