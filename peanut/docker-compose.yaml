@@ -24,12 +24,6 @@ services:
       - WEB_PORT=8080
     networks:
       - traefik_proxy
-    healthcheck:
-      test: ["CMD", "wget", "-qO", "-", "http://127.0.0.1:8080/"]
-      start_period: 60s
-      interval: 30s
-      timeout: 10s
-      retries: 5
     labels:
       - traefik.enable=true
       - traefik.http.routers.peanut-http.entrypoints=web
