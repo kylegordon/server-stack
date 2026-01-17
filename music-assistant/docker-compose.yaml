@@ -17,7 +17,7 @@ volumes:
 services:
   # Music Assistant disabled whilst I figure out the MDNS/5353/Openhome stuff
   music-assistant-server:
-    image: ghcr.io/music-assistant/server:2.7.4
+    image: ghcr.io/music-assistant/server:2.7.5
     container_name: music-assistant-server
     restart: unless-stopped
     # Network mode must be set to host for MA to work correctly
