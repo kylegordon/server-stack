@@ -132,6 +132,9 @@ services:
       - tftpd_data:/data
     labels:
       - 'com.centurylinklabs.watchtower.enable=true'
+    healthcheck:
+      test: ["CMD-SHELL", "grep -i ':0045' /proc/net/udp >/dev/null"]
+
 
   # Example from https://gist.github.com/james-d-elliott/5152d27c0781aee856a3383f1284998e
 
