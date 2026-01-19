@@ -133,6 +133,7 @@ services:
     labels:
       - 'com.centurylinklabs.watchtower.enable=true'
     healthcheck:
+      # 0x0045 is the hexadecimal representation of UDP port 69 (TFTP standard port) in /proc/net/udp
       test: ["CMD-SHELL", "grep -i ':0045' /proc/net/udp >/dev/null"]
 
 
