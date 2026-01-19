@@ -207,10 +207,6 @@ services:
          -E apm-server.kibana.enabled=true
          -E apm-server.kibana.host=kibana01:5601
          -E output.elasticsearch.hosts='["es01:9200","es02:9200"]'
-    healthcheck:
-      interval: 10s
-      retries: 12
-      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8200/
     labels:
       - traefik.enable=false
   es01:
