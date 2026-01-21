@@ -34,7 +34,7 @@ services:
       - traefik.http.services.wallabag.loadbalancer.healthcheck.port=80
 
   db:
-    image: mariadb
+    image: mariadb:11.8.5
     restart: unless-stopped
     networks:
       - wallabag
