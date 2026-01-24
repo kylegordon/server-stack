@@ -239,7 +239,7 @@ services:
     #     - '3001:3001'
     networks:
       - traefik_proxy
-    image: openspeedtest/latest:latest
+    image: openspeedtest/latest:v2.0.6
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/"]
       start_period: 60s
@@ -261,7 +261,7 @@ services:
       - traefik.http.services.speedtest.loadbalancer.healthcheck.port=3000
       - traefik.http.services.speedtest.loadbalancer.healthcheck.path=/
       - traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=10000000000
-      - traefik.http.routers.openspeedtest.middlewares=limit
+      - traefik.http.routers.speedtest.middlewares=limit
       - homepage.group=Monitoring
       - homepage.icon=mdi-book-open-outline
       - homepage.name=Speedtest
