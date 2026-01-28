@@ -49,7 +49,7 @@ docker compose -f scrutiny/docker-compose-blackbird.yaml up -d
 docker compose -f beszel/docker-compose-blackbird.yaml up -d
 
 echo "----- Deploying to Deepcore -----"
-export DOCKER_HOST=ssh://bagpuss@deepcore.glasgownet.com
+export DOCKER_HOST=ssh://bagpuss@149.202.95.105
 docker compose -f scrutiny/docker-compose-deepcore.yaml up -d
 docker compose -f traefik/docker-compose-deepcore.yaml up -d
 docker compose -f wallabag/docker-compose.yaml up -d
