@@ -14,9 +14,8 @@ services:
   whisper:
     container_name: whisper
     restart: unless-stopped
-    command: --model small --language en
+    command: --model tiny-int8 --language en
     image: rhasspy/wyoming-whisper:3.0.2
-    # network_mode: host
     networks:
       - homeautomation
     volumes:
