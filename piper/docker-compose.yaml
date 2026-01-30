@@ -14,7 +14,7 @@ services:
   piper:
     container_name: piper
     restart: unless-stopped
-    image: lscr.io/linuxserver/piper:2.1.2
+    image: lscr.io/linuxserver/piper:2.2.1
     #  command: --voice nl-nathalie-x-low
     # command: --voice en-gb-southern_english_female-low
     # network_mode: host
