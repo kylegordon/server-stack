@@ -13,7 +13,7 @@ volumes:
 
 services:
   homebox:
-    image: ghcr.io/sysadminsmedia/homebox:0.23.0
+    image: ghcr.io/sysadminsmedia/homebox:0.23.1
     container_name: homebox
     environment:
       - TZ=Europe/London
