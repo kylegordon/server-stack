@@ -30,7 +30,7 @@ include:
 
 services:
   home-assistant:
-    image: homeassistant/home-assistant:2026.1.3
+    image: homeassistant/home-assistant:2026.2.0
     container_name: home-assistant
     depends_on:
       zigbee2mqtt:
