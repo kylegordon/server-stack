@@ -14,7 +14,7 @@ volumes:
 
 services:
   warpgate:
-    image: ghcr.io/warp-tech/warpgate:0.20.0
+    image: ghcr.io/warp-tech/warpgate:0.20.2
     container_name: warpgate
     hostname: homeauto
     restart: unless-stopped
