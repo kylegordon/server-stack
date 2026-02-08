@@ -32,7 +32,7 @@ services:
     depends_on:
       eclipse-mosquitto:
           condition: service_started
-    image: ghcr.io/blakeblackshear/frigate:stable
+    image: ghcr.io/blakeblackshear/frigate:0.16.4
     devices:
         - /dev/dri
         - /dev/kfd
