@@ -1,0 +1,25 @@
+---
+volumes:
+  beszel_agent_data:
+
+services:
+  beszel-agent:
+    image: henrygd/beszel-agent:0.18.2-alpine
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - SYS_RAWIO
+      - SYS_ADMIN #optional, but required for NVME
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - beszel_agent_data:/var/lib/beszel-agent
+      # monitor other disks / partitions by mounting a folder in /extra-filesystems
+      # - /mnt/disk/.beszel:/extra-filesystems/sda1:ro
+    environment:
+      LISTEN: 45876
+      KEY: ${LITTLEGEEK_KEY}
+      TOKEN: ${LITTLEGEEK_TOKEN}
+      HUB_URL: https://beszel.viewpoint.house
+    devices:
+      - /dev/vda:/dev/vda
