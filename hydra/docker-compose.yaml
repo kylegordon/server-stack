@@ -20,7 +20,7 @@ volumes:
 
 services:
   hydra:
-    image: linuxserver/nzbhydra2:8.4.1
+    image: linuxserver/nzbhydra2:8.5.0
     container_name: hydra
     restart: unless-stopped
     environment:
