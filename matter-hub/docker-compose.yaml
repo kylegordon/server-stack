@@ -15,7 +15,7 @@ volumes:
 
 services:
   matter-hub:
-    image: ghcr.io/riddix/home-assistant-matter-hub:2.0.18
+    image: ghcr.io/riddix/home-assistant-matter-hub:2.0.19
     network_mode: host
     # networks:
     #   - traefik_proxy
