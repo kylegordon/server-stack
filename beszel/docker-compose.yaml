@@ -43,7 +43,7 @@ services:
       - com.centurylinklabs.watchtower.enable=true
 
   beszel-agent:
-    image: henrygd/beszel-agent:0.18.3
+    image: henrygd/beszel-agent:0.18.4
     container_name: beszel-agent
     restart: unless-stopped
     network_mode: host
