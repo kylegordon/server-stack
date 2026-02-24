@@ -100,8 +100,6 @@ services:
       - traefik.http.middlewares.ollama-https.redirectscheme.scheme=https
       - traefik.http.routers.ollama-webui.rule=Host(`ollama.viewpoint.house`)
       - traefik.http.routers.ollama-webui.entrypoints=websecure
-      - traefik.http.routers.ollama-webui.tls.certresolver=letsencrypt
-      - traefik.http.routers.ollama-webui.tls.domains[0].main=ollama.viewpoint.house
       - traefik.http.services.ollama-webui.loadbalancer.server.port=8080
       - traefik.http.services.ollama-webui.loadbalancer.healthcheck.path=/
       - traefik.http.services.ollama-webui.loadbalancer.healthcheck.port=8080

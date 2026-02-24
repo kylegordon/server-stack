@@ -36,7 +36,6 @@ services:
       - traefik.http.routers.double-take.rule=Host(`double-take.viewpoint.house`)
       - traefik.http.routers.double-take.entrypoints=websecure
       - traefik.http.routers.double-take.tls=true
-      - traefik.http.routers.double-take.tls.certresolver=letsencrypt
       - traefik.http.services.double-take.loadbalancer.server.port=3000
       - traefik.http.services.double-take.loadbalancer.healthcheck.path=/
       - traefik.http.services.double-take.loadbalancer.healthcheck.port=3000

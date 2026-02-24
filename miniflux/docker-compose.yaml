@@ -35,8 +35,6 @@ services:
       - traefik.http.routers.miniflux.rule=Host(`news.viewpoint.house`)
       - traefik.http.routers.miniflux.entrypoints=websecure
       - traefik.http.routers.miniflux.tls=true
-      - traefik.http.routers.miniflux.tls.certresolver=letsencrypt
-      - traefik.http.routers.miniflux.tls.domains[0].main=news.viewpoint.house
       - traefik.http.services.miniflux.loadbalancer.server.port=8080
       # - traefik.http.services.miniflux.loadbalancer.healthcheck.port=8080
       # - traefik.http.services.miniflux.loadbalancer.healthcheck.path=/

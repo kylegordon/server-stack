@@ -94,8 +94,6 @@ services:
       - traefik.http.routers.photos.rule=Host(`photos.viewpoint.house`)
       - traefik.http.routers.photos.entrypoints=websecure
       - traefik.http.routers.photos.tls=true
-      - traefik.http.routers.photos.tls.certresolver=letsencrypt
-      - traefik.http.routers.photos.tls.domains[0].main=photos.viewpoint.house
       - traefik.http.services.photos.loadbalancer.server.port=2342
       - traefik.http.services.photos.loadbalancer.healthcheck.path=/
       - traefik.http.services.photos.loadbalancer.healthcheck.port=2342

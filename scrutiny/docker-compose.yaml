@@ -54,7 +54,6 @@ services:
       - traefik.http.routers.scrutiny-web.rule=Host(`scrutiny.viewpoint.house`)
       - traefik.http.routers.scrutiny-web.entrypoints=websecure
       - traefik.http.routers.scrutiny-web.tls=true
-      - traefik.http.routers.scrutiny-web.tls.certresolver=letsencrypt
       - traefik.http.services.scrutiny-web.loadbalancer.server.port=8080
       - traefik.http.services.scrutiny-web.loadbalancer.healthcheck.path=/api/health
       - traefik.http.services.scrutiny-web.loadbalancer.healthcheck.port=8080
