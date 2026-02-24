@@ -15,7 +15,7 @@ volumes:
 
 services:
   matter-hub:
-    image: ghcr.io/riddix/home-assistant-matter-hub:2.0.25
+    image: ghcr.io/riddix/home-assistant-matter-hub:2.0.26
     network_mode: host
     # networks:
     #   - traefik_proxy
@@ -30,5 +30,5 @@ services:
       - traefik.http.routers.matter-hub.rule=Host(`matter-hub.viewpoint.house`) || Host(`172.24.32.13`)
       - traefik.http.routers.matter-hub.entrypoints=web
       - traefik.http.services.matter-hub.loadbalancer.server.port=8482
-      - traefik.http.services.matter-hub.loadbalancer.healthcheck.path=/
+      - traefik.http.services.matter-hub.loadbalancer.healthcheck.hostname=172.24.32.13
       - traefik.http.services.matter-hub.loadbalancer.healthcheck.port=8482
