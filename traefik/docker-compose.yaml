@@ -48,6 +48,15 @@ services:
       - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=route53
       - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+    labels:
+      # Configure wildcard certificates for viewpoint.house domain
+      - "traefik.http.routers.wildcard-viewpoint.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.wildcard-viewpoint.tls.domains[0].main=viewpoint.house"
+      - "traefik.http.routers.wildcard-viewpoint.tls.domains[0].sans=*.viewpoint.house"
+      # Configure wildcard certificates for glasgownet.com domain
+      - "traefik.http.routers.wildcard-glasgownet.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.wildcard-glasgownet.tls.domains[1].main=glasgownet.com"
+      - "traefik.http.routers.wildcard-glasgownet.tls.domains[1].sans=*.glasgownet.com"
     ports:
       - "80:80"     # Web entrypoint
       - "443:443" # Websecure entrypoint
