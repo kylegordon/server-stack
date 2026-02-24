@@ -76,7 +76,6 @@ Deployment sequence (from `up.sh`):
 export DOCKER_HOST=ssh://bagpuss@172.24.32.13
 
 # 2. Deploy services in specific order (dependencies first)
-docker compose -f pihole/docker-compose.yaml up -d
 docker compose -f core-stack/docker-compose.yaml up -d
 docker compose -f traefik/docker-compose.yaml up -d
 docker compose -f ha-stack/docker-compose.yaml up -d
