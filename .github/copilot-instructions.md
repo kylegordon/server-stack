@@ -62,7 +62,7 @@ for f in */docker-compose.yaml; do docker compose -f "$f" config --quiet 2>&1 | 
 
 **Many services require `.env` files** but these are gitignored (see `.gitignore`). The repository includes:
 - `traefik/traefik.env.example` - Shows required format for AWS Route53 + Let's Encrypt
-- Services commonly needing `.env`: traefik, pihole, frigate, grafana, miniflux, monitoring-stack, elk-stack, eplzones, fr24feed, ebusd, karakeep, matter-hub, mdns_repeater
+- Services commonly needing `.env`: traefik, frigate, grafana, miniflux, monitoring-stack, elk-stack, eplzones, fr24feed, ebusd, karakeep, matter-hub, mdns_repeater
 
 **When modifying services with `env_file:` directive**, validation will fail without the `.env` file present. This is expected behavior - the service owner maintains these files separately.
 
@@ -86,7 +86,7 @@ export DOCKER_HOST=ssh://bagpuss@172.24.32.5
 docker compose -f scrutiny/docker-compose-blackbird.yaml up -d
 ```
 
-**Deployment order matters**: pihole → core-stack → traefik → ha-stack are deployed first due to DNS and network dependencies.
+**Deployment order matters**: core-stack → traefik → unifi → ha-stack are deployed first due to network dependencies. DNS is now handled by Unbound on the OPNsense cluster.
 
 ### Image Update Workflow (from `pull.sh`)
 ```bash
