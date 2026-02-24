@@ -67,7 +67,7 @@ services:
       retries: 3
 
   ollama-webui:
-    image: ghcr.io/open-webui/open-webui:v0.8.3
+    image: ghcr.io/open-webui/open-webui:v0.8.5
     container_name: ollama-webui
     volumes:
       - ollama-webui:/app/backend/data
