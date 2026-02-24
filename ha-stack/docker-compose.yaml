@@ -53,12 +53,12 @@ services:
       - traefik.http.services.ha.loadbalancer.server.port=8123
       - traefik.http.services.ha.loadbalancer.healthcheck.path=/
       - traefik.http.services.ha.loadbalancer.healthcheck.port=8123
-      - traefik.http.routers.ha_hue.rule=Host(`viewpoint.house`) || Host(`172.24.32.13`)
-      - traefik.http.routers.ha_hue.entrypoints=web
-      - traefik.http.routers.ha_hue.service=ha_hue
-      - traefik.http.services.ha_hue.loadbalancer.server.port=80
-      - traefik.http.services.ha_hue.loadbalancer.healthcheck.path=/api/
-      - traefik.http.services.ha_hue.loadbalancer.healthcheck.port=80
+      # - traefik.http.routers.ha_hue.rule=Host(`viewpoint.house`) || Host(`172.24.32.13`)
+      # - traefik.http.routers.ha_hue.entrypoints=web
+      # - traefik.http.routers.ha_hue.service=ha_hue
+      # - traefik.http.services.ha_hue.loadbalancer.server.port=80
+      # - traefik.http.services.ha_hue.loadbalancer.healthcheck.path=/api/
+      # - traefik.http.services.ha_hue.loadbalancer.healthcheck.port=80
 
       - traefik.http.routers.hasecure.rule=Host(`viewpoint.house`) || Host(`172.24.32.13`)
       - traefik.http.routers.hasecure.entrypoints=websecure

@@ -1,7 +1,6 @@
 echo "----- Deploying to homeauto -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.13
 
-docker compose -f pihole/docker-compose.yaml up -d
 docker compose -f core-stack/docker-compose.yaml up -d
 docker compose -f traefik/docker-compose.yaml up -d
 docker compose -f unifi/docker-compose.yaml up -d
@@ -47,6 +46,10 @@ echo "----- Deploying to Blackbird -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.5
 docker compose -f scrutiny/docker-compose-blackbird.yaml up -d
 docker compose -f beszel/docker-compose-blackbird.yaml up -d
+
+# echo "----- Deploying to LittleGeek -----"
+# export DOCKER_HOST=ssh://bagpuss@littlegeek.tailc78bf3.ts.net
+# docker compose -f beszel/docker-compose-littlegeek.yaml up -d
 
 echo "----- Deploying to Deepcore -----"
 export DOCKER_HOST=ssh://bagpuss@149.202.95.105

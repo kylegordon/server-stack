@@ -30,5 +30,5 @@ services:
       - traefik.http.routers.matter-hub.rule=Host(`matter-hub.viewpoint.house`) || Host(`172.24.32.13`)
       - traefik.http.routers.matter-hub.entrypoints=web
       - traefik.http.services.matter-hub.loadbalancer.server.port=8482
-      - traefik.http.services.matter-hub.loadbalancer.healthcheck.path=/
+      - traefik.http.services.matter-hub.loadbalancer.healthcheck.hostname=172.24.32.13
       - traefik.http.services.matter-hub.loadbalancer.healthcheck.port=8482
