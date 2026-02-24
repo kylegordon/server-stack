@@ -37,6 +37,7 @@ services:
       - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.EPLZones.rule=Host(`eplzones.viewpoint.house`)
       - traefik.http.routers.EPLZones.entrypoints=websecure
+      - traefik.http.routers.EPLZones.tls=true
       - traefik.http.services.EPLZones.loadbalancer.server.port=42069
       - traefik.http.services.EPLZones.loadbalancer.healthcheck.path=/
       - traefik.http.services.EPLZones.loadbalancer.healthcheck.port=42069

@@ -37,6 +37,7 @@ services:
       - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.givtcp.rule=Host(`givtcp.viewpoint.house`)
       - traefik.http.routers.givtcp.entrypoints=websecure
+      - traefik.http.routers.givtcp.tls=true
       - traefik.http.services.givtcp.loadbalancer.server.port=8099
       - traefik.http.services.givtcp.loadbalancer.healthcheck.path=/
       - traefik.http.services.givtcp.loadbalancer.healthcheck.port=8099

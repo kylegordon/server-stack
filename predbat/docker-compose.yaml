@@ -29,6 +29,7 @@ services:
       - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.predbat.rule=Host(`predbat.viewpoint.house`)
       - traefik.http.routers.predbat.entrypoints=websecure
+      - traefik.http.routers.predbat.tls=true
       - traefik.http.services.predbat.loadbalancer.server.port=5052
       - traefik.http.services.predbat.loadbalancer.healthcheck.path=/
       - traefik.http.services.predbat.loadbalancer.healthcheck.port=5052
