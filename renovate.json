@@ -3,12 +3,6 @@
   "extends": [
     "config:recommended"
   ],
-  "docker": {
-    "enabled": true,
-    "major": {
-      "enabled": true
-    }
-  },
   "docker-compose": {
     "enabled": true,
     "digest": {
@@ -17,11 +11,27 @@
   },
   "packageRules": [
     {
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchCategories": [
+        "docker"
+      ],
+      "enabled": true,
+      "major": {
+        "enabled": true
+      }
+    },
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
       "automerge": true
     },
     {
-      "matchPackageNames": ["getmeili/meilisearch"],
+      "matchPackageNames": [
+        "getmeili/meilisearch"
+      ],
       "enabled": false
     }
   ]
