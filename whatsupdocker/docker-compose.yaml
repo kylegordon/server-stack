@@ -6,7 +6,7 @@ networks:
     name: traefik_traefik_proxy
 services:
   whatsupdocker:
-    image: getwud/wud:8.2.0
+    image: getwud/wud:8.2.1
     container_name: wud
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
