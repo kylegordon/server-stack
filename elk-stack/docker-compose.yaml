@@ -332,7 +332,7 @@ services:
       - traefik_proxy
 
   metricbeat:
-    image: docker.elastic.co/beats/metricbeat:9.3.0
+    image: docker.elastic.co/beats/metricbeat:9.3.1
     container_name: metricbeat
     command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
     restart: unless-stopped
