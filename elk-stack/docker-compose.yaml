@@ -155,7 +155,7 @@ services:
       - traefik.enable=false
 
   auditbeat:
-    image: docker.elastic.co/beats/auditbeat:9.3.0
+    image: docker.elastic.co/beats/auditbeat:9.3.1
     container_name: auditbeat
     restart: unless-stopped
     user: root #To read the docker socket
