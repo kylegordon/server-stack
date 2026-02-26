@@ -124,7 +124,7 @@ services:
       - elastic
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:9.3.0
+    image: docker.elastic.co/beats/filebeat:9.3.1
     container_name: filebeat
     restart: unless-stopped
     user: root #To read the docker socket
@@ -153,7 +153,7 @@ services:
       - traefik.enable=false
 
   auditbeat:
-    image: docker.elastic.co/beats/auditbeat:9.3.0
+    image: docker.elastic.co/beats/auditbeat:9.3.1
     container_name: auditbeat
     restart: unless-stopped
     user: root #To read the docker socket
@@ -183,7 +183,7 @@ services:
       - traefik.enable=false
 
   apm-server:
-    image: docker.elastic.co/apm/apm-server:9.3.0
+    image: docker.elastic.co/apm/apm-server:9.3.1
     container_name: apm-server
     restart: unless-stopped
     depends_on:
@@ -208,7 +208,7 @@ services:
     labels:
       - traefik.enable=false
   es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.1
     container_name: es01
     restart: unless-stopped
     # network_mode: host
@@ -242,7 +242,7 @@ services:
       - traefik.enable=false
 
   es02:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.1
     container_name: es02
     restart: unless-stopped
     # network_mode: host
@@ -300,7 +300,7 @@ services:
   #     - traefik.enable=false
 
   kibana01:
-    image: docker.elastic.co/kibana/kibana:9.3.0
+    image: docker.elastic.co/kibana/kibana:9.3.1
     container_name: kibana
     restart: unless-stopped
     # ports:
@@ -329,7 +329,7 @@ services:
       - traefik_proxy
 
   metricbeat:
-    image: docker.elastic.co/beats/metricbeat:9.3.0
+    image: docker.elastic.co/beats/metricbeat:9.3.1
     container_name: metricbeat
     command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
     restart: unless-stopped

@@ -43,7 +43,7 @@ services:
 #       - ollama-docker
 
   ollama:
-    image: ollama/ollama:0.17.0
+    image: ollama/ollama:0.17.1
     ports:
       - 7869:11434
     volumes:
@@ -67,7 +67,7 @@ services:
       retries: 3
 
   ollama-webui:
-    image: ghcr.io/open-webui/open-webui:main
+    image: ghcr.io/open-webui/open-webui:v0.8.5
     container_name: ollama-webui
     volumes:
       - ollama-webui:/app/backend/data
@@ -87,6 +87,14 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
     restart: unless-stopped
+    environment:
+      - WEBUI_AUTH=False
+      - WEBUI_URL=https://ollama.viewpoint.house
+      - OLLAMA_BASE_URLS=http://ollama:11434
+      # - OLLAMA_BASE_URLS=http://host.docker.internal:7869 #comma separated ollama hosts
+    # extra_hosts:
+    #   - host.docker.internal:other_machine-like172.24.32.5
+    # Use this alongside OLLAMA_BASE_URLS to allow the webui to connect to ollama running on the host machine or other machines in the network
     networks:
       - ollama-docker
       - traefik_proxy
