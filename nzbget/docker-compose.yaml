@@ -28,7 +28,7 @@ volumes:
 
 services:
   nzbget:
-    image: linuxserver/nzbget:26.0.20260213
+    image: linuxserver/nzbget:26.0.20260227
     container_name: nzbget
     restart: unless-stopped
     networks:
