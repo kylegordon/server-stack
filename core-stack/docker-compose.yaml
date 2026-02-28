@@ -115,7 +115,6 @@ services:
   #     - 'traefik.http.routers.netbootxyz.rule=Host(`netboot.viewpoint.house`)'
   #     - 'traefik.http.routers.netbootxyz.entrypoints=websecure'
   #     - 'traefik.http.routers.netbootxyz.tls=true'
-  #     - 'traefik.http.routers.netbootxyz.tls.certresolver=letsencrypt'
   #     - 'traefik.http.routers.netbootxyz.service=netbootxyz'
   #     - 'traefik.http.services.netbootxyz.loadbalancer.server.port=80'
 
@@ -154,7 +153,6 @@ services:
   #       - 'traefik.http.routers.authelia.rule=Host(`auth.viewpoint.house`)'
   #       - 'traefik.http.routers.authelia.entrypoints=websecure'
   #       - 'traefik.http.routers.authelia.tls=true'
-  #       - 'traefik.http.routers.authelia.tls.certresolver=letsencrypt'
   #       # - 'traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/authz/forward-auth?authelia_url=https://auth.viewpoint.house'  # yamllint disable-line rule:line-length
   #       # - 'traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true'
   #       # - 'traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'  # yamllint disable-line rule:line-length

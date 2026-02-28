@@ -42,7 +42,6 @@ services:
       - traefik.http.routers.fr24feed.rule=Host(`fr24feed.viewpoint.house`)
       - traefik.http.routers.fr24feed.entrypoints=websecure
       - traefik.http.routers.fr24feed.tls=true
-      - traefik.http.routers.fr24feed.tls.certresolver=letsencrypt
       - traefik.http.services.fr24feed.loadbalancer.server.port=8754
       - traefik.http.services.fr24feed.loadbalancer.healthcheck.path=/
       - traefik.http.services.fr24feed.loadbalancer.healthcheck.port=8754

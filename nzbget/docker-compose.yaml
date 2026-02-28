@@ -52,8 +52,6 @@ services:
       - traefik.http.routers.nzbget.rule=Host(`nzbget.viewpoint.house`)
       - traefik.http.routers.nzbget.entrypoints=websecure
       - traefik.http.routers.nzbget.tls=true
-      - traefik.http.routers.nzbget.tls.certresolver=letsencrypt
-      - traefik.http.routers.nzbget.tls.domains[0].main=nzbget.viewpoint.house
       - traefik.http.services.nzbget.loadbalancer.server.port=6789
       # - traefik.http.services.nzbget.loadbalancer.healthcheck.port=6789
       # - traefik.http.services.nzbget.loadbalancer.healthcheck.path=/

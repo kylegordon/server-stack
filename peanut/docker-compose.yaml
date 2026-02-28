@@ -33,8 +33,6 @@ services:
       - traefik.http.routers.peanut.rule=Host(`peanut.viewpoint.house`)
       - traefik.http.routers.peanut.entrypoints=websecure
       - traefik.http.routers.peanut.tls=true
-      - traefik.http.routers.peanut.tls.certresolver=letsencrypt
-      - traefik.http.routers.peanut.tls.domains[0].main=peanut.viewpoint.house
       - traefik.http.services.peanut.loadbalancer.server.port=8080
       - traefik.http.services.peanut.loadbalancer.healthcheck.port=8080
       - traefik.http.services.peanut.loadbalancer.healthcheck.path=/

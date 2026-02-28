@@ -31,8 +31,6 @@ services:
       - traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.viewpoint.house`)
       - traefik.http.routers.phpmyadmin.entrypoints=websecure
       - traefik.http.routers.phpmyadmin.tls=true
-      - traefik.http.routers.phpmyadmin.tls.certresolver=letsencrypt
-      - traefik.http.routers.phpmyadmin.tls.domains[0].main=phpmyadmin.viewpoint.house
       - traefik.http.services.phpmyadmin.loadbalancer.server.port=80
       - traefik.http.services.phpmyadmin.loadbalancer.healthcheck.port=80
       - traefik.http.services.phpmyadmin.loadbalancer.healthcheck.path=/

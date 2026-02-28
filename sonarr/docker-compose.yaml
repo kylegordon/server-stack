@@ -35,8 +35,6 @@ services:
       - traefik.http.routers.sonarr.rule=Host(`tv.viewpoint.house`)
       - traefik.http.routers.sonarr.entrypoints=websecure
       - traefik.http.routers.sonarr.tls=true
-      - traefik.http.routers.sonarr.tls.certresolver=letsencrypt
-      - traefik.http.routers.sonarr.tls.domains[0].main=tv.viewpoint.house
       - traefik.http.services.sonarr.loadbalancer.server.port=8989
       - traefik.http.services.sonarr.loadbalancer.healthcheck.port=8989
       - traefik.http.services.sonarr.loadbalancer.healthcheck.path=/

@@ -47,7 +47,6 @@ services:
       - traefik.http.routers.piaware.rule=Host(`piaware.viewpoint.house`)
       - traefik.http.routers.piaware.entrypoints=websecure
       - traefik.http.routers.piaware.tls=true
-      - traefik.http.routers.piaware.tls.certresolver=letsencrypt
       - traefik.http.services.piaware01.loadbalancer.server.port=8080
       - traefik.http.services.piaware01.loadbalancer.healthcheck.path=/
       - traefik.http.services.piaware01.loadbalancer.healthcheck.port=8080

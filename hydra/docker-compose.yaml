@@ -43,8 +43,6 @@ services:
       - traefik.http.routers.hydra.rule=Host(`hydra.viewpoint.house`)
       - traefik.http.routers.hydra.entrypoints=websecure
       - traefik.http.routers.hydra.tls=true
-      - traefik.http.routers.hydra.tls.certresolver=letsencrypt
-      - traefik.http.routers.hydra.tls.domains[0].main=hydra.viewpoint.house
       - traefik.http.services.hydra.loadbalancer.server.port=5076
       - traefik.http.services.hydra.loadbalancer.healthcheck.port=5076
       - traefik.http.services.hydra.loadbalancer.healthcheck.path=/

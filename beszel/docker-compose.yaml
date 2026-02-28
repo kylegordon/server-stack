@@ -31,8 +31,6 @@ services:
       - traefik.http.routers.beszel.rule=Host(`beszel.viewpoint.house`)
       - traefik.http.routers.beszel.entrypoints=websecure
       - traefik.http.routers.beszel.tls=true
-      - traefik.http.routers.beszel.tls.certresolver=letsencrypt
-      - traefik.http.routers.beszel.tls.domains[0].main=beszel.viewpoint.house
       - traefik.http.services.beszel.loadbalancer.server.port=8090
       - traefik.http.services.beszel.loadbalancer.healthcheck.port=8090
       - homepage.group=Monitoring

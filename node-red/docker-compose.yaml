@@ -24,8 +24,6 @@ services:
       - traefik.http.routers.nodered.rule=Host(`nodered.viewpoint.house`)
       - traefik.http.routers.nodered.entrypoints=websecure
       - traefik.http.routers.nodered.tls=true
-      - traefik.http.routers.nodered.tls.certresolver=letsencrypt
-      - traefik.http.routers.nodered.tls.domains[0].main=nodered.viewpoint.house
       - traefik.http.services.nodered.loadbalancer.server.port=1880
       - traefik.http.services.nodered.loadbalancer.healthcheck.path=/
       - traefik.http.services.nodered.loadbalancer.healthcheck.port=1880
