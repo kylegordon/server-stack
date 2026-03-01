@@ -32,17 +32,32 @@ Create a `.env` file in this directory based on `.env.example`:
 cp .env.example .env
 ```
 
-Edit the `.env` file and set secure credentials:
+Edit the `.env` file and set secure credentials. **Critical variables to change**:
 
-- `KOMODO_DB_USERNAME`: MongoDB username (default: komodo)
-- `KOMODO_DB_PASSWORD`: MongoDB password (change this!)
+- `KOMODO_DB_PASSWORD`: MongoDB password
+- `KOMODO_PASSKEY`: Used for Core/Periphery authentication (generate with `openssl rand -hex 32`)
+- `KOMODO_WEBHOOK_SECRET`: Used for webhook authentication (generate with `openssl rand -hex 32`)
+- `KOMODO_JWT_SECRET`: Used for JWT token generation (generate with `openssl rand -hex 32`)
+- `KOMODO_INIT_ADMIN_PASSWORD`: Initial admin user password
 
-### First Server Connection
+See `SETUP.md` for detailed configuration instructions.
 
-The stack is configured to automatically connect to the Periphery agent running on homeauto:
+### Server Connections
 
-- **Server Address**: http://172.24.32.13:8120
-- **Server Name**: homeauto
+The stack includes:
+
+**Homeauto (primary):**
+- Deploys: Komodo Core, Periphery, and MongoDB
+- Periphery automatically connects as the "homeauto" server
+- Address: `http://172.24.32.13:8120`
+
+**Blackbird:**
+- Deploys: Periphery agent only (`docker-compose-blackbird.yaml`)
+- Must be manually added in Komodo UI after deployment
+- Address: `http://172.24.32.5:8120`
+- Uses the same `KOMODO_PASSKEY` for authentication
+
+Both periphery agents connect using external IP addresses, maintaining a consistent connection model across all servers.
 
 ## Storage
 
@@ -63,7 +78,9 @@ Once deployed, Komodo will be available at:
 
 ## Deployment
 
-This stack is deployed to **homeauto** (172.24.32.13) as part of the automated deployment:
+### Homeauto (Primary Stack)
+
+Deploys Komodo Core, Periphery, and MongoDB to **homeauto** (172.24.32.13):
 
 ```bash
 # Deploy Komodo stack specifically
@@ -73,6 +90,25 @@ docker compose -f komodo/docker-compose.yaml up -d
 # Or deploy all stacks
 ./up.sh
 ```
+
+### Blackbird (Periphery Only)
+
+Deploys Periphery agent to **blackbird** (172.24.32.5):
+
+```bash
+# Deploy blackbird periphery specifically
+export DOCKER_HOST=ssh://bagpuss@172.24.32.5
+docker compose -f komodo/docker-compose-blackbird.yaml up -d
+
+# Or deploy all stacks (includes blackbird)
+./up.sh
+```
+
+After deploying blackbird, add it as a server in the Komodo UI:
+1. Navigate to **Servers** → **Create Server**
+2. Name: `blackbird`
+3. Address: `http://172.24.32.5:8120`
+4. The passkey will be validated automatically
 
 ## Initial Setup
 
@@ -92,9 +128,24 @@ docker compose -f komodo/docker-compose.yaml up -d
 - **Resource Syncs**: GitOps-style resource management using TOML files
 - **Monitoring**: Track server stats, container status, and receive alerts
 
+## Deployment Structure
+
+**docker-compose.yaml** (homeauto):
+- Komodo Core (web UI)
+- Komodo Periphery (local agent)
+- MongoDB (database)
+- Uses NFS4 for persistent storage
+
+**docker-compose-blackbird.yaml** (blackbird):
+- Komodo Periphery (agent only)
+- Uses local Docker volumes
+- Connects to Core running on homeauto
+
 ## Notes
 
 - Requires Docker socket access for local container management
 - MongoDB authentication is enabled by default
 - The stack uses the `traefik_proxy` network for web access via Traefik
 - Auto-updates enabled via Watchtower labels
+- The same `.env` file is used on both homeauto and blackbird for shared passkey authentication
+- Blackbird periphery uses local Docker volumes (not NFS) for simplicity

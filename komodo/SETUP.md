@@ -97,7 +97,7 @@ docker compose -f komodo/docker-compose.yaml logs -f mongo
    - Create your first admin user
    - This disables further signups unless `KOMODO_DISABLE_USER_REGISTRATION=false`
 
-5. The **homeauto** server should already be connected automatically via the local Periphery container
+5. The **homeauto** server should already be connected automatically via the local Periphery container at `http://172.24.32.13:8120`
 
 ## Architecture
 
@@ -107,7 +107,7 @@ The stack deploys three containers:
 2. **Komodo Core** - Main application with web UI (port 9120)
 3. **Komodo Periphery** - Agent for managing Docker on the local host (port 8120)
 
-The Periphery agent runs alongside Core and automatically connects as the "first server". This allows Komodo to manage containers on the homeauto host immediately after deployment.
+The Periphery agent runs alongside Core and automatically connects as the "first server" using the external IP address (172.24.32.13:8120). This maintains a consistent connection model with other periphery agents, allowing connections to work across machines.
 
 ## Post-Setup Configuration
 
