@@ -33,7 +33,6 @@ docker compose -f beszel/docker-compose.yaml up -d
 docker compose -f photoprism/docker-compose.yaml up -d
 # docker compose -f warpgate/docker-compose.yaml up -d  --- Warpgate disabled - unlikely to be of use ---
 
-docker compose -f ultrafeeder/docker-compose.yaml up -d
 docker compose -f opensky/docker-compose.yaml up -d
 docker compose -f piaware/docker-compose.yaml up -d
 docker compose -f planefinder/docker-compose.yaml up -d
@@ -42,6 +41,10 @@ docker compose -f fr24feed/docker-compose.yaml up -d
 ### PHPMyAdmin needs access to other services' networks
 docker compose -f phpmyadmin/docker-compose.yaml up -d
 
+
+echo "----- Deploying to ADS-B receiver (172.24.32.11) -----"
+export DOCKER_HOST=ssh://bagpuss@172.24.32.11
+docker compose -f ultrafeeder/docker-compose.yaml up -d
 
 echo "----- Deploying to Blackbird -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.5
