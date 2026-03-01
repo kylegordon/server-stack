@@ -1,0 +1,34 @@
+volumes:
+  netdataconfig:
+  netdatalib:
+  netdatacache:
+  octoprint:
+  # node-red:
+
+  octoprint_nfs:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/octoprint/"
+
+services:
+  octoprint:
+    image: octoprint/octoprint:1.11.7
+    # image: octoprint/octoprint:latest
+    restart: unless-stopped
+    ports:
+      - 88:80
+    devices:
+    # Use this for Creality - /dev/ttyUSB0:/dev/ttyUSB0
+      - /dev/ttyACM0:/dev/ttyACM0
+      # - /dev/ttyS0:/dev/ttyS0
+      - /dev/video0:/dev/video0
+    volumes:
+      - octoprint_nfs:/octoprint
+      # - /docker/octoprint_firmware:/firmware/
+    # uncomment the lines below to ensure camera streaming is enabled when
+    # you add a video device
+    environment:
+      - CAMERA_DEV=/dev/video0
+      - ENABLE_MJPG_STREAMER=true
