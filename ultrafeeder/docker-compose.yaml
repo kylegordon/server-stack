@@ -1,23 +1,4 @@
 ---
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
-
-volumes:
-  ultrafeeder_globe_history:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/ultrafeeder/globe_history"
-  ultrafeeder_graphs1090:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/ultrafeeder/graphs1090"
-
 services:
   ultrafeeder:
     # Using telegraf variant for InfluxDB/Prometheus and Grafana integration
@@ -31,8 +12,6 @@ services:
       - 8080:80  # to expose the web interface
       - 30005:30005  # to expose the ADS-B data feed (for fr24feed)
       - 9273-9274:9273-9274  # to expose the statistics interface to Prometheus
-    networks:
-      - traefik_proxy
     env_file:
       - .env
     environment:
@@ -123,8 +102,8 @@ services:
       - INFLUXDBV2_ORG=${INFLUXDB_V2_ORG}
       - PROMETHEUS_ENABLE=true
     volumes:
-      - ultrafeeder_globe_history:/var/globe_history
-      - ultrafeeder_graphs1090:/var/lib/collectd
+      - /opt/adsb/ultrafeeder/globe_history:/var/globe_history
+      - /opt/adsb/ultrafeeder/graphs1090:/var/lib/collectd
       - /proc/diskstats:/proc/diskstats:ro
       - /dev/bus/usb:/dev/bus/usb
     tmpfs:
@@ -137,15 +116,6 @@ services:
         gelf-address: "udp://172.24.32.13:12201"
         tag: "{{.Name}}"
     labels:
-      - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
-      - traefik.http.routers.ultrafeeder.rule=Host(`ultrafeeder.viewpoint.house`)
-      - traefik.http.routers.ultrafeeder.entrypoints=websecure
-      - traefik.http.routers.ultrafeeder.tls=true
-      - traefik.http.routers.ultrafeeder.tls.certresolver=letsencrypt
-      - traefik.http.services.ultrafeeder.loadbalancer.server.port=80
-      - traefik.http.services.ultrafeeder.loadbalancer.healthcheck.path=/
-      - traefik.http.services.ultrafeeder.loadbalancer.healthcheck.port=80
       - homepage.group=SDR
       - homepage.name=Ultrafeeder
       - homepage.icon=mdi-airplane
