@@ -15,6 +15,10 @@ docker compose -f dawarich/docker-compose.yml pull
 docker compose -f warrior.yaml pull
 docker compose -f ollama/docker-compose.yaml pull
 
+export DOCKER_HOST=ssh://bagpuss@172.24.32.11
+echo "Pulling ultrafeeder stack"
+docker compose -f ultrafeeder/docker-compose.yaml pull
+
 export DOCKER_HOST=ssh://bagpuss@172.24.32.5
 docker compose -f scrutiny/docker-compose-blackbird.yaml pull
 
