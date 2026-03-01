@@ -20,9 +20,7 @@ volumes:
 
 services:
   ultrafeeder:
-    # image: ghcr.io/sdr-enthusiasts/docker-adsb-ultrafeeder
-    # Note - if you want to enable telegraf for use with InfluxDB/Prometheus and Grafana,
-    # use the following image instead:
+    # Using telegraf variant for InfluxDB/Prometheus and Grafana integration
     image: ghcr.io/sdr-enthusiasts/docker-adsb-ultrafeeder:telegraf
     container_name: ultrafeeder
     hostname: ultrafeeder
@@ -110,7 +108,8 @@ services:
       #
       # --------------------------------------------------
       # GRAPHS1090 (Decoder and System Status Web Page) parameters:
-      # The two 978 related parameters should only be included if you are running dump978 for UAT reception (USA only)
+      # The two 978 related parameters should only be included if you are running dump978 for UAT reception
+      # Note: UAT 978 MHz is USA-only and requires a separate SDR dongle
       - GRAPHS1090_DARKMODE=true
       # - ENABLE_978=yes
       # - URL_978=http://dump978/skyaware978

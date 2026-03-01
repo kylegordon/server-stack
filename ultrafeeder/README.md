@@ -57,7 +57,7 @@ Required variables:
 - `FEEDER_LONG`: Your longitude
 - `FEEDER_ALT_M`: Your altitude in meters
 - `FEEDER_NAME`: A name for your feeder station
-- `MULTIFEEDER_UUID`: A unique UUID for your station (generate with `uuidgen`)
+- `MULTIFEEDER_UUID`: A unique UUID for your station (generate with `uuidgen`). **Important**: Save this UUID - it persists your station identity and statistics across aggregators. Reuse the same UUID if redeploying.
 - `ADSB_SDR_SERIAL`: The serial number of your RTL-SDR device
 - `ADSB_SDR_PPM`: PPM correction value for your SDR (usually 0)
 
@@ -99,7 +99,7 @@ docker compose -f ultrafeeder/docker-compose.yaml up -d
 
 Once deployed, ultrafeeder provides several interfaces:
 
-- **TAR1090 Map**: https://ultrafeeder.viewpoint.house (or http://<host>:8080)
+- **TAR1090 Map**: https://ultrafeeder.viewpoint.house (or http://<host>:8080 - requires port mapping in docker-compose.yaml)
 - **GRAPHS1090**: https://ultrafeeder.viewpoint.house/graphs1090
 - **Prometheus Metrics**: http://<host>:9273 and http://<host>:9274
 - **Raw Beast Feed**: Port 30005 (used by other feeders)
