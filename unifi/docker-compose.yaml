@@ -54,7 +54,7 @@ services:
     restart: unless-stopped
 
   unifi-db:
-    image: docker.io/mongo:4
+    image: docker.io/mongo:8
     # I have to use v4, as v5+ requires a CPU with AVX support
     # container_name: unifi-db
     networks:
