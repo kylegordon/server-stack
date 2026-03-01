@@ -57,7 +57,19 @@ The stack includes:
 - Address: `http://172.24.32.5:8120`
 - Uses the same `KOMODO_PASSKEY` for authentication
 
-Both periphery agents connect using external IP addresses, maintaining a consistent connection model across all servers.
+**ADS-B Receiver:**
+- Deploys: Periphery agent only (`docker-compose-adsb.yaml`)
+- Must be manually added in Komodo UI after deployment
+- Address: `http://172.24.32.11:8120`
+- Uses the same `KOMODO_PASSKEY` for authentication
+
+**OctoPrint:**
+- Deploys: Periphery agent only (`docker-compose-octoprint.yaml`)
+- Must be manually added in Komodo UI after deployment
+- Address: `http://172.24.32.18:8120`
+- Uses the same `KOMODO_PASSKEY` for authentication
+
+All periphery agents connect using external IP addresses, maintaining a consistent connection model across all servers.
 
 ## Storage
 
@@ -110,6 +122,44 @@ After deploying blackbird, add it as a server in the Komodo UI:
 3. Address: `http://172.24.32.5:8120`
 4. The passkey will be validated automatically
 
+### ADS-B Receiver (Periphery Only)
+
+Deploys Periphery agent to **ADS-B receiver** (172.24.32.11):
+
+```bash
+# Deploy ADS-B periphery specifically
+export DOCKER_HOST=ssh://bagpuss@172.24.32.11
+docker compose -f komodo/docker-compose-adsb.yaml up -d
+
+# Or deploy all stacks (includes ADS-B receiver)
+./up.sh
+```
+
+After deploying, add it as a server in the Komodo UI:
+1. Navigate to **Servers** → **Create Server**
+2. Name: `adsb-receiver` (or your preferred name)
+3. Address: `http://172.24.32.11:8120`
+4. The passkey will be validated automatically
+
+### OctoPrint (Periphery Only)
+
+Deploys Periphery agent to **OctoPrint** (172.24.32.18):
+
+```bash
+# Deploy OctoPrint periphery specifically
+export DOCKER_HOST=ssh://bagpuss@172.24.32.18
+docker compose -f komodo/docker-compose-octoprint.yaml up -d
+
+# Or deploy all stacks (includes OctoPrint)
+./up.sh
+```
+
+After deploying, add it as a server in the Komodo UI:
+1. Navigate to **Servers** → **Create Server**
+2. Name: `octoprint` (or your preferred name)
+3. Address: `http://172.24.32.18:8120`
+4. The passkey will be validated automatically
+
 ## Initial Setup
 
 1. Navigate to https://komodo.viewpoint.house
@@ -141,11 +191,21 @@ After deploying blackbird, add it as a server in the Komodo UI:
 - Uses local Docker volumes
 - Connects to Core running on homeauto
 
+**docker-compose-adsb.yaml** (ADS-B receiver):
+- Komodo Periphery (agent only)
+- Uses local Docker volumes
+- Connects to Core running on homeauto
+
+**docker-compose-octoprint.yaml** (OctoPrint):
+- Komodo Periphery (agent only)
+- Uses local Docker volumes
+- Connects to Core running on homeauto
+
 ## Notes
 
 - Requires Docker socket access for local container management
 - MongoDB authentication is enabled by default
 - The stack uses the `traefik_proxy` network for web access via Traefik
 - Auto-updates enabled via Watchtower labels
-- The same `.env` file is used on both homeauto and blackbird for shared passkey authentication
-- Blackbird periphery uses local Docker volumes (not NFS) for simplicity
+- The same `.env` file is used on all hosts for shared passkey authentication
+- Periphery agents (blackbird, ADS-B, OctoPrint) use local Docker volumes (not NFS) for simplicity
