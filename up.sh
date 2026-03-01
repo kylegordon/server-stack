@@ -33,6 +33,7 @@ docker compose -f beszel/docker-compose.yaml up -d
 docker compose -f photoprism/docker-compose.yaml up -d
 # docker compose -f warpgate/docker-compose.yaml up -d  --- Warpgate disabled - unlikely to be of use ---
 
+docker compose -f ultrafeeder/docker-compose.yaml up -d
 docker compose -f opensky/docker-compose.yaml up -d
 docker compose -f piaware/docker-compose.yaml up -d
 docker compose -f planefinder/docker-compose.yaml up -d
