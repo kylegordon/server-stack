@@ -2,7 +2,7 @@
 services:
   ultrafeeder:
     # Using telegraf variant for InfluxDB/Prometheus and Grafana integration
-    image: ghcr.io/sdr-enthusiasts/docker-adsb-ultrafeeder:telegraf
+    image: ghcr.io/sdr-enthusiasts/docker-adsb-ultrafeeder:telegraf-build-899
     container_name: ultrafeeder
     hostname: ultrafeeder
     restart: unless-stopped
