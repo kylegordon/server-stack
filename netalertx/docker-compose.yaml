@@ -1,0 +1,68 @@
+---
+volumes:
+  netalertx_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/netalertx/"
+
+services:
+  netalertx:
+    image: ghcr.io/netalertx/netalertx:26.3.7
+    container_name: netalertx
+    network_mode: ${NETALERTX_NETWORK_MODE:-host}   # Use host networking for ARP scanning and other services
+
+    read_only: true                                 # Make the container filesystem read-only
+    cap_drop:                                       # Drop all capabilities for enhanced security
+      - ALL
+    cap_add:                                        # Add only the necessary capabilities
+      - NET_ADMIN                                   # Required for ARP scanning
+      - NET_RAW                                     # Required for raw socket operations
+      - NET_BIND_SERVICE                            # Required to bind to privileged ports (nbtscan)
+      - CHOWN                                       # Required for root-entrypoint to chown /data + /tmp before dropping privileges
+      - SETUID                                      # Required for root-entrypoint to switch to non-root user
+      - SETGID                                      # Required for root-entrypoint to switch to non-root group
+    # This is implemented on the host itself, see /etc/sysctl.d/99-netalertx.conf
+    # sysctls:                                        # ARP flux mitigation (reduces duplicate/ambiguous ARP behavior on host networking)
+    #   net.ipv4.conf.all.arp_ignore: 1
+    #   net.ipv4.conf.all.arp_announce: 2
+
+    volumes:
+      - netalertx_data:/data
+      - /etc/localtime:/etc/localtime:ro
+    tmpfs:
+      - "/tmp:mode=1700,uid=20211,gid=20211,rw,noexec,nosuid,nodev,async,noatime,nodiratime"
+    environment:
+      - NETALERTX_NETWORK_MODE=host
+      - TZ=Europe/London
+      - PUID=20211
+      - PGID=20211
+      - LISTEN_ADDR=0.0.0.0
+      - PORT=20211
+      - GRAPHQL_PORT=20212
+      - ALWAYS_FRESH_INSTALL=false
+      - NETALERTX_DEBUG=1
+    restart: unless-stopped
+    mem_limit: 2048m
+    mem_reservation: 1024m
+    cpu_shares: 512
+    pids_limit: 512
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:20211"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - homepage.group=Monitoring
+      - homepage.icon=mdi-network
+      - homepage.name=NetAlertX
+      - homepage.href=http://homeauto.viewpoint.house:20211
+      - homepage.description=Network Device Monitoring
+      - com.centurylinklabs.watchtower.enable=true
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
