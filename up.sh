@@ -31,7 +31,9 @@ docker compose -f matter-hub/docker-compose.yaml up -d
 docker compose -f whatsupdocker/docker-compose.yaml up -d
 docker compose -f beszel/docker-compose.yaml up -d
 docker compose -f photoprism/docker-compose.yaml up -d
+docker compose -f komodo/docker-compose.yaml up -d  # Komodo Core + Periphery + MongoDB
 # docker compose -f warpgate/docker-compose.yaml up -d  --- Warpgate disabled - unlikely to be of use ---
+docker compose -f netalertx/docker-compose.yaml up -d  # NetAlertX - network monitoring and alerting tool
 
 docker compose -f opensky/docker-compose.yaml up -d
 docker compose -f piaware/docker-compose.yaml up -d
@@ -42,10 +44,21 @@ docker compose -f fr24feed/docker-compose.yaml up -d
 docker compose -f phpmyadmin/docker-compose.yaml up -d
 
 
+echo "----- Deploying to ADS-B receiver (172.24.32.11) -----"
+export DOCKER_HOST=ssh://bagpuss@172.24.32.11
+docker compose -f ultrafeeder/docker-compose.yaml up -d
+docker compose -f komodo/docker-compose-adsb.yaml up -d  # Komodo Periphery agent
+
+echo "----- Deploying to OctoPrint (172.24.32.18) -----"
+export DOCKER_HOST=ssh://bagpuss@172.24.32.18
+docker compose -f octoprint/docker-compose.yaml up -d
+docker compose -f komodo/docker-compose-octoprint.yaml up -d  # Komodo Periphery agent
+
 echo "----- Deploying to Blackbird -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.5
 docker compose -f scrutiny/docker-compose-blackbird.yaml up -d
 docker compose -f beszel/docker-compose-blackbird.yaml up -d
+docker compose -f komodo/docker-compose-blackbird.yaml up -d  # Komodo Periphery agent
 
 # echo "----- Deploying to LittleGeek -----"
 # export DOCKER_HOST=ssh://bagpuss@littlegeek.tailc78bf3.ts.net

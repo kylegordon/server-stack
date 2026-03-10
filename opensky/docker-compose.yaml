@@ -8,7 +8,8 @@
 services:
   opensky:
     # Credit to https://github.com/mikenye/docker-opensky-network
-    image: ghcr.io/sdr-enthusiasts/docker-opensky-network:2.1.7-1
+    # image: ghcr.io/sdr-enthusiasts/docker-opensky-network:2.1.7-1
+    image: ghcr.io/sdr-enthusiasts/docker-opensky-network:latest-build-821
     tty: true
     container_name: opensky
     restart: unless-stopped

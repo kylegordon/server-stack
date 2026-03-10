@@ -1,0 +1,138 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+  komodo:
+    driver: bridge
+
+volumes:
+  komodo_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/komodo/"
+  mongo_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/komodo/mongo/"
+  mongo_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/komodo/mongo_config/"
+  periphery_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/komodo/periphery/"
+
+services:
+  mongo:
+    image: mongo:8.2.5
+    container_name: komodo-mongo
+    command: --quiet --wiredTigerCacheSizeGB 0.25
+    networks:
+      - komodo
+    volumes:
+      - mongo_data:/data/db
+      - mongo_config:/data/configdb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${KOMODO_DB_USERNAME:-komodo}
+      MONGO_INITDB_ROOT_PASSWORD: ${KOMODO_DB_PASSWORD:-komodo}
+    restart: unless-stopped
+    labels:
+      - komodo.skip=
+      - com.centurylinklabs.watchtower.enable=true
+
+  komodo:
+    image: ghcr.io/moghtech/komodo-core:1.19.5
+    container_name: komodo
+    networks:
+      - traefik_proxy
+      - komodo
+    volumes:
+      - komodo_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - .env
+    environment:
+      # Database Configuration
+      KOMODO_DATABASE_ADDRESS: mongo:27017
+      KOMODO_DATABASE_USERNAME: ${KOMODO_DB_USERNAME:-komodo}
+      KOMODO_DATABASE_PASSWORD: ${KOMODO_DB_PASSWORD:-komodo}
+      KOMODO_DATABASE_DB_NAME: komodo
+
+      # Core Configuration
+      KOMODO_HOST: ${KOMODO_HOST:-https://komodo.viewpoint.house}
+      KOMODO_TITLE: ${KOMODO_TITLE:-Komodo}
+
+      # First Server Connection
+      KOMODO_FIRST_SERVER: ${KOMODO_FIRST_SERVER:-http://periphery:8120}
+      KOMODO_FIRST_SERVER_NAME: ${KOMODO_FIRST_SERVER_NAME:-homeauto}
+
+      # Monitoring
+      KOMODO_MONITORING_INTERVAL: ${KOMODO_MONITORING_INTERVAL:-15-sec}
+      KOMODO_RESOURCE_POLL_INTERVAL: ${KOMODO_RESOURCE_POLL_INTERVAL:-1-hr}
+
+      # Security
+      KOMODO_PASSKEY: ${KOMODO_PASSKEY}
+      KOMODO_WEBHOOK_SECRET: ${KOMODO_WEBHOOK_SECRET}
+      KOMODO_JWT_SECRET: ${KOMODO_JWT_SECRET}
+      KOMODO_JWT_TTL: ${KOMODO_JWT_TTL:-1-day}
+
+      # Authentication
+      KOMODO_LOCAL_AUTH: ${KOMODO_LOCAL_AUTH:-true}
+      KOMODO_INIT_ADMIN_USERNAME: ${KOMODO_INIT_ADMIN_USERNAME:-admin}
+      KOMODO_INIT_ADMIN_PASSWORD: ${KOMODO_INIT_ADMIN_PASSWORD:-changeme}
+      KOMODO_DISABLE_USER_REGISTRATION: ${KOMODO_DISABLE_USER_REGISTRATION:-false}
+      KOMODO_ENABLE_NEW_USERS: ${KOMODO_ENABLE_NEW_USERS:-false}
+
+      # Timezone
+      TZ: ${TZ:-Europe/London}
+    depends_on:
+      - mongo
+    restart: unless-stopped
+    labels:
+      - komodo.skip=
+      - traefik.enable=true
+      - traefik.http.routers.komodo.rule=Host(`komodo.viewpoint.house`)
+      - traefik.http.routers.komodo.entrypoints=websecure
+      - traefik.http.routers.komodo.tls.certresolver=letsencrypt
+      - traefik.http.services.komodo.loadbalancer.server.port=9120
+      - traefik.docker.network=traefik_traefik_proxy
+      - com.centurylinklabs.watchtower.enable=true
+      - homepage.group=Infrastructure
+      - homepage.name=Komodo
+      - homepage.href=https://komodo.viewpoint.house
+      - homepage.icon=mdi-monitor-dashboard
+      - homepage.description=Docker Management Platform
+
+  periphery:
+    image: ghcr.io/moghtech/komodo-periphery:1.19.5
+    container_name: komodo-periphery
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/proc
+      - periphery_data:/etc/komodo
+    env_file:
+      - .env
+    ports:
+      - "8120:8120"
+    environment:
+      # Periphery Configuration
+      PERIPHERY_ROOT_DIRECTORY: /etc/komodo
+      PERIPHERY_PASSKEYS: ${KOMODO_PASSKEY}
+      PERIPHERY_DISABLE_TERMINALS: ${PERIPHERY_DISABLE_TERMINALS:-false}
+
+      # Timezone
+      TZ: ${TZ:-Europe/London}
+    restart: unless-stopped
+    labels:
+      - komodo.skip=
+      - com.centurylinklabs.watchtower.enable=true

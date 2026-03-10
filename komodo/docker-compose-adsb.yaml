@@ -1,0 +1,28 @@
+---
+volumes:
+  periphery_data:
+
+services:
+  periphery:
+    image: ghcr.io/moghtech/komodo-periphery:1.19.5
+    container_name: komodo-periphery-adsb
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/proc
+      - periphery_data:/etc/komodo
+    env_file:
+      - .env
+    ports:
+      - "8120:8120"
+    environment:
+      # Periphery Configuration
+      PERIPHERY_ROOT_DIRECTORY: /etc/komodo
+      PERIPHERY_PASSKEYS: ${KOMODO_PASSKEY}
+      PERIPHERY_DISABLE_TERMINALS: ${PERIPHERY_DISABLE_TERMINALS:-false}
+
+      # Timezone
+      TZ: ${TZ:-Europe/London}
+    restart: unless-stopped
+    labels:
+      - komodo.skip=
+      - com.centurylinklabs.watchtower.enable=true
