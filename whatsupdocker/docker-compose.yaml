@@ -31,8 +31,6 @@ services:
       - traefik.http.routers.wud.rule=Host(`wud.viewpoint.house`)
       - traefik.http.routers.wud.entrypoints=websecure
       - traefik.http.routers.wud.tls=true
-      - traefik.http.routers.wud.tls.certresolver=letsencrypt
-      - traefik.http.routers.wud.tls.domains[0].main=wud.viewpoint.house
       - traefik.http.services.wud.loadbalancer.server.port=3000
       - traefik.http.services.wud.loadbalancer.healthcheck.path=/
       - traefik.http.services.wud.loadbalancer.healthcheck.port=3000

@@ -92,8 +92,6 @@ services:
       - traefik.http.routers.librenms.rule=Host(`nms.viewpoint.house`)
       - traefik.http.routers.librenms.entrypoints=websecure
       - traefik.http.routers.librenms.tls=true
-      - traefik.http.routers.librenms.tls.certresolver=letsencrypt
-      - traefik.http.routers.librenms.tls.domains[0].main=nms.viewpoint.house
       - traefik.http.services.librenms.loadbalancer.server.port=8000
       # - traefik.http.services.librenms.loadbalancer.healthcheck.port=8000
       # - traefik.http.services.librenms.loadbalancer.healthcheck.path=/
@@ -255,8 +253,6 @@ services:
       - traefik.http.routers.speedtest.rule=Host(`speedtest.viewpoint.house`)
       - traefik.http.routers.speedtest.entrypoints=websecure
       - traefik.http.routers.speedtest.tls=true
-      - traefik.http.routers.speedtest.tls.certresolver=letsencrypt
-      - traefik.http.routers.speedtest.tls.domains[0].main=speedtest.viewpoint.house
       - traefik.http.services.speedtest.loadbalancer.server.port=3000
       - traefik.http.services.speedtest.loadbalancer.healthcheck.port=3000
       - traefik.http.services.speedtest.loadbalancer.healthcheck.path=/
@@ -296,8 +292,6 @@ services:
       - traefik.http.routers.smokeping.rule=Host(`smokeping.viewpoint.house`)
       - traefik.http.routers.smokeping.entrypoints=websecure
       - traefik.http.routers.smokeping.tls=true
-      - traefik.http.routers.smokeping.tls.certresolver=letsencrypt
-      - traefik.http.routers.smokeping.tls.domains[0].main=smokeping.viewpoint.house
       - traefik.http.services.smokeping.loadbalancer.server.port=80
       - traefik.http.services.smokeping.loadbalancer.healthcheck.port=80
       - traefik.http.services.smokeping.loadbalancer.healthcheck.path=/

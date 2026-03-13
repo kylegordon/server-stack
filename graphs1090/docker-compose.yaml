@@ -53,7 +53,6 @@ services:
       - traefik.http.routers.graphs1090.rule=Host(`graphs1090.viewpoint.house`)
       - traefik.http.routers.graphs1090.entrypoints=websecure
       - traefik.http.routers.graphs1090.tls=true
-      - traefik.http.routers.graphs1090.tls.certresolver=letsencrypt
       - traefik.http.services.graphs1090.loadbalancer.server.port=80
       - traefik.http.services.graphs1090.loadbalancer.healthcheck.path=/
       - traefik.http.services.graphs1090.loadbalancer.healthcheck.port=80

@@ -31,8 +31,6 @@ services:
       - traefik.http.routers.esphome.rule=Host(`esphome.viewpoint.house`)
       - traefik.http.routers.esphome.entrypoints=websecure
       - traefik.http.routers.esphome.tls=true
-      - traefik.http.routers.esphome.tls.certresolver=letsencrypt
-      - traefik.http.routers.esphome.tls.domains[0].main=esphome.viewpoint.house
       - traefik.http.services.esphome.loadbalancer.server.port=6052
       - traefik.http.services.esphome.loadbalancer.healthcheck.path=/
       - traefik.http.services.esphome.loadbalancer.healthcheck.port=6052

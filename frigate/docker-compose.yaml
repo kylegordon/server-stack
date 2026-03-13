@@ -70,8 +70,6 @@ services:
       - traefik.http.routers.frigate.rule=Host(`cctv.viewpoint.house`)
       - traefik.http.routers.frigate.entrypoints=websecure
       - traefik.http.routers.frigate.tls=true
-      - traefik.http.routers.frigate.tls.certresolver=letsencrypt
-      - traefik.http.routers.frigate.tls.domains[0].main=cctv.viewpoint.house
       - traefik.http.services.frigate.loadbalancer.server.port=5000
       - traefik.http.services.frigate.loadbalancer.healthcheck.path=/
       - traefik.http.services.frigate.loadbalancer.healthcheck.port=5000

@@ -34,7 +34,6 @@ services:
       - traefik.http.routers.planefinder.rule=Host(`planefinder.viewpoint.house`)
       - traefik.http.routers.planefinder.entrypoints=websecure
       - traefik.http.routers.planefinder.tls=true
-      - traefik.http.routers.planefinder.tls.certresolver=letsencrypt
       - traefik.http.services.planefinder.loadbalancer.server.port=30053
       - traefik.http.services.planefinder.loadbalancer.healthcheck.path=/
       - traefik.http.services.planefinder.loadbalancer.healthcheck.port=30053

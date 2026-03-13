@@ -60,15 +60,11 @@ services:
       - traefik.http.routers.calibre.entrypoints=websecure
       - traefik.http.routers.calibre.service=calibre
       - traefik.http.routers.calibre.tls=true
-      - traefik.http.routers.calibre.tls.certresolver=letsencrypt
-      - traefik.http.routers.calibre.tls.domains[0].main=calibre.viewpoint.house
       - traefik.http.services.calibre.loadbalancer.server.port=8080
       - traefik.http.services.calibre.loadbalancer.healthcheck.port=8080
       - traefik.http.services.calibre.loadbalancer.healthcheck.path=/
 
       - traefik.http.routers.calibre-web-https.tls=true
-      - traefik.http.routers.calibre-web-https.tls.certresolver=letsencrypt
-      - traefik.http.routers.calibre-web-https.tls.domains[0].main=calibre-web.viewpoint.house
       - traefik.http.routers.calibre-web-https.rule=Host(`calibre-web.viewpoint.house`)
       - traefik.http.routers.calibre-web-https.entrypoints=websecure
       - traefik.http.routers.calibre-web-https.service=calibre-web-https

@@ -64,8 +64,6 @@ services:
       - traefik.http.routers.hasecure.entrypoints=websecure
       - traefik.http.routers.hasecure.service=ha
       - traefik.http.routers.hasecure.tls=true
-      - traefik.http.routers.hasecure.tls.certresolver=letsencrypt
-      - traefik.http.routers.hasecure.tls.domains[0].main=viewpoint.house
       - traefik.http.services.hasecure.loadbalancer.server.port=8123
       - traefik.http.services.hasecure.loadbalancer.healthcheck.path=/
       - traefik.http.services.hasecure.loadbalancer.healthcheck.port=8123
