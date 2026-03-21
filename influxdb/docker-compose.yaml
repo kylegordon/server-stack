@@ -51,8 +51,6 @@ services:
       - traefik.http.routers.influxdb.rule=Host(`influxdb.viewpoint.house`)
       - traefik.http.routers.influxdb.entrypoints=websecure
       - traefik.http.routers.influxdb.tls=true
-      - traefik.http.routers.influxdb.tls.certresolver=letsencrypt
-      - traefik.http.routers.influxdb.tls.domains[0].main=influxdb.viewpoint.house
       - traefik.http.services.influxdb.loadbalancer.server.port=8086
       - traefik.http.services.influxdb.loadbalancer.healthcheck.path=/
       - traefik.http.services.influxdb.loadbalancer.healthcheck.port=8086

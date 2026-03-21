@@ -35,8 +35,6 @@ services:
       - traefik.http.routers.warpgate.rule=Host(`warpgate.viewpoint.house`)
       - traefik.http.routers.warpgate.entrypoints=websecure
       - traefik.http.routers.warpgate.tls=true
-      - traefik.http.routers.warpgate.tls.certresolver=letsencrypt
-      - traefik.http.routers.warpgate.tls.domains[0].main=warpgate.viewpoint.house
       - traefik.http.services.warpgate.loadbalancer.server.port=9999
       # - traefik.http.services.warpgate.loadbalancer.healthcheck.path=/
       # - traefik.http.services.warpgate.loadbalancer.healthcheck.port=9999
