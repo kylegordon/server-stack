@@ -85,7 +85,7 @@ services:
     restart: unless-stopped
     # image: docker.io/postgres:12.2-alpine
     # image: docker.io/groonga/pgroonga:3.1.8-alpine-16-slim
-    image: docker.io/postgres:16-alpine
+    image: docker.io/postgres:18-alpine
     container_name: firefish_db
     networks:
       - calcnet
