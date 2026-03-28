@@ -1,0 +1,185 @@
+networks:
+  dawarich:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  dawarich_db_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/dawarich/db_data/"
+  dawarich_gem_cache_app:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/dawarich/gem_cache_app/"
+  dawarich_gem_cache_sidekiq:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/dawarich/gem_cache_sidekiq/"
+  dawarich_shared:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/dawarich/shared/"
+  dawarich_public:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/dawarich/public/"
+  dawarich_watched:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/dawarich/watched/"
+
+services:
+
+  redis:
+    labels:
+      - traefik.enable=false
+    image: redis:7.0-alpine
+    container_name: dawarich_redis
+    command: redis-server
+    networks:
+      - dawarich
+    volumes:
+      - dawarich_shared:/var/shared/redis
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  db:
+    labels:
+      - traefik.enable=false
+    # image: postgres:14.2-alpine
+    image: postgis/postgis:14-3.5-alpine
+    container_name: dawarich_db
+    volumes:
+      - dawarich_db_data:/var/lib/postgresql/data
+      - dawarich_shared:/var/shared
+    networks:
+      - dawarich
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d dawarich_development" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  app:
+    image: freikin/dawarich:latest
+    container_name: dawarich_app
+    volumes:
+      - dawarich_gem_cache_app:/usr/local/bundle/gems_app
+      - dawarich_public:/var/app/public
+      - dawarich_watched:/var/app/tmp/imports/watched
+    networks:
+      - dawarich
+      - traefik_proxy
+    # ports:
+    #   - 3000:3000
+    #   # - 9394:9394 # Prometheus exporter, uncomment if needed
+    stdin_open: true
+    tty: true
+    entrypoint: web-entrypoint.sh
+    command: ['bin/rails', 'server', '-p', '3000', '-b', '::']
+    restart: on-failure
+    env_file:
+      - .env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO - http://127.0.0.1:3000/api/v1/health | grep -q '\"status\"\\s*:\\s*\"ok\"'" ]
+      interval: 10s
+      retries: 30
+      start_period: 30s
+      timeout: 10s
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+      redis:
+        condition: service_healthy
+        restart: true
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.dawarich-http.entrypoints=web
+      - traefik.http.routers.dawarich-http.rule=Host(`timeline.viewpoint.house`)
+      - traefik.http.routers.dawarich-http.middlewares=dawarich-https
+      - traefik.http.middlewares.dawarich-https.redirectscheme.scheme=https
+      - traefik.http.routers.dawarich.rule=Host(`timeline.viewpoint.house`)
+      - traefik.http.routers.dawarich.entrypoints=websecure
+      - traefik.http.routers.dawarich.tls=true
+      - traefik.http.routers.dawarich.tls.certresolver=letsencrypt
+      - traefik.http.routers.dawarich.tls.domains[0].main=timeline.viewpoint.house
+      - traefik.http.services.dawarich.loadbalancer.server.port=3000
+      - traefik.http.services.dawarich.loadbalancer.healthcheck.port=3000
+      - traefik.http.services.dawarich.loadbalancer.healthcheck.path=/
+      - homepage.group=Media
+      - homepage.icon=mdi-book-open-outline
+      - homepage.name=Dawarich Timeline
+      - homepage.href=https://timeline.viewpoint.house
+      - homepage.description=Location Timeline
+      - com.centurylinklabs.watchtower.enable=true
+
+  sidekiq:
+    image: freikin/dawarich:latest
+    # container_name: dawarich_sidekiq
+    volumes:
+      - dawarich_gem_cache_sidekiq:/usr/local/bundle/gems_sidekiq
+      - dawarich_public:/var/app/public
+      - dawarich_watched:/var/app/tmp/imports/watched
+    networks:
+      - dawarich
+    stdin_open: true
+    tty: true
+    entrypoint: sidekiq-entrypoint.sh
+    command: ['sidekiq']
+    restart: on-failure
+    env_file:
+      - .sidekiq.env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+    healthcheck:
+      test: [ "CMD-SHELL", "bundle exec sidekiqmon processes | grep $${HOSTNAME}" ]
+      interval: 10s
+      retries: 30
+      start_period: 30s
+      timeout: 10s
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+      redis:
+        condition: service_healthy
+        restart: true
+      app:
+        condition: service_healthy
+        restart: true
+    labels:
+      - traefik.enable=false
+
