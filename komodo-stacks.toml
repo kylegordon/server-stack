@@ -418,51 +418,51 @@ run_directory = "phpmyadmin"
 file_paths = ["docker-compose.yaml"]
 
 ##############################################
-# adsb receiver (172.24.32.11)               #
+# sdrpi - adsb receiver (172.24.32.11)       #
 ##############################################
 
 [[stack]]
 name = "ultrafeeder"
-tags = ["adsb", "adsb"]
+tags = ["sdrpi", "adsb"]
 deploy = true
 [stack.config]
-server = "adsb"
+server = "sdrpi"
 repo = "kylegordon/server-stack"
 run_directory = "ultrafeeder"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
 name = "komodo-periphery-adsb"
-description = "Komodo Periphery agent for adsb receiver"
-tags = ["adsb", "infrastructure"]
+description = "Komodo Periphery agent for sdrpi (adsb receiver)"
+tags = ["sdrpi", "infrastructure"]
 deploy = true
 [stack.config]
-server = "adsb"
+server = "sdrpi"
 repo = "kylegordon/server-stack"
 run_directory = "komodo"
-file_paths = ["docker-compose-adsb.yaml"]
+file_paths = ["docker-compose-sdrpi.yaml"]
 
 ##############################################
-# octoprint (172.24.32.18)                   #
+# octolaptop - OctoPrint (172.24.32.18)      #
 ##############################################
 
 [[stack]]
 name = "octoprint"
-tags = ["octoprint", "utilities"]
+tags = ["octolaptop", "utilities"]
 deploy = true
 [stack.config]
-server = "octoprint"
+server = "octolaptop"
 repo = "kylegordon/server-stack"
 run_directory = "octoprint"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
 name = "komodo-periphery-octoprint"
-description = "Komodo Periphery agent for OctoPrint host"
-tags = ["octoprint", "infrastructure"]
+description = "Komodo Periphery agent for octolaptop (OctoPrint host)"
+tags = ["octolaptop", "infrastructure"]
 deploy = true
 [stack.config]
-server = "octoprint"
+server = "octolaptop"
 repo = "kylegordon/server-stack"
 run_directory = "komodo"
 file_paths = ["docker-compose-octoprint.yaml"]
