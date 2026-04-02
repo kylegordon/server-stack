@@ -3,6 +3,7 @@ export DOCKER_HOST=ssh://bagpuss@172.24.32.13
 
 docker compose -f core-stack/docker-compose.yaml up -d
 docker compose -f traefik/docker-compose.yaml up -d
+docker compose -f infisical/docker-compose.yaml up -d
 docker compose -f unifi/docker-compose.yaml up -d
 docker compose -f ha-stack/docker-compose.yaml up -d
 docker compose -f piper/docker-compose.yaml up -d

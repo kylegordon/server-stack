@@ -1,0 +1,100 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+  infisical:
+    driver: bridge
+
+volumes:
+  infisical_db_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/infisical/db/"
+  infisical_redis_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/infisical/redis/"
+
+services:
+
+  db:
+    image: postgres:14-alpine
+    container_name: infisical-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=infisical
+    volumes:
+      - infisical_db_data:/var/lib/postgresql/data
+    networks:
+      - infisical
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U infisical -d infisical"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    labels:
+      - traefik.enable=false
+      - com.centurylinklabs.watchtower.enable=true
+
+  redis:
+    image: redis:7-alpine
+    container_name: infisical-redis
+    restart: unless-stopped
+    command: redis-server
+    networks:
+      - infisical
+    volumes:
+      - infisical_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    labels:
+      - traefik.enable=false
+      - com.centurylinklabs.watchtower.enable=true
+
+  infisical:
+    image: infisical/infisical:latest-postgres
+    container_name: infisical
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    networks:
+      - infisical
+      - traefik_proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.infisical-http.entrypoints=web
+      - traefik.http.routers.infisical-http.rule=Host(`infisical.viewpoint.house`)
+      - traefik.http.routers.infisical-http.middlewares=infisical-https
+      - traefik.http.middlewares.infisical-https.redirectscheme.scheme=https
+      - traefik.http.routers.infisical.rule=Host(`infisical.viewpoint.house`)
+      - traefik.http.routers.infisical.entrypoints=websecure
+      - traefik.http.routers.infisical.tls=true
+      - traefik.http.routers.infisical.tls.certresolver=letsencrypt
+      - traefik.http.routers.infisical.tls.domains[0].main=infisical.viewpoint.house
+      - traefik.http.services.infisical.loadbalancer.server.port=8080
+      - com.centurylinklabs.watchtower.enable=true
+      - homepage.group=Management
+      - homepage.name=Infisical
+      - homepage.icon=mdi-key-chain
+      - homepage.href=https://infisical.viewpoint.house
+      - homepage.description=Secrets Management

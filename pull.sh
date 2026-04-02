@@ -3,6 +3,8 @@ echo "Pulling core stack"
 docker compose -f core-stack/docker-compose.yaml pull
 echo "Pulling Traefik stack"
 docker compose -f traefik/docker-compose.yaml pull
+echo "Pulling Infisical stack"
+docker compose -f infisical/docker-compose.yaml pull
 echo "Pulling HA stack"
 docker compose -f ha-stack/docker-compose.yaml pull
 echo "Pulling media stack"
