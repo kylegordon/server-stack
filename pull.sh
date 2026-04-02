@@ -21,7 +21,7 @@ docker compose -f komodo/docker-compose.yaml pull
 export DOCKER_HOST=ssh://bagpuss@172.24.32.11
 echo "Pulling ultrafeeder stack"
 docker compose -f ultrafeeder/docker-compose.yaml pull
-docker compose -f komodo/docker-compose-adsb.yaml pull
+docker compose -f komodo/docker-compose-sdrpi.yaml pull
 
 export DOCKER_HOST=ssh://bagpuss@172.24.32.18
 echo "Pulling octoprint stack"

@@ -48,7 +48,7 @@ docker compose -f phpmyadmin/docker-compose.yaml up -d
 echo "----- Deploying to ADS-B receiver (172.24.32.11) -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.11
 docker compose -f ultrafeeder/docker-compose.yaml up -d
-docker compose -f komodo/docker-compose-adsb.yaml up -d  # Komodo Periphery agent
+docker compose -f komodo/docker-compose-sdrpi.yaml up -d  # Komodo Periphery agent
 
 echo "----- Deploying to OctoPrint (172.24.32.18) -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.18
