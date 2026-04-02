@@ -460,7 +460,7 @@ file_paths = ["docker-compose.yaml"]
 name = "komodo-periphery-octoprint"
 description = "Komodo Periphery agent for octolaptop (OctoPrint host)"
 tags = ["octolaptop", "infrastructure"]
-deploy = false
+deploy = true
 [stack.config]
 server = "octolaptop"
 repo = "kylegordon/server-stack"
@@ -497,7 +497,7 @@ file_paths = ["docker-compose-blackbird.yaml"]
 name = "komodo-periphery-blackbird"
 description = "Komodo Periphery agent for blackbird"
 tags = ["blackbird", "infrastructure"]
-deploy = false
+deploy = true
 [stack.config]
 server = "blackbird"
 repo = "kylegordon/server-stack"
@@ -523,7 +523,7 @@ file_paths = ["docker-compose-littlegeek.yaml"]
 name = "komodo-periphery-littlegeek"
 description = "Komodo Periphery agent for littlegeek"
 tags = ["littlegeek", "infrastructure"]
-deploy = false
+deploy = true
 [stack.config]
 server = "littlegeek"
 repo = "kylegordon/server-stack"
@@ -549,7 +549,7 @@ file_paths = ["docker-compose-deepcore.yaml"]
 name = "komodo-periphery-deepcore"
 description = "Komodo Periphery agent for deepcore"
 tags = ["deepcore", "infrastructure"]
-deploy = false
+deploy = true
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
