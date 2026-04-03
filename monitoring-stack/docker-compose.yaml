@@ -196,7 +196,7 @@ services:
       - traefik.enable=false
 
   memcached:
-    image: memcached:alpine
+    image: docker.io/library/memcached:alpine
     container_name: librenms_memcached
     networks:
       - monitoring
