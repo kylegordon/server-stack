@@ -23,7 +23,7 @@ volumes:
 services:
 
   db:
-    image: docker.io/library/postgres:14-3.5-alpine
+    image: docker.io/library/postgres:14.22-alpine
     container_name: infisical-db
     restart: unless-stopped
     env_file:
