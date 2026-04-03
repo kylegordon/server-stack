@@ -23,7 +23,7 @@ volumes:
 services:
 
   db:
-    image: postgres:14-3.5-alpine
+    image: docker.io/library/postgres:14.22-alpine
     container_name: infisical-db
     restart: unless-stopped
     env_file:
@@ -45,7 +45,7 @@ services:
       - com.centurylinklabs.watchtower.enable=true
 
   redis:
-    image: redis:8.6-alpine
+    image: docker.io/library/redis:8.6-alpine
     container_name: infisical-redis
     restart: unless-stopped
     command: redis-server

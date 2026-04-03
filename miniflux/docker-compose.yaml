@@ -50,7 +50,7 @@ services:
       test: ["CMD", "/usr/bin/miniflux", "-healthcheck", "auto"]
 
   miniflux_db:
-    image: postgres:18
+    image: docker.io/library/postgres:18
     env_file:
       - .env
     restart: unless-stopped
