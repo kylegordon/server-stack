@@ -54,7 +54,6 @@ services:
       - traefik.http.routers.cerebro.rule=Host(`cerebro.viewpoint.house`)
       - traefik.http.routers.cerebro.entrypoints=websecure
       - traefik.http.routers.cerebro.tls=true
-      - traefik.http.routers.cerebro.tls.certresolver=letsencrypt
       - homepage.group=Monitoring
       - homepage.name=Cerebro
       - homepage.icon=mdi-chip
@@ -76,7 +75,6 @@ services:
       - traefik.http.routers.elastichq.rule=Host(`elastichq.viewpoint.house`)
       - traefik.http.routers.elastichq.entrypoints=websecure
       - traefik.http.routers.elastichq.tls=true
-      - traefik.http.routers.elastichq.tls.certresolver=letsencrypt
       - homepage.group=Monitoring
       - homepage.name=ElasticHQ
       - homepage.icon=mdi-chip
@@ -318,7 +316,6 @@ services:
       - traefik.http.routers.kibana01.rule=Host(`logs.viewpoint.house`)
       - traefik.http.routers.kibana01.entrypoints=websecure
       - traefik.http.routers.kibana01.tls=true
-      - traefik.http.routers.kibana01.tls.certresolver=letsencrypt
       - traefik.http.services.kibana01.loadbalancer.server.port=5601
       - traefik.http.services.kibana01.loadbalancer.healthcheck.path=/
       - traefik.http.services.kibana01.loadbalancer.healthcheck.port=5601

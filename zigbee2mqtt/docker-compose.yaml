@@ -30,8 +30,6 @@ services:
       - traefik.http.routers.z2m.rule=Host(`z2m.viewpoint.house`)
       - traefik.http.routers.z2m.entrypoints=websecure
       - traefik.http.routers.z2m.tls=true
-      - traefik.http.routers.z2m.tls.certresolver=letsencrypt
-      - traefik.http.routers.z2m.tls.domains[0].main=z2m.viewpoint.house
       - traefik.http.services.z2m.loadbalancer.server.port=8080
       - traefik.http.services.z2m.loadbalancer.healthcheck.path=/
       - traefik.http.services.z2m.loadbalancer.healthcheck.port=8080

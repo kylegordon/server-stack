@@ -43,8 +43,6 @@ services:
       - traefik.http.routers.nginx_core-https.rule=Host(`core.viewpoint.house`)
       - traefik.http.routers.nginx_core-https.entrypoints=websecure
       - traefik.http.routers.nginx_core-https.tls=true
-      - traefik.http.routers.nginx_core-https.tls.certresolver=letsencrypt
-      - traefik.http.routers.nginx_core-https.tls.domains[0].main=core.viewpoint.house
       - homepage.group=Management
       - homepage.name=Core Web
       - homepage.href=https://core.viewpoint.house
