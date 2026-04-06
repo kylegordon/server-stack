@@ -9,7 +9,7 @@ volumes:
 
 services:
   netalertx:
-    image: ghcr.io/netalertx/netalertx:26.3.15
+    image: ghcr.io/netalertx/netalertx:26.4.6
     container_name: netalertx
     network_mode: ${NETALERTX_NETWORK_MODE:-host}   # Use host networking for ARP scanning and other services
 
