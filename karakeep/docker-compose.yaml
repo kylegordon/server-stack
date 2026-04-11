@@ -41,8 +41,6 @@ services:
       - traefik.http.routers.karakeep.rule=Host(`karakeep.glasgownet.com`)
       - traefik.http.routers.karakeep.entrypoints=websecure
       - traefik.http.routers.karakeep.tls=true
-      - traefik.http.routers.karakeep.tls.certresolver=letsencrypt
-      - traefik.http.routers.karakeep.tls.domains[0].main=karakeep.glasgownet.com
       - traefik.http.services.karakeep.loadbalancer.server.port=3000
       - traefik.http.services.karakeep.loadbalancer.healthcheck.port=3000
       - traefik.http.services.karakeep.loadbalancer.healthcheck.path=/

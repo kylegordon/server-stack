@@ -43,8 +43,6 @@ services:
       - traefik.http.routers.actual.rule=Host(`actual.viewpoint.house`)
       - traefik.http.routers.actual.entrypoints=websecure
       - traefik.http.routers.actual.tls=true
-      - traefik.http.routers.actual.tls.certresolver=letsencrypt
-      - traefik.http.routers.actual.tls.domains[0].main=actual.viewpoint.house
       - com.centurylinklabs.watchtower.enable=true
       - homepage.group=Admin
       - homepage.icon=mdi-cloud-upload-outline
