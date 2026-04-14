@@ -33,6 +33,12 @@
         "getmeili/meilisearch"
       ],
       "enabled": false
+    },
+    {
+      "matchPackageNames": [
+        "britkat/giv_tcp-ma"
+      ],
+      "enabled": false
     }
   ]
 }
