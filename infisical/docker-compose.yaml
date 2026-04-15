@@ -64,7 +64,7 @@ services:
       - com.centurylinklabs.watchtower.enable=true
 
   infisical:
-    image: infisical/infisical:v0.159.11
+    image: infisical/infisical:v0.159.13
     container_name: infisical
     restart: unless-stopped
     depends_on:
