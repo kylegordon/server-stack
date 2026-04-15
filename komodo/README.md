@@ -58,7 +58,7 @@ The stack includes:
 - Uses the same `KOMODO_PASSKEY` for authentication
 
 **ADS-B Receiver:**
-- Deploys: Periphery agent only (`docker-compose-adsb.yaml`)
+- Deploys: Periphery agent only (`docker-compose-sdrpi.yaml`)
 - Must be manually added in Komodo UI after deployment
 - Address: `http://172.24.32.11:8120`
 - Uses the same `KOMODO_PASSKEY` for authentication
@@ -129,7 +129,7 @@ Deploys Periphery agent to **ADS-B receiver** (172.24.32.11):
 ```bash
 # Deploy ADS-B periphery specifically
 export DOCKER_HOST=ssh://bagpuss@172.24.32.11
-docker compose -f komodo/docker-compose-adsb.yaml up -d
+docker compose -f komodo/docker-compose-sdrpi.yaml up -d
 
 # Or deploy all stacks (includes ADS-B receiver)
 ./up.sh
@@ -191,7 +191,7 @@ After deploying, add it as a server in the Komodo UI:
 - Uses local Docker volumes
 - Connects to Core running on homeauto
 
-**docker-compose-adsb.yaml** (ADS-B receiver):
+**docker-compose-sdrpi.yaml** (ADS-B receiver / sdrpi):
 - Komodo Periphery (agent only)
 - Uses local Docker volumes
 - Connects to Core running on homeauto

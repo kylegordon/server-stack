@@ -3,6 +3,8 @@ echo "Pulling core stack"
 docker compose -f core-stack/docker-compose.yaml pull
 echo "Pulling Traefik stack"
 docker compose -f traefik/docker-compose.yaml pull
+echo "Pulling Infisical stack"
+docker compose -f infisical/docker-compose.yaml pull
 echo "Pulling HA stack"
 docker compose -f ha-stack/docker-compose.yaml pull
 echo "Pulling media stack"
@@ -19,7 +21,7 @@ docker compose -f komodo/docker-compose.yaml pull
 export DOCKER_HOST=ssh://bagpuss@172.24.32.11
 echo "Pulling ultrafeeder stack"
 docker compose -f ultrafeeder/docker-compose.yaml pull
-docker compose -f komodo/docker-compose-adsb.yaml pull
+docker compose -f komodo/docker-compose-sdrpi.yaml pull
 
 export DOCKER_HOST=ssh://bagpuss@172.24.32.18
 echo "Pulling octoprint stack"
