@@ -38,6 +38,7 @@ services:
       - traefik.http.routers.borg-ui.rule=Host(`borg-ui.viewpoint.house`)
       - traefik.http.routers.borg-ui.entrypoints=websecure
       - traefik.http.routers.borg-ui.tls=true
+      - traefik.http.routers.borg-ui.tls.certresolver=letsencrypt
       - traefik.http.services.borg-ui.loadbalancer.server.port=8081
       - traefik.http.services.borg-ui.loadbalancer.healthcheck.port=8081
       - traefik.http.services.borg-ui.loadbalancer.healthcheck.path=/
