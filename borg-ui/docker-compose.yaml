@@ -1,0 +1,55 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  borg_ui_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/borg-ui/data/"
+  borg_ui_cache:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/borg-ui/cache/"
+
+services:
+  borg-ui:
+    image: ainullcode/borg-ui:latest
+    container_name: borg-ui
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+    volumes:
+      - borg_ui_data:/data
+      - borg_ui_cache:/home/borg/.cache/borg
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.borg-ui-http.entrypoints=web
+      - traefik.http.routers.borg-ui-http.rule=Host(`borg-ui.viewpoint.house`)
+      - traefik.http.routers.borg-ui-http.middlewares=borg-ui-https
+      - traefik.http.middlewares.borg-ui-https.redirectscheme.scheme=https
+      - traefik.http.routers.borg-ui.rule=Host(`borg-ui.viewpoint.house`)
+      - traefik.http.routers.borg-ui.entrypoints=websecure
+      - traefik.http.routers.borg-ui.tls=true
+      - traefik.http.routers.borg-ui.tls.certresolver=letsencrypt
+      - traefik.http.services.borg-ui.loadbalancer.server.port=8081
+      - traefik.http.services.borg-ui.loadbalancer.healthcheck.port=8081
+      - traefik.http.services.borg-ui.loadbalancer.healthcheck.path=/
+      - homepage.group=Storage
+      - homepage.icon=mdi-safe-square-outline
+      - homepage.name=Borg UI
+      - homepage.href=https://borg-ui.viewpoint.house
+      - homepage.description=Borg Backup Web UI
+      - com.centurylinklabs.watchtower.enable=true
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
