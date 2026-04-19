@@ -17,6 +17,7 @@ docker compose -f dawarich/docker-compose.yml pull
 docker compose -f warrior.yaml pull
 docker compose -f ollama/docker-compose.yaml pull
 docker compose -f komodo/docker-compose.yaml pull
+docker compose -f borg-ui/docker-compose.yaml pull
 
 export DOCKER_HOST=ssh://bagpuss@172.24.32.11
 echo "Pulling ultrafeeder stack"
