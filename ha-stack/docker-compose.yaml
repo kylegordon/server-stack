@@ -27,6 +27,7 @@ include:
   - ../esphome/docker-compose.yaml
   - ../zigbee2mqtt/docker-compose.yaml
   - ../eclipse-mosquitto/docker-compose.yaml
+  - ../matter-server/docker-compose.yaml
 
 services:
   home-assistant:
@@ -36,6 +37,8 @@ services:
       zigbee2mqtt:
           condition: service_healthy
       eclipse-mosquitto:
+          condition: service_started
+      matter-server:
           condition: service_started
       # pihole:
       #     condition: service_healthy
