@@ -20,6 +20,7 @@ docker compose -f komodo/docker-compose.yaml pull
 docker compose -f borg-ui/docker-compose.yaml pull
 docker compose -f selenium/docker-compose.yaml pull
 docker compose -f immich/docker-compose.yaml pull
+docker compose -f borgmatic-ui/docker-compose.yaml pull
 
 export DOCKER_HOST=ssh://bagpuss@172.24.32.11
 echo "Pulling ultrafeeder stack"
