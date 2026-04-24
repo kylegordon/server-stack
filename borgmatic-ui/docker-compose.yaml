@@ -20,7 +20,7 @@ volumes:
 
 services:
   borgmatic-ui:
-    image: ghcr.io/speedbitsinfinitytools/borgmatic-ui:latest
+    image: ghcr.io/speedbitsinfinitytools/borgmatic-ui:1.0.42
     container_name: borgmatic-ui
     restart: unless-stopped
     networks:
