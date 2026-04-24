@@ -32,6 +32,7 @@ docker compose -f matter-hub/docker-compose.yaml up -d
 docker compose -f whatsupdocker/docker-compose.yaml up -d
 docker compose -f beszel/docker-compose.yaml up -d
 docker compose -f photoprism/docker-compose.yaml up -d
+docker compose -f immich/docker-compose.yaml up -d
 docker compose -f komodo/docker-compose.yaml up -d  # Komodo Core + Periphery + MongoDB
 # docker compose -f warpgate/docker-compose.yaml up -d  --- Warpgate disabled - unlikely to be of use ---
 docker compose -f netalertx/docker-compose.yaml up -d  # NetAlertX - network monitoring and alerting tool
