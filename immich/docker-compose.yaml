@@ -95,7 +95,7 @@ services:
       - immich
     restart: unless-stopped
     healthcheck:
-      test: redis-cli ping || exit 1
+      test: valkey-cli ping || exit 1
       start_period: 10s
       interval: 10s
       timeout: 5s
