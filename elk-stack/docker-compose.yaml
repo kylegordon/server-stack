@@ -208,7 +208,7 @@ services:
     labels:
       - traefik.enable=false
   es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.3
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.4
     container_name: es01
     restart: unless-stopped
     # network_mode: host
@@ -242,7 +242,7 @@ services:
       - traefik.enable=false
 
   es02:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.3
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.4
     container_name: es02
     restart: unless-stopped
     # network_mode: host
