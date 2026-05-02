@@ -28,6 +28,13 @@ volumes:
       o: addr=172.24.32.5,rw
       device: ":/srv/nfs4/docker_nfs/immich/library/"
 
+  immich_home_pictures:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,ro  # Read-only access. Immich needs read access to the photos, but doesn't need write access.
+      device: ":/srv/nfs4/home/Pictures/"
+
 services:
   immich_server:
     image: ghcr.io/immich-app/immich-server:v2.7.5
@@ -37,6 +44,7 @@ services:
       - immich
     volumes:
       - immich_library:/data
+      - immich_home_pictures:/mnt/Pictures:ro
       - /etc/localtime:/etc/localtime:ro
     env_file:
       - .env
