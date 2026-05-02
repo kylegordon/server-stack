@@ -1,0 +1,46 @@
+---
+services:
+  couchdb:
+    image: couchdb:latest
+    container_name: obsidian-livesync
+    # user: 1000:1000
+    environment:
+      - COUCHDB_USER=${COUCHDB_USER}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+    env_file:
+      - .obsidian.env
+    volumes:
+      - /docker/obsidian/couchdb/data:/opt/couchdb/data
+      - /docker/obsidian/couchdb/local.d:/opt/couchdb/etc/local.d
+    # Ports not needed when already passed to Traefik
+    #ports:
+    #  - 5984:5984
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+    labels:
+      traefik.enable: true
+      # The Traefik Network
+      traefik.docker.network: traefik_traefik_proxy
+      # Don't forget to replace 'obsidian-livesync.example.org' with your own domain
+      traefik.http.routers.obsidian-livesync.rule: Host(`obsidian.glasgownet.com`)
+      # The 'websecure' entryPoint is basically your HTTPS entrypoint. Check the next code snippet if you are encountering problems only; you probably have a working traefik configuration if this is not your first container you are reverse proxying.
+      traefik.http.routers.obsidian-livesync.entrypoints: websecure
+      traefik.http.routers.obsidian-livesync.service: obsidian-livesync
+      traefik.http.services.obsidian-livesync.loadbalancer.server.port: 5984
+      traefik.http.routers.obsidian-livesync.tls: true
+      # Replace the string 'letsencrypt' with your own certificate resolver
+      traefik.http.routers.obsidian-livesync.tls.certresolver: letsencrypt
+      traefik.http.routers.obsidian-livesync.middlewares: obsidiancors
+      # The part needed for CORS to work on Traefik 2.x starts here
+      traefik.http.middlewares.obsidiancors.headers.accesscontrolallowmethods: GET,PUT,POST,HEAD,DELETE
+      traefik.http.middlewares.obsidiancors.headers.accesscontrolallowheaders: accept,authorization,content-type,origin,referer
+      traefik.http.middlewares.obsidiancors.headers.accesscontrolalloworiginlist: app://obsidian.md,capacitor://localhost,http://localhost
+      traefik.http.middlewares.obsidiancors.headers.accesscontrolmaxage: 3600
+      traefik.http.middlewares.obsidiancors.headers.addvaryheader: true
+      traefik.http.middlewares.obsidiancors.headers.accessControlAllowCredentials: true
+
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
