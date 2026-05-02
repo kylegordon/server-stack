@@ -37,6 +37,7 @@ docker compose -f komodo/docker-compose.yaml up -d  # Komodo Core + Periphery + 
 # docker compose -f warpgate/docker-compose.yaml up -d  --- Warpgate disabled - unlikely to be of use ---
 docker compose -f netalertx/docker-compose.yaml up -d  # NetAlertX - network monitoring and alerting tool
 docker compose -f borg-ui/docker-compose.yaml up -d
+docker compose -f selenium/docker-compose.yaml up -d
 
 docker compose -f opensky/docker-compose.yaml up -d
 docker compose -f piaware/docker-compose.yaml up -d
