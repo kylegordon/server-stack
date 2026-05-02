@@ -38,7 +38,6 @@ services:
       - homepage.icon=mdi-zigbee
       - homepage.href=https://z2m.viewpoint.house
       - homepage.description=Zigbee Management
-      - com.centurylinklabs.watchtower.enable=true
     volumes:
       - zigbee2mqtt_data:/app/data
       - /run/udev:/run/udev:ro

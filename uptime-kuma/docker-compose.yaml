@@ -44,7 +44,6 @@ services:
       - homepage.href=https://uptime.viewpoint.house
       - homepage.description=Uptime Kuma
       - homepage.icon=si-uptime-kuma
-      - com.centurylinklabs.watchtower.enable=true
     logging:
       driver: gelf
       options:

@@ -29,5 +29,4 @@ services:
     volumes:
       - ebusd:/config
     labels:
-      - com.centurylinklabs.watchtower.enable=true
 

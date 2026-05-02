@@ -89,4 +89,3 @@ services:
       - traefik.http.services.freshrss.loadbalancer.healthcheck.path=/
       - traefik.http.services.freshrss.loadbalancer.healthcheck.port=80
       - traefik.http.services.freshrss.loadbalancer.healthcheck.timeout=30s
-      - com.centurylinklabs.watchtower.enable=true

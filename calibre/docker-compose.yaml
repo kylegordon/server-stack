@@ -76,7 +76,6 @@ services:
       - homepage.name=Calibre Books
       - homepage.href=https://calibre.viewpoint.house
       - homepage.description=Books Management
-      - com.centurylinklabs.watchtower.enable=true
     logging:
       driver: gelf
       options:

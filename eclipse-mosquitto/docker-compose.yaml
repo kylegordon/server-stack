@@ -29,7 +29,6 @@ services:
       - 1883:1883
       - 9001:9001
     labels:
-      - com.centurylinklabs.watchtower.enable=true
     networks:
       - traefik_proxy
       - homeautomation

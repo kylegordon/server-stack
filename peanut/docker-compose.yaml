@@ -41,5 +41,4 @@ services:
       - homepage.name=PeaNUT
       - homepage.href=https://peanut.viewpoint.house
       - homepage.description=System Monitoring
-      - com.centurylinklabs.watchtower.enable=true
 
