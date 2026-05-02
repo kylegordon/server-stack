@@ -46,7 +46,6 @@ services:
     volumes:
       - paperless_redisdata:/data
     labels:
-      - com.centurylinklabs.watchtower.enable=true
 
   paperless_db:
     image: docker.io/library/mariadb:12.2.2
@@ -64,7 +63,6 @@ services:
       timeout: 5s
       retries: 3
     labels:
-      - com.centurylinklabs.watchtower.enable=true
 
   paperless-ngx:
     image: ghcr.io/paperless-ngx/paperless-ngx:2.20.15
@@ -105,4 +103,3 @@ services:
       - homepage.name=Paperless
       - homepage.href=https://paperless.viewpoint.house
       - homepage.description=Paperless
-      - com.centurylinklabs.watchtower.enable=true

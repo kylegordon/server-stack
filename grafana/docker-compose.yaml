@@ -37,7 +37,6 @@ services:
       - homepage.icon=si-grafana
       - homepage.href=https://grafana.viewpoint.house
       - homepage.description=Grafana
-      - com.centurylinklabs.watchtower.enable=true
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       # test: ["CMD", "wget", "--spider", "-tries=1", "--quiet", "http://172.24.32.13:3000/api/health"]

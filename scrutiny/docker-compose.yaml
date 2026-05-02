@@ -62,7 +62,6 @@ services:
       - homepage.href=https://scrutiny.viewpoint.house
       - homepage.description=Scrutiny Web
       - homepage.icon=si-scrutiny
-      - com.centurylinklabs.watchtower.enable=true
 
   scrutiny_influxdb:
     image: docker.io/library/influxdb:2.8

@@ -20,7 +20,7 @@ volumes:
 
 services:
   hydra:
-    image: linuxserver/nzbhydra2:8.8.0
+    image: linuxserver/nzbhydra2:8.8.1
     container_name: hydra
     restart: unless-stopped
     environment:
@@ -50,7 +50,6 @@ services:
       - homepage.name=Hydra Usenet Index Meta-Search
       - homepage.href=https://hydra.viewpoint.house
       - homepage.description=Hydra Indexer
-      - com.centurylinklabs.watchtower.enable=true
     volumes:
       - nzbhydra_config:/config
       - nzbhydra_downloads:/downloads

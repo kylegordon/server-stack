@@ -78,7 +78,6 @@ services:
       - homepage.icon=mdi-image-multiple
       - homepage.href=https://immich.viewpoint.house
       - homepage.description=Self-hosted photo and video backup
-      - com.centurylinklabs.watchtower.enable=true
 
   immich_machine_learning:
     image: ghcr.io/immich-app/immich-machine-learning:v2.7.5
@@ -94,7 +93,6 @@ services:
       disable: false
     labels:
       - traefik.enable=false
-      - com.centurylinklabs.watchtower.enable=true
 
   immich_redis:
     image: docker.io/valkey/valkey:9
@@ -110,7 +108,6 @@ services:
       retries: 5
     labels:
       - traefik.enable=false
-      - com.centurylinklabs.watchtower.enable=true
 
   immich_postgres:
     image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
@@ -130,4 +127,3 @@ services:
       disable: false
     labels:
       - traefik.enable=false
-      - com.centurylinklabs.watchtower.enable=true

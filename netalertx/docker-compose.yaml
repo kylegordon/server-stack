@@ -60,7 +60,6 @@ services:
       - homepage.name=NetAlertX
       - homepage.href=http://homeauto.viewpoint.house:20211
       - homepage.description=Network Device Monitoring
-      - com.centurylinklabs.watchtower.enable=true
     logging:
       driver: gelf
       options:

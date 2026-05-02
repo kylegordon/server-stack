@@ -38,7 +38,6 @@ services:
       - homepage.icon=si-beszel
       - homepage.href=http://beszel.viewpoint.house
       - homepage.description=Beszel
-      - com.centurylinklabs.watchtower.enable=true
 
   beszel-agent:
     image: henrygd/beszel-agent:0.18.7

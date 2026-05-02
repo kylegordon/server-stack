@@ -68,7 +68,6 @@ services:
       - homepage.name=Tdarr
       - homepage.href=https://tdarr.viewpoint.house
       - homepage.description=Tdarr Transcoding
-      - com.centurylinklabs.watchtower.enable=true
 
   tdarr-node:
     container_name: tdarr-node
@@ -90,4 +89,3 @@ services:
       - /media/store/test:/media
       - /media/store/transcode_cache:/temp
     labels:
-      - com.centurylinklabs.watchtower.enable=true

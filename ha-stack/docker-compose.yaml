@@ -75,8 +75,6 @@ services:
       - homepage.icon=mdi-home-assistant
       - homepage.href=https://viewpoint.house
       - homepage.description=Home Assistant
-      - com.centurylinklabs.watchtower.lifecycle.pre-check=exit 0
-      - com.centerylinklabs.watchtower.enable=false
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8123"]
       start_period: 60s

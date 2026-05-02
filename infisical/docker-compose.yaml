@@ -42,7 +42,6 @@ services:
       timeout: 10s
     labels:
       - traefik.enable=false
-      - com.centurylinklabs.watchtower.enable=true
 
   redis:
     image: docker.io/library/redis:8.6-alpine
@@ -61,7 +60,6 @@ services:
       timeout: 10s
     labels:
       - traefik.enable=false
-      - com.centurylinklabs.watchtower.enable=true
 
   infisical:
     image: infisical/infisical:v0.159.25
@@ -92,7 +90,6 @@ services:
       - traefik.http.routers.infisical.tls.certresolver=letsencrypt
       - traefik.http.routers.infisical.tls.domains[0].main=infisical.viewpoint.house
       - traefik.http.services.infisical.loadbalancer.server.port=8080
-      - com.centurylinklabs.watchtower.enable=true
       - homepage.group=Management
       - homepage.name=Infisical
       - homepage.icon=mdi-key-chain

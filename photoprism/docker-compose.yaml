@@ -102,7 +102,6 @@ services:
       - homepage.icon=mdi-camera
       - homepage.href=https://photos.viewpoint.house
       - homepage.description=PhotoPrism Photo Album
-      - com.centurylinklabs.watchtower.enable=true
 
   ## Database Server (recommended)
   ## see https://docs.photoprism.org/getting-started/faq/#should-i-use-sqlite-mariadb-or-mysql
@@ -129,4 +128,3 @@ services:
     #   timeout: 5s
     #   retries: 3
     labels:
-      - com.centurylinklabs.watchtower.enable=true

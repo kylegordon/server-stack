@@ -43,7 +43,6 @@ services:
       - homepage.name=Miniflux News
       - homepage.href=http://news.viewpoint.house
       - homepage.description=News RSS Aggegrator
-      - com.centurylinklabs.watchtower.enable=true
     healthcheck:
       test: ["CMD", "/usr/bin/miniflux", "-healthcheck", "auto"]
 
@@ -61,4 +60,3 @@ services:
       interval: 10s
       start_period: 30s
     labels:
-      - com.centurylinklabs.watchtower.enable=true

@@ -9,7 +9,7 @@ volumes:
 services:
   zigbee2mqtt:
     container_name: zigbee2mqtt
-    image: koenkk/zigbee2mqtt:2.9.2
+    image: koenkk/zigbee2mqtt:2.10.0
     restart: unless-stopped
     healthcheck:
       test: "wget --no-verbose --tries=1 --spider http://localhost:8080 || exit 1"
@@ -38,7 +38,6 @@ services:
       - homepage.icon=mdi-zigbee
       - homepage.href=https://z2m.viewpoint.house
       - homepage.description=Zigbee Management
-      - com.centurylinklabs.watchtower.enable=true
     volumes:
       - zigbee2mqtt_data:/app/data
       - /run/udev:/run/udev:ro

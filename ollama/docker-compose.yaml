@@ -43,7 +43,7 @@ services:
 #       - ollama-docker
 
   ollama:
-    image: ollama/ollama:0.22.0
+    image: ollama/ollama:0.22.1
     ports:
       - 7869:11434
     volumes:
@@ -99,7 +99,6 @@ services:
       - ollama-docker
       - traefik_proxy
     labels:
-      - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
       - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.ollama-http.entrypoints=web

@@ -39,5 +39,4 @@ services:
       - homepage.name=Archive Team Warrior
       - homepage.href=http://archiveteam.viewpoint.house
       - homepage.description=Archive Team Warrior Node
-      - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped

@@ -60,7 +60,6 @@ services:
       - homepage.icon=mdi-cloud-download
       - homepage.href=https://nzbget.viewpoint.house
       - homepage.description=Usenet Downloader
-      - com.centurylinklabs.watchtower.enable=true
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6789"]
       start_period: 15s
