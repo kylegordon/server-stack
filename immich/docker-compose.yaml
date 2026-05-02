@@ -44,7 +44,7 @@ services:
       - immich
     volumes:
       - immich_library:/data
-      - immich_home_pictures:/mnt/Pictures
+      - immich_home_pictures:/mnt/Pictures:ro
       - /etc/localtime:/etc/localtime:ro
     env_file:
       - .env
