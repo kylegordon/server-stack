@@ -99,7 +99,6 @@ services:
       - ollama-docker
       - traefik_proxy
     labels:
-      - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
       - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.ollama-http.entrypoints=web

@@ -27,7 +27,6 @@ services:
       - homepage.href=https://selenium.viewpoint.house
       - homepage.description=Selenium Standalone Chrome
       - homepage.icon=mdi-selenium
-      - com.centurylinklabs.watchtower.enable=true
     logging:
       driver: gelf
       options:

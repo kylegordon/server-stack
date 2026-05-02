@@ -17,7 +17,6 @@ services:
       # see: https://github.com/AnalogJ/scrutiny/blob/master/docs/TROUBLESHOOTING_DEVICE_COLLECTOR.md#collector-trigger-on-startup
       COLLECTOR_RUN_STARTUP: true
     labels:
-      - com.centurylinklabs.watchtower.enable=true
     devices:
       - /dev/sda:/dev/sda
       - /dev/sdb:/dev/sdb

@@ -44,7 +44,6 @@ services:
       - homepage.name=Double-Take
       - homepage.href=https://double-take.viewpoint.house
       - homepage.description=Facial Recognition Service
-      - com.centurylinklabs.watchtower.enable=true
     logging:
       driver: gelf
       options:

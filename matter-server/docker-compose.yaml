@@ -22,7 +22,6 @@ services:
       # Required for Bluetooth via D-Bus
       - /run/dbus:/run/dbus:ro
     labels:
-      - com.centurylinklabs.watchtower.enable=true
       - homepage.group=Home Automation
       - homepage.name=Matter Server
       - homepage.icon=mdi-chip

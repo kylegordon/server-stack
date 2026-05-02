@@ -79,7 +79,6 @@ services:
       - homepage.name=Frigate
       - homepage.href=http://cctv.viewpoint.house
       - homepage.description=CCTV
-      - com.centurylinklabs.watchtower.enable=true
     #logging:
     #  driver: gelf
     #  options:

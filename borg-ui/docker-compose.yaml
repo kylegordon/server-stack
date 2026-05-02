@@ -47,7 +47,6 @@ services:
       - homepage.name=Borg UI
       - homepage.href=https://borg-ui.viewpoint.house
       - homepage.description=Borg Backup Web UI
-      - com.centurylinklabs.watchtower.enable=true
     logging:
       driver: gelf
       options:

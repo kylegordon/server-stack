@@ -43,7 +43,6 @@ services:
       - homepage.href=https://warpgate.viewpoint.house
       - homepage.description=SSH/HTTP Bastion
       - homepage.icon=mdi-shield-lock
-      - com.centurylinklabs.watchtower.enable=true
     logging:
       driver: "json-file"
       options:

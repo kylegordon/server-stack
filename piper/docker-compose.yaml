@@ -28,4 +28,3 @@ services:
     ports:
       - 10200:10200
     labels:
-      - com.centurylinklabs.watchtower.enable=true

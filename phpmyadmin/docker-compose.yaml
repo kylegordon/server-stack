@@ -34,4 +34,3 @@ services:
       - traefik.http.services.phpmyadmin.loadbalancer.server.port=80
       - traefik.http.services.phpmyadmin.loadbalancer.healthcheck.port=80
       - traefik.http.services.phpmyadmin.loadbalancer.healthcheck.path=/
-      - com.centurylinklabs.watchtower.enable=true

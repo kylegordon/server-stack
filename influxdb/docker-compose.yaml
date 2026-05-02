@@ -59,7 +59,6 @@ services:
       - homepage.icon=si-influxdb
       - homepage.href=http://influxdb.viewpoint.house
       - homepage.description=InfluxDB
-      - com.centurylinklabs.watchtower.enable=true
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
       start_period: 15s

@@ -43,7 +43,6 @@ services:
       - homepage.name=Sonarr
       - homepage.href=https://tv.viewpoint.house
       - homepage.description=TV Show Mangement
-      - com.centurylinklabs.watchtower.enable=true
     # environment:
       # - PUID=200
       # - PGID=200

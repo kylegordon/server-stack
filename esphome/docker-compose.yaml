@@ -39,7 +39,6 @@ services:
       - homepage.icon=mdi-chip
       - homepage.href=https://esphome.viewpoint.house
       - homepage.description=IOT Firmware Management
-      - com.centurylinklabs.watchtower.enable=true
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6052"]
       start_period: 15s

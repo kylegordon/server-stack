@@ -48,7 +48,6 @@ services:
     restart: unless-stopped
     labels:
       - komodo.skip=
-      - com.centurylinklabs.watchtower.enable=true
 
   komodo:
     image: ghcr.io/moghtech/komodo-core:1.19.5
@@ -106,7 +105,6 @@ services:
       - traefik.http.routers.komodo.tls.certresolver=letsencrypt
       - traefik.http.services.komodo.loadbalancer.server.port=9120
       - traefik.docker.network=traefik_traefik_proxy
-      - com.centurylinklabs.watchtower.enable=true
       - homepage.group=Infrastructure
       - homepage.name=Komodo
       - homepage.href=https://komodo.viewpoint.house
@@ -135,4 +133,3 @@ services:
     restart: unless-stopped
     labels:
       - komodo.skip=
-      - com.centurylinklabs.watchtower.enable=true

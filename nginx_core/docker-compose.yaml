@@ -47,4 +47,3 @@ services:
       - homepage.name=Core Web
       - homepage.href=https://core.viewpoint.house
       - homepage.description=Core Web Files
-      - com.centurylinklabs.watchtower.enable=true
