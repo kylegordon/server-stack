@@ -1,0 +1,35 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+services:
+  selenium:
+    image: selenium/standalone-chrome:latest
+    container_name: selenium-chrome
+    networks:
+      - traefik_proxy
+    shm_size: "2g"
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.selenium-http.entrypoints=web
+      - traefik.http.routers.selenium-http.rule=Host(`selenium.viewpoint.house`)
+      - traefik.http.routers.selenium-http.middlewares=selenium-https
+      - traefik.http.middlewares.selenium-https.redirectscheme.scheme=https
+      - traefik.http.routers.selenium.rule=Host(`selenium.viewpoint.house`)
+      - traefik.http.routers.selenium.entrypoints=websecure
+      - traefik.http.routers.selenium.tls=true
+      - traefik.http.services.selenium.loadbalancer.server.port=4444
+      - homepage.group=Tools
+      - homepage.name=Selenium
+      - homepage.href=https://selenium.viewpoint.house
+      - homepage.description=Selenium Standalone Chrome
+      - homepage.icon=mdi-selenium
+      - com.centurylinklabs.watchtower.enable=true
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
