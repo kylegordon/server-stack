@@ -88,4 +88,3 @@ services:
       - tdarr_logs:/app/logs
       - /media/store/test:/media
       - /media/store/transcode_cache:/temp
-    labels:
