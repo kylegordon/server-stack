@@ -45,7 +45,6 @@ services:
       - paperless
     volumes:
       - paperless_redisdata:/data
-    labels:
 
   paperless_db:
     image: docker.io/library/mariadb:12.2.2
@@ -62,7 +61,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    labels:
 
   paperless-ngx:
     image: ghcr.io/paperless-ngx/paperless-ngx:2.20.15
