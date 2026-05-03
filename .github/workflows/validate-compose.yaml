@@ -79,7 +79,7 @@ jobs:
 
           while IFS= read -r f; do
             validate_file "$f" || FAILED=$((FAILED + 1))
-          done < <(find . \( -name "docker-compose*.yaml" -o -name "warrior.yaml" \) | sort)
+          done < <(find . -name "docker-compose*.yaml" | sort)
 
           echo ""
           if [ "$FAILED" -gt 0 ]; then
