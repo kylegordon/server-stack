@@ -11,7 +11,6 @@ include:
   - ../sonarr/docker-compose.yaml
   - ../radarr/docker-compose.yaml
   - ../calibre/docker-compose.yaml
-  - ../jellyfin/docker-compose.yaml
   - ../nzbget/docker-compose.yaml
   - ../hydra/docker-compose.yaml
   - ../music-assistant/docker-compose.yaml
