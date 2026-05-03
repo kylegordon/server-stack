@@ -63,7 +63,6 @@ services:
       - --remote-debugging-address=0.0.0.0
       - --remote-debugging-port=9222
       - --hide-scrollbars
-    labels:
 
   meilisearch:
     image: getmeili/meilisearch:v1.13.3
@@ -77,4 +76,3 @@ services:
       MEILI_NO_ANALYTICS: "true"
     volumes:
       - /docker/karakeep/meilisearch:/meili_data
-    labels:

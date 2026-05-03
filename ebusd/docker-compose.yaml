@@ -28,5 +28,4 @@ services:
     #   - eclipse-mosquitto
     volumes:
       - ebusd:/config
-    labels:
 

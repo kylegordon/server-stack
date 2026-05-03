@@ -129,7 +129,6 @@ services:
     volumes:
       # - ./atftpd.conf:/etc/atftpd.conf
       - tftpd_data:/data
-    labels:
     healthcheck:
       # 0x0045 is the hexadecimal representation of UDP port 69 (TFTP standard port) in /proc/net/udp
       test: ["CMD-SHELL", "grep -i ':0045' /proc/net/udp >/dev/null"]

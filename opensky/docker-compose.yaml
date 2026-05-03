@@ -25,4 +25,3 @@ services:
       - ALT=${ALTITUDE_METERS}
       - OPENSKY_USERNAME=${OPENSKY_USERNAME}
       - OPENSKY_SERIAL=${OPENSKY_SERIAL}
-    labels:

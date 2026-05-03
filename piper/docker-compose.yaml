@@ -27,4 +27,3 @@ services:
       - TZ=Europe/London
     ports:
       - 10200:10200
-    labels:

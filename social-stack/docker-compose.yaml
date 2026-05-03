@@ -75,7 +75,6 @@ services:
       options:
         max-size: 10m
         max-file: 3
-    labels:
 
   db:
     restart: unless-stopped
@@ -98,7 +97,6 @@ services:
       options:
         max-size: 10m
         max-file: 3
-    labels:
 
   meilisearch:
     restart: unless-stopped

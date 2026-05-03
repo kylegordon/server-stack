@@ -15,7 +15,7 @@ docker compose -f media-stack/docker-compose.yaml up -d
 docker compose -f monitoring-stack/docker-compose.yaml up -d  # needs librenms env_file environemt duplication looked at
 docker compose -f elk-stack/docker-compose.yaml up -d
 docker compose -f dawarich/docker-compose.yml up -d
-docker compose -f warrior.yaml up -d
+docker compose -f warrior/docker-compose.yaml up -d
 docker compose -f ollama/docker-compose.yaml up -d
 docker compose -f homepage/docker-compose.yaml up -d
 docker compose -f peanut/docker-compose.yaml up -d

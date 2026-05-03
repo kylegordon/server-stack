@@ -14,7 +14,7 @@ docker compose -f elk-stack/docker-compose.yaml pull
 echo "Pulling monitoring stack"
 docker compose -f monitoring-stack/docker-compose.yaml pull
 docker compose -f dawarich/docker-compose.yml pull
-docker compose -f warrior.yaml pull
+docker compose -f warrior/docker-compose.yaml pull
 docker compose -f ollama/docker-compose.yaml pull
 docker compose -f komodo/docker-compose.yaml pull
 docker compose -f borg-ui/docker-compose.yaml pull
