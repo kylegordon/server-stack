@@ -24,14 +24,38 @@ jobs:
                 touch "$dir/.env"
               done
 
-          # Also stub any explicit env_file paths that point outside the service dir.
-          grep -rh --include="*.yaml" "env_file:" -A 20 . \
-            | grep -E "^\s+-\s+\S+\.env" \
-            | sed 's/^\s*-\s*//' \
-            | sort -u \
-            | while read -r envfile; do
-                [ -f "$envfile" ] || { mkdir -p "$(dirname "$envfile")"; touch "$envfile"; }
-              done
+          # Also stub any explicit env_file paths declared in each compose file,
+          # resolved relative to that file's directory so paths are always correct.
+          find . -name "docker-compose*.yaml" | sort | while IFS= read -r f; do
+            dir=$(dirname "$f")
+            while IFS= read -r envfile; do
+              target="$dir/$envfile"
+              [ -f "$target" ] || { mkdir -p "$(dirname "$target")"; touch "$target"; }
+            done < <(python3 - "$f" <<'PYEOF'
+import sys, yaml
+with open(sys.argv[1]) as fh:
+    try:
+        data = yaml.safe_load(fh)
+    except yaml.YAMLError:
+        sys.exit(0)
+if not isinstance(data, dict):
+    sys.exit(0)
+for svc in (data.get("services") or {}).values():
+    if not isinstance(svc, dict):
+        continue
+    ef = svc.get("env_file")
+    if ef is None:
+        continue
+    if isinstance(ef, str):
+        ef = [ef]
+    for item in ef:
+        if isinstance(item, str):
+            print(item)
+        elif isinstance(item, dict) and item.get("path"):
+            print(item["path"])
+PYEOF
+            )
+          done
 
       - name: Validate all Docker Compose files
         run: |
