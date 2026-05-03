@@ -25,6 +25,7 @@ services:
       - traefik.http.routers.selenium.rule=Host(`selenium.viewpoint.house`)
       - traefik.http.routers.selenium.entrypoints=websecure
       - traefik.http.routers.selenium.tls=true
+      - traefik.http.routers.selenium.tls.certresolver=letsencrypt
       - traefik.http.services.selenium.loadbalancer.server.port=4444
       - homepage.group=Tools
       - homepage.name=Selenium
