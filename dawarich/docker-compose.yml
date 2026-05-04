@@ -89,7 +89,7 @@ services:
       timeout: 10s
 
   app:
-    image: freikin/dawarich:1.7.4
+    image: freikin/dawarich:1.7.5
     container_name: dawarich_app
     volumes:
       - dawarich_gem_cache_app:/usr/local/bundle/gems_app
@@ -150,7 +150,7 @@ services:
       - com.centurylinklabs.watchtower.enable=true
 
   sidekiq:
-    image: freikin/dawarich:1.7.4
+    image: freikin/dawarich:1.7.5
     # container_name: dawarich_sidekiq
     volumes:
       - dawarich_gem_cache_sidekiq:/usr/local/bundle/gems_sidekiq
