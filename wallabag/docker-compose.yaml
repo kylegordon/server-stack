@@ -8,10 +8,6 @@ services:
       - traefik_proxy
     env_file:
       - .env
-    # env_file:
-    #   - ".wallabag.env"
-    # ports:
-    #   - "80"
     volumes:
       - /docker/wallabag/images:/var/www/wallabag/web/assets/images
     depends_on:
@@ -38,8 +34,6 @@ services:
       - wallabag
     env_file:
       - .env
-    # env_file:
-    #   - ".wallabag.env"
     volumes:
       - /docker/wallabag/data:/var/lib/mysql
     healthcheck:
