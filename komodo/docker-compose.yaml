@@ -50,7 +50,7 @@ services:
       - komodo.skip=
 
   komodo:
-    image: ghcr.io/moghtech/komodo-core:1.19.5
+    image: ghcr.io/moghtech/komodo-core:2.2.0
     container_name: komodo
     networks:
       - traefik_proxy
