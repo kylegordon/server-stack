@@ -69,8 +69,8 @@ services:
       - NAUTOBOT_DB_PASSWORD=${POSTGRES_PASSWORD:-nautobotpassword}
 
       # Redis Connection Settings
-      - NAUTOBOT_REDIS_HOST=${NAUTOBOT_REDIS_HOST}
-      - NAUTOBOT_REDIS_PASSWORD=${REDIS_PASSWORD}
+      - NAUTOBOT_REDIS_HOST=${NAUTOBOT_REDIS_HOST:-redis}
+      - NAUTOBOT_REDIS_PASSWORD=${REDIS_PASSWORD:-redispassword}
       # - NAUTOBOT_ALLOWED_HOSTS=*
       # - NAUTOBOT_SECRET_KEY=your-secret-key
       # - NAUTOBOT_CREATE_SUPERUSER=true
