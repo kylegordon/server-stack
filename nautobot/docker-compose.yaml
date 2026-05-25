@@ -1,0 +1,134 @@
+
+volumes:
+  nautobot_media:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nautobot/media/"
+
+  nautobot_static:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nautobot/static/"
+
+  nautobot_git:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nautobot/git/"
+
+  nautobot_jobs:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nautobot/jobs/"
+
+  nautobot_plugins:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nautobot/plugins/"
+
+  postgres_data:
+    driver: local
+    driver_opts:
+        type: nfs4
+        o: addr=172.24.32.5,rw
+        device: ":/srv/nfs4/docker_nfs/nautobot/postgres/"
+
+  redis_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/nautobot/redis/"
+
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+  nautobot:
+    driver: bridge
+
+services:
+  nautobot:
+    image: ghcr.io/nautobot/nautobot:2.4.33
+    container_name: nautobot
+    environment:
+      - NAUTOBOT_ALLOWED_HOSTS=${NAUTOBOT_ALLOWED_HOSTS}
+      - NAUTOBOT_SECRET_KEY=${NAUTOBOT_SECRET_KEY}
+      - NAUTOBOT_CREATE_SUPERUSER=${NAUTOBOT_CREATE_SUPERUSER}
+      - NAUTOBOT_SUPERUSER_NAME=${NAUTOBOT_SUPERUSER_NAME}
+      - NAUTOBOT_SUPERUSER_EMAIL=${NAUTOBOT_SUPERUSER_EMAIL}
+      - NAUTOBOT_SUPERUSER_PASSWORD=${NAUTOBOT_SUPERUSER_PASSWORD}
+      - NAUTOBOT_SUPERUSER_API_TOKEN=${NAUTOBOT_SUPERUSER_API_TOKEN}
+
+      # Database Connection Settings
+      - NAUTOBOT_DB_HOST=${NAUTOBOT_DB_HOST}
+      - NAUTOBOT_DB_NAME=${POSTGRES_DB}
+      - NAUTOBOT_DB_USER=${POSTGRES_USER}
+      - NAUTOBOT_DB_PASSWORD=${POSTGRES_PASSWORD}
+
+      # Redis Connection Settings
+      - NAUTOBOT_REDIS_HOST=${NAUTOBOT_REDIS_HOST}
+      - NAUTOBOT_REDIS_PASSWORD=${REDIS_PASSWORD}
+      # - NAUTOBOT_ALLOWED_HOSTS=*
+      # - NAUTOBOT_SECRET_KEY=your-secret-key
+      # - NAUTOBOT_CREATE_SUPERUSER=true
+      # - NAUTOBOT_SUPERUSER_NAME=admin
+      # - NAUTOBOT_SUPERUSER_EMAIL=admin@example.com
+      # - NAUTOBOT_SUPERUSER_PASSWORD=adminpassword
+    volumes:
+      - nautobot_media:/opt/nautobot/media
+      - nautobot_static:/opt/nautobot/static
+      - nautobot_git:/opt/nautobot/git
+      - nautobot_jobs:/opt/nautobot/jobs
+      - nautobot_plugins:/opt/nautobot/plugins
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - traefik_proxy
+      - nautobot
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.nautobot.rule=Host(`nautobot.viewpoint.house`)
+      - traefik.http.routers.nautobot.entrypoints=websecure
+      - traefik.http.routers.nautobot.tls=true
+      - traefik.http.services.nautobot.loadbalancer.server.port=8080
+      - traefik.http.services.nautobot.loadbalancer.healthcheck.path=/
+      - traefik.http.services.nautobot.loadbalancer.healthcheck.port=8080
+      - homepage.group=Network Management
+      - homepage.name=Nautobot
+      - homepage.href=https://nautobot.viewpoint.house
+      - homepage.icon=mdi-nautobot
+      - homepage.description=Network Automation Platform
+
+  postgres:
+    image: docker.io/library/postgres:15.18-alpine
+    container_name: nautobot-postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-nautobot}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-nautobotpassword}
+      - POSTGRES_DB=${POSTGRES_DB:-nautobot}
+    networks:
+      - nautobot
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: docker.io/library/redis:8.6.3-alpine
+    container_name: nautobot-redis
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:-redispassword}"]
+    networks:
+      - nautobot
+    restart: unless-stopped
