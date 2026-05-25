@@ -42,13 +42,6 @@ volumes:
         o: addr=172.24.32.5,rw
         device: ":/srv/nfs4/docker_nfs/nautobot/postgres/"
 
-  redis_data:
-    driver: local
-    driver_opts:
-      type: nfs4
-      o: addr=172.24.32.5,rw
-      device: ":/srv/nfs4/docker_nfs/nautobot/redis/"
-
 networks:
   traefik_proxy:
     external: true
