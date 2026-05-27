@@ -44,7 +44,7 @@ services:
       - traefik.enable=false
 
   redis:
-    image: docker.io/library/redis:8.6-alpine
+    image: docker.io/library/redis:8.8.0-alpine
     container_name: infisical-redis
     restart: unless-stopped
     command: redis-server

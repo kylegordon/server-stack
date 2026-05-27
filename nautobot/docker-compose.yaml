@@ -119,7 +119,7 @@ services:
     restart: unless-stopped
 
   redis:
-    image: docker.io/library/redis:8.6.3-alpine
+    image: docker.io/library/redis:8.8.0-alpine
     container_name: nautobot-redis
     command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:-redispassword}"]
     networks:
