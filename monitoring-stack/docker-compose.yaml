@@ -48,7 +48,7 @@ networks:
 
 services:
   librenms:
-    image: librenms/librenms:26.4.1
+    image: librenms/librenms:26.5.1
     container_name: librenms
     hostname: librenms
     cap_add:
@@ -69,7 +69,7 @@ services:
       - "librenms_data:/data"
       - "librenms_logs:/opt/librenms/storage/logs/"
     env_file:
-      - ".librenms.env"
+      - .librenms.env
     environment:
       - "TZ=${TZ}"
       - "PUID=${PUID}"
@@ -100,10 +100,9 @@ services:
       - homepage.name=LibreNMS
       - homepage.href=https://nms.viewpoint.house
       - homepage.description=System Monitoring
-      # - com.centurylinklabs.watchtower.enable=true
 
   dispatcher:
-    image: librenms/librenms:26.4.1
+    image: librenms/librenms:26.5.1
     container_name: librenms_dispatcher
     hostname: librenms-dispatcher
     cap_add:
@@ -117,7 +116,7 @@ services:
       - "librenms_data:/data"
       - "librenms_logs:/opt/librenms/storage/logs/"
     env_file:
-      - ".librenms.env"
+      - .librenms.env
     environment:
       - "TZ=${TZ}"
       - "PUID=${PUID}"
@@ -156,11 +155,11 @@ services:
   #     - "DB_TIMEOUT=30"
   #     - "SIDECAR_CRON=1"
   #   env_file:
-  #     - ".librenms.env"
+  #     - .librenms.env
   #   restart: always
 
   syslog-ng:
-    image: librenms/librenms:26.4.1
+    image: librenms/librenms:26.5.1
     container_name: librenms_syslog
     # domainname: viewpoint.house
     hostname: librenms
@@ -188,7 +187,7 @@ services:
       - "DB_TIMEOUT=30"
       - "SIDECAR_SYSLOGNG=1"
     env_file:
-      - ".librenms.env"
+      - .librenms.env
     restart: unless-stopped
     labels:
       - traefik.enable=false
@@ -199,7 +198,7 @@ services:
     networks:
       - monitoring
     env_file:
-      - ".librenms.env"
+      - .librenms.env
     # environment:
     #   - "TZ=${TZ}"
     restart: unless-stopped
@@ -215,7 +214,7 @@ services:
       - librenms_rrd:/data/db/
       - librenms_rrd_journal:/data/journal
     env_file:
-      - ".librenms.env"
+      - .librenms.env
     # environment:
     #   - "TZ=${TZ}"
     #   - "PUID=${PUID}"
@@ -263,7 +262,6 @@ services:
       - homepage.name=Speedtest
       - homepage.href=https://speedtest.viewpoint.house
       - homepage.description=System Monitoring
-      - com.centurylinklabs.watchtower.enable=true
 
   smokeping:
     image: linuxserver/smokeping:2.9.0
@@ -300,4 +298,3 @@ services:
       - homepage.name=Smokeping
       - homepage.href=https://smokeping.viewpoint.house
       - homepage.description=System Monitoring
-      - com.centurylinklabs.watchtower.enable=true

@@ -16,7 +16,7 @@ networks:
 services:
   sharkey_web:
     #image: registry.activitypub.software/transfem-org/sharkey:latest
-    image: registry.activitypub.software/transfem-org/sharkey:2025.4.6
+    image: registry.activitypub.software/transfem-org/sharkey:2025.4.7
     # build: .
     restart: always
     links:
@@ -45,17 +45,16 @@ services:
       - traefik.enable=true
       - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.firefish-http.entrypoints=web
-      - traefik.http.routers.firefish-http.rule=Host(`social.glasgownet.com`)
+      - traefik.http.routers.firefish-http.rule=Host(`social.glasgownet.com`) && !HeaderRegexp(`User-Agent`, `(?i)Applebot`)
       - traefik.http.routers.firefish-http.middlewares=firefish-https
       - traefik.http.middlewares.firefish-https.redirectscheme.scheme=https
-      - traefik.http.routers.firefish.rule=Host(`social.glasgownet.com`)
+      - traefik.http.routers.firefish.rule=Host(`social.glasgownet.com`) && !HeaderRegexp(`User-Agent`, `(?i)Applebot`)
       - traefik.http.routers.firefish.entrypoints=websecure
       - traefik.http.routers.firefish.tls=true
       - traefik.http.services.firefish.loadbalancer.server.port=3000
       - traefik.http.services.firefish.loadbalancer.healthcheck.path=/
       - traefik.http.services.firefish.loadbalancer.healthcheck.port=3000
       - traefik.http.services.firefish.loadbalancer.healthcheck.timeout=30s
-      - com.centurylinklabs.watchtower.enable=true
 
   redis:
     restart: unless-stopped
@@ -76,14 +75,12 @@ services:
       options:
         max-size: 10m
         max-file: 3
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
 
   db:
     restart: unless-stopped
     # image: docker.io/library/postgres:12.2-alpine
     # image: docker.io/groonga/pgroonga:3.1.8-alpine-16-slim
-    image: docker.io/library/postgres:16.13-alpine
+    image: docker.io/library/postgres:16.14-alpine
     container_name: firefish_db
     networks:
       - calcnet
@@ -100,8 +97,6 @@ services:
       options:
         max-size: 10m
         max-file: 3
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
 
   meilisearch:
     restart: unless-stopped

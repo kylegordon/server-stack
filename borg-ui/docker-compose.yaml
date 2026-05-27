@@ -20,7 +20,7 @@ volumes:
 
 services:
   borg-ui:
-    image: ainullcode/borg-ui:2.0.8
+    image: ainullcode/borg-ui:2.1.0
     container_name: borg-ui
     restart: unless-stopped
     networks:
@@ -47,7 +47,6 @@ services:
       - homepage.name=Borg UI
       - homepage.href=https://borg-ui.viewpoint.house
       - homepage.description=Borg Backup Web UI
-      - com.centurylinklabs.watchtower.enable=true
     logging:
       driver: gelf
       options:

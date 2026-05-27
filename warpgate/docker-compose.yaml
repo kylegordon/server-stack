@@ -14,7 +14,7 @@ volumes:
 
 services:
   warpgate:
-    image: ghcr.io/warp-tech/warpgate:0.23.2
+    image: ghcr.io/warp-tech/warpgate:0.23.4
     container_name: warpgate
     hostname: homeauto
     restart: unless-stopped
@@ -43,7 +43,6 @@ services:
       - homepage.href=https://warpgate.viewpoint.house
       - homepage.description=SSH/HTTP Bastion
       - homepage.icon=mdi-shield-lock
-      - com.centurylinklabs.watchtower.enable=true
     logging:
       driver: "json-file"
       options:

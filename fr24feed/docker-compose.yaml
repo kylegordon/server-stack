@@ -50,4 +50,3 @@ services:
       - homepage.icon=mdi-airplane
       - homepage.href=https://fr24feed.viewpoint.house
       - homepage.description=FR24Feed
-      - com.centurylinklabs.watchtower.enable=true

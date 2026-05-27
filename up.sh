@@ -15,7 +15,7 @@ docker compose -f media-stack/docker-compose.yaml up -d
 docker compose -f monitoring-stack/docker-compose.yaml up -d  # needs librenms env_file environemt duplication looked at
 docker compose -f elk-stack/docker-compose.yaml up -d
 docker compose -f dawarich/docker-compose.yml up -d
-docker compose -f warrior.yaml up -d
+docker compose -f warrior/docker-compose.yaml up -d
 docker compose -f ollama/docker-compose.yaml up -d
 docker compose -f homepage/docker-compose.yaml up -d
 docker compose -f peanut/docker-compose.yaml up -d
@@ -29,14 +29,17 @@ docker compose -f mdns_repeater/docker-compose.yaml up -d
 docker compose -f nginx_core/docker-compose.yaml up -d
 docker compose -f homebox/docker-compose.yaml up -d
 docker compose -f matter-hub/docker-compose.yaml up -d
-docker compose -f whatsupdocker/docker-compose.yaml up -d
+# docker compose -f whatsupdocker/docker-compose.yaml up -d
 docker compose -f beszel/docker-compose.yaml up -d
 docker compose -f photoprism/docker-compose.yaml up -d
+docker compose -f immich/docker-compose.yaml up -d
 docker compose -f komodo/docker-compose.yaml up -d  # Komodo Core + Periphery + MongoDB
 # docker compose -f warpgate/docker-compose.yaml up -d  --- Warpgate disabled - unlikely to be of use ---
 docker compose -f netalertx/docker-compose.yaml up -d  # NetAlertX - network monitoring and alerting tool
 docker compose -f borg-ui/docker-compose.yaml up -d
 docker compose -f borgmatic-ui/docker-compose.yaml up -d
+# docker compose -f selenium/docker-compose.yaml up -d
+docker compose -f nautobot/docker-compose.yaml up -d
 
 docker compose -f opensky/docker-compose.yaml up -d
 docker compose -f piaware/docker-compose.yaml up -d
@@ -80,4 +83,4 @@ docker compose -f wallabag/docker-compose.yaml up -d
 docker compose -f rss/docker-compose.yaml up -d
 # docker compose -f pixelfed/docker-compose.yaml up -d
 docker compose -f social-stack/docker-compose.yaml up -d
-# docker compose -f obsidian-sync/docker-compose.yaml up -d
+docker compose -f obsidian-sync/docker-compose.yaml up -d

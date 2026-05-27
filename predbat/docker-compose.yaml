@@ -9,7 +9,7 @@ volumes:
 services:
   predbat:
     container_name: predbat
-    image: nipar44/predbat_addon:v8.37.4
+    image: nipar44/predbat_addon:v8.39.5
     restart: unless-stopped
     volumes:
       # - /docker/predbat/config:/config:rw
@@ -24,7 +24,6 @@ services:
       home-assistant:
           condition: service_healthy
     labels:
-      - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
       - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.predbat.rule=Host(`predbat.viewpoint.house`)

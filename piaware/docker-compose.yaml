@@ -55,4 +55,3 @@ services:
       - homepage.icon=mdi-airplane
       - homepage.href=https://piaware.viewpoint.house
       - homepage.description=PiAware
-      - com.centurylinklabs.watchtower.enable=true

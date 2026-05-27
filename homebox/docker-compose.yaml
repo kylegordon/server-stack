@@ -46,7 +46,6 @@ services:
       - homepage.name=Parts
       - homepage.href=https://parts.viewpoint.house
       - homepage.description=Parts Management
-      - com.centurylinklabs.watchtower.enable=true
     logging:
       driver: gelf
       options:

@@ -121,4 +121,3 @@ services:
       - homepage.icon=mdi-airplane
       - homepage.href=https://ultrafeeder.viewpoint.house
       - homepage.description=ADS-B Ultrafeeder with TAR1090 and Graphs1090
-      - com.centurylinklabs.watchtower.enable=true

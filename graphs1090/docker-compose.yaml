@@ -61,4 +61,3 @@ services:
       - homepage.icon=mdi-airplane
       - homepage.href=https://graphs1090.viewpoint.house
       - homepage.description=Graphs1090
-      - com.centurylinklabs.watchtower.enable=true

@@ -41,13 +41,19 @@ volumes:
       type: nfs4
       o: addr=172.24.32.5,rw
       device: ":/srv/nfs4/docker_nfs/dawarich/watched/"
+  dawarich_storage:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/dawarich/storage/"
 
 services:
 
   redis:
     labels:
       - traefik.enable=false
-    image: docker.io/library/redis:8.6.2-alpine
+    image: docker.io/library/redis:8.6.3-alpine
     container_name: dawarich_redis
     command: redis-server
     networks:
@@ -83,12 +89,13 @@ services:
       timeout: 10s
 
   app:
-    image: freikin/dawarich:1.6.1
+    image: freikin/dawarich:1.7.10
     container_name: dawarich_app
     volumes:
       - dawarich_gem_cache_app:/usr/local/bundle/gems_app
       - dawarich_public:/var/app/public
       - dawarich_watched:/var/app/tmp/imports/watched
+      - dawarich_storage:/var/app/storage
     networks:
       - dawarich
       - traefik_proxy
@@ -143,12 +150,13 @@ services:
       - com.centurylinklabs.watchtower.enable=true
 
   sidekiq:
-    image: freikin/dawarich:1.6.1
+    image: freikin/dawarich:1.7.10
     # container_name: dawarich_sidekiq
     volumes:
       - dawarich_gem_cache_sidekiq:/usr/local/bundle/gems_sidekiq
       - dawarich_public:/var/app/public
       - dawarich_watched:/var/app/tmp/imports/watched
+      - dawarich_storage:/var/app/storage
     networks:
       - dawarich
     stdin_open: true

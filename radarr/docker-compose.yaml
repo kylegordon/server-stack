@@ -43,7 +43,6 @@ services:
       - homepage.icon=mdi-movie-open-outline
       - homepage.href=https://movies.viewpoint.house
       - homepage.description=Movie Management
-      - com.centurylinklabs.watchtower.enable=true
     # environment:
       # - PUID=200
       # - PGID=200

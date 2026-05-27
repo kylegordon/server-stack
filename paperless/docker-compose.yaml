@@ -39,14 +39,12 @@ volumes:
 
 services:
   paperless_broker:
-    image: docker.io/library/redis:8.6.2-alpine
+    image: docker.io/library/redis:8.6.3-alpine
     restart: unless-stopped
     networks:
       - paperless
     volumes:
       - paperless_redisdata:/data
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
 
   paperless_db:
     image: docker.io/library/mariadb:12.2.2
@@ -63,11 +61,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
 
   paperless-ngx:
-    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.14
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.15
     container_name: paperless-ngx
     depends_on:
       paperless_broker:
@@ -105,4 +101,3 @@ services:
       - homepage.name=Paperless
       - homepage.href=https://paperless.viewpoint.house
       - homepage.description=Paperless
-      - com.centurylinklabs.watchtower.enable=true

@@ -11,7 +11,7 @@ networks:
 
 services:
   unifi-network-application:
-    image: lscr.io/linuxserver/unifi-network-application:10.3.55
+    image: lscr.io/linuxserver/unifi-network-application:10.3.58
     container_name: unifi-network-application
     networks:
       - unifi
@@ -52,7 +52,7 @@ services:
     restart: unless-stopped
 
   unifi-db:
-    image: docker.io/library/mongo:8.2.7
+    image: docker.io/library/mongo:8.3.2
     # I have to use v4, as v5+ requires a CPU with AVX support
     # container_name: unifi-db
     networks:

@@ -43,7 +43,7 @@ services:
 #       - ollama-docker
 
   ollama:
-    image: ollama/ollama:0.21.2
+    image: ollama/ollama:0.24.0
     ports:
       - 7869:11434
     volumes:
@@ -67,7 +67,7 @@ services:
       retries: 3
 
   ollama-webui:
-    image: ghcr.io/open-webui/open-webui:v0.9.2
+    image: ghcr.io/open-webui/open-webui:v0.9.5
     container_name: ollama-webui
     volumes:
       - ollama-webui:/app/backend/data
@@ -99,7 +99,6 @@ services:
       - ollama-docker
       - traefik_proxy
     labels:
-      - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
       - traefik.docker.network=traefik_traefik_proxy
       - traefik.http.routers.ollama-http.entrypoints=web

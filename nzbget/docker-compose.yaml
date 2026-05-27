@@ -28,7 +28,7 @@ volumes:
 
 services:
   nzbget:
-    image: linuxserver/nzbget:26.1.20260417
+    image: linuxserver/nzbget:26.1.20260522
     container_name: nzbget
     restart: unless-stopped
     networks:
@@ -60,7 +60,6 @@ services:
       - homepage.icon=mdi-cloud-download
       - homepage.href=https://nzbget.viewpoint.house
       - homepage.description=Usenet Downloader
-      - com.centurylinklabs.watchtower.enable=true
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6789"]
       start_period: 15s

@@ -20,7 +20,7 @@ volumes:
 
 services:
   nginx_core:
-    image: docker.io/library/nginx:1.30
+    image: docker.io/library/nginx:1.31
     container_name: nginx_core
     restart: unless-stopped
     volumes:
@@ -47,4 +47,3 @@ services:
       - homepage.name=Core Web
       - homepage.href=https://core.viewpoint.house
       - homepage.description=Core Web Files
-      - com.centurylinklabs.watchtower.enable=true

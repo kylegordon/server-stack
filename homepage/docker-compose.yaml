@@ -30,7 +30,6 @@ services:
       - traefik.http.services.homepage.loadbalancer.server.port=3000
       - traefik.http.services.homepage.loadbalancer.healthcheck.path=/
       - traefik.http.services.homepage.loadbalancer.healthcheck.port=3000
-      - com.centurylinklabs.watchtower.enable=true
     volumes:
       - homepage_config:/app/config # Make sure your local config directory exists
       - /var/run/docker.sock:/var/run/docker.sock:ro # (optional) For docker integrations
