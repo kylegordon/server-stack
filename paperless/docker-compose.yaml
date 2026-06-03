@@ -47,7 +47,7 @@ services:
       - paperless_redisdata:/data
 
   paperless_db:
-    image: docker.io/library/mariadb:12.2.2
+    image: docker.io/library/mariadb:12.3.2
     restart: unless-stopped
     networks:
       - paperless
@@ -94,6 +94,7 @@ services:
       - traefik.http.routers.paperless.rule=Host(`paperless.viewpoint.house`)
       - traefik.http.routers.paperless.entrypoints=websecure
       - traefik.http.routers.paperless.tls=true
+      - traefik.http.routers.paperless.tls.certresolver=letsencrypt
       - traefik.http.services.paperless.loadbalancer.server.port=8000
       # - traefik.http.routers.paperless.middlewares=authelia@docker
       - homepage.group=Media

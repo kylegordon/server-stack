@@ -96,6 +96,7 @@ services:
       - traefik.http.routers.nautobot.rule=Host(`nautobot.viewpoint.house`)
       - traefik.http.routers.nautobot.entrypoints=websecure
       - traefik.http.routers.nautobot.tls=true
+      - traefik.http.routers.nautobot.tls.certresolver=letsencrypt
       - traefik.http.services.nautobot.loadbalancer.server.port=8080
       - traefik.http.services.nautobot.loadbalancer.healthcheck.path=/
       - traefik.http.services.nautobot.loadbalancer.healthcheck.port=8080
