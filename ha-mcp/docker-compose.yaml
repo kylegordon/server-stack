@@ -1,0 +1,58 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+  homeautomation:
+    external: true
+    name: homeautomation
+
+services:
+  # If you already have Home Assistant running, you can reference it:
+  # homeassistant:
+  #   image: homeassistant/home-assistant:stable
+  #   ... your existing HA config ...
+
+  # Add this service to your existing docker-compose.yml:
+  ha-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/homeassistant-ai/ha-mcp:6.4.0
+    container_name: ha-mcp-server
+    environment:
+      # Point to your Home Assistant instance
+      # If HA is in same compose file, use service name: http://homeassistant:8123
+      # If HA is external, use: http://your-ha-ip:8123
+      - HOMEASSISTANT_URL=http://home-assistant:8123
+      # Set your Home Assistant long-lived access token
+      - HOMEASSISTANT_TOKEN=${HA_TOKEN}
+      # Optional: Configure backup hint behavior
+      - BACKUP_HINT=normal
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - homepage.group=Home Automation
+      - homepage.name=HA MCP
+      - homepage.href=http://ha-mcp.viewpoint.house
+      - homepage.icon=mdi-home-assistant
+      - homepage.description=Home Assistant API Proxy for AI/LLM integration
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.ha-mcp.entrypoints=websecure
+      - traefik.http.routers.ha-mcp.rule=Host(`ha-mcp.viewpoint.house`)
+      - traefik.http.routers.ha-mcp.tls.certresolver=letsencrypt
+      - traefik.http.routers.ha-mcp.tls.domains[0].main=ha-mcp.viewpoint.house
+      - traefik.http.services.ha-mcp.loadbalancer.server.port=8086
+    networks:
+      - homeautomation
+
+# Usage:
+# 1. Create .env file: HA_TOKEN=your_long_lived_access_token
+# 2. Add ha-mcp service to your docker-compose.yml
+# 3. Run: docker-compose up -d ha-mcp
+# 4. Connect your MCP client to the ha-mcp container
+#
+# Get a Home Assistant token:
+# Profile → Long-Lived Access Tokens → Create Token

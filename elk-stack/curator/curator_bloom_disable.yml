@@ -1,0 +1,143 @@
+---
+# Remember, leave a key empty if there is no value.  None will be a string,
+# not a Python "NoneType"
+#
+# Also remember that all examples have 'disable_action' set to True.  If you
+# want to use this action as a template, be sure to set this to False after
+# copying it.
+actions:
+  1:
+    action: index_settings
+    description: "Reducing index refresh period and replica count"
+    options:
+      index_settings:
+        index:
+          refresh_interval: -1
+          number_of_replicas: 0
+      ignore_unavailable: False
+      preserve_existing: False
+    filters:
+    - filtertype: pattern
+      kind: prefix
+      value: logstash-
+      exclude:
+    - filtertype: age
+      source: name
+      direction: older
+      timestring: '%Y.%m.%d'
+      unit: days
+      unit_count: 3
+      exclude:
+
+  2:
+    action: index_settings
+    description: "Reducing index refresh period and replica count"
+    options:
+      index_settings:
+        index:
+          refresh_interval: -1
+          number_of_replicas: 0
+      ignore_unavailable: False
+      preserve_existing: False
+    filters:
+    - filtertype: pattern
+      kind: prefix
+      value: winlogbeat-
+      exclude:
+    - filtertype: age
+      source: name
+      direction: older
+      timestring: '%Y.%m.%d'
+      unit: days
+      unit_count: 1
+      exclude:
+#  3:
+#    action: index_settings
+#    description: "Reducing index refresh period and replica count"
+#    options:
+#      index_settings:
+#        index:
+#          refresh_interval: -1
+#          number_of_replicas: 0
+#      ignore_unavailable: True
+#      preserve_existing: False
+#    filters:
+#    - filtertype: pattern
+#      kind: prefix
+#      value: packetbeat-
+#      exclude:
+#    - filtertype: age
+#      source: name
+#      direction: older
+#      timestring: '%Y.%m.%d'
+#      unit: days
+#      unit_count: 1
+#      exclude:
+  4:
+    action: index_settings
+    description: "Reducing index refresh period and replica count"
+    options:
+      index_settings:
+        index:
+          refresh_interval: -1
+          number_of_replicas: 0
+      ignore_unavailable: False
+      preserve_existing: False
+    filters:
+    - filtertype: pattern
+      kind: prefix
+      value: metricbeat-
+      exclude:
+    - filtertype: age
+      source: name
+      direction: older
+      timestring: '%Y.%m.%d'
+      unit: days
+      unit_count: 1
+      exclude:
+  5:
+    action: index_settings
+    description: "Reducing index refresh period and replica count"
+    options:
+      index_settings:
+        index:
+          refresh_interval: -1
+          number_of_replicas: 0
+      ignore_unavailable: False
+      preserve_existing: False
+    filters:
+    - filtertype: pattern
+      kind: prefix
+      value: filebeat-
+      exclude:
+    - filtertype: age
+      source: name
+      direction: older
+      timestring: '%Y.%m.%d'
+      unit: days
+      unit_count: 1
+      exclude:
+
+  6:
+    action: index_settings
+    description: "Reducing index refresh period and replica count"
+    options:
+      index_settings:
+        index:
+          refresh_interval: -1
+          number_of_replicas: 0
+      ignore_unavailable: False
+      preserve_existing: False
+    filters:
+    - filtertype: pattern
+      kind: prefix
+      value: uicrashreporting-
+      exclude:
+    - filtertype: age
+      source: name
+      direction: older
+      timestring: '%Y-%m-%d'
+      unit: days
+      unit_count: 1
+      exclude:
+

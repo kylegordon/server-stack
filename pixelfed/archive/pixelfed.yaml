@@ -1,0 +1,92 @@
+### From https://geek-cookbook.funkypenguin.co.nz/recipes/pixelfed/
+---
+version: '3.5'
+
+# In order to set configuration, please use a .env file in
+# your compose project directory (the same directory as your
+# docker-compose.yml), and set database options, application
+# name, key, and other settings there.
+# A list of available settings is available in .env.example
+#
+# The services should scale properly across a swarm cluster
+# if the volumes are properly shared between cluster members.
+
+networks:
+  pixelfed:
+    internal: true
+  traefik_proxy:
+    external: true
+    name: frontend_traefik_proxy
+
+services:
+  db:
+    image: zknt/mariadb
+    restart: unless-stopped  # makes running maintenance jobs using docker-compose more reliable
+    env_file: pixelfed.env
+    networks:
+      - pixelfed
+    volumes:
+      # - /var/data/runtime/pixelfed/mariadb:/var/lib/mysql
+      - /docker/pixelfed/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=4DryuvdebVij
+      - DUFF_MYSQL_ROOT_PASSWORD=tec9OndAumgij
+
+  redis:
+    image: zknt/redis
+    restart: unless-stopped  # makes running maintenance jobs using docker-compose more reliable
+    networks:
+      - pixelfed
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+    volumes:
+      - /docker/pixelfed/redis:/data
+
+  worker:
+    image: zknt/pixelfed
+    restart: unless-stopped  # makes running maintenance jobs using docker-compose more reliable
+    env_file: pixelfed.env
+    entrypoint: /worker-entrypoint.sh
+    networks:
+      - pixelfed
+    healthcheck:
+      test: ['CMD', 'php artisan horizon:status | grep running']
+    volumes:
+      - /docker/pixelfed/storage:/var/www/storage
+      # - /docker/pixelfed/config/pixelfed.env:/var/www/.env
+      - ./pixelfed.env:/var/www/.env
+
+  app:
+    image: zknt/pixelfed
+    restart: unless-stopped  # makes running maintenance jobs using docker-compose more reliable
+    env_file: pixelfed.env
+    networks:
+      - pixelfed
+      - traefik_proxy
+    volumes:
+      - /docker/pixelfed/storage:/var/www/storage
+      # - /docker/pixelfed/config/pixelfed.env:/var/www/.env
+      - ./pixelfed.env:/var/www/.env
+    deploy:
+    labels:
+      # traefik
+      - traefik.enable=true
+      - traefik.docker.network=traefik_proxy
+
+      # traefikv2
+      - "traefik.http.routers.pixelfed.rule=Host(`pixelfed.glasgownet.com`)"
+      - "traefik.http.routers.pixelfed.entrypoints=https"
+      - "traefik.http.services.pixelfed.loadbalancer.server.port=80"
+
+  # maintenance:
+  #   image: zknt/pixelfed
+  #   restart: unless-stopped # makes running maintenance jobs using docker-compose more reliable
+  #   env_file: /var/data/config/pixelfed/pixelfed.env
+  #   entrypoint: /worker-entrypoint.sh
+  #   networks:
+  #     - internal
+  #   healthcheck:
+  #     test: ['CMD', 'php artisan horizon:status | grep running']
+  #   volumes:
+  #     - /var/data/pixelfed:/var/www/storage
+  #     - /var/data/config/pixelfed/pixelfed.env:/var/www/.env

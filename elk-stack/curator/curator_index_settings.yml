@@ -1,0 +1,47 @@
+---
+# Remember, leave a key empty if there is no value.  None will be a string,
+# not a Python "NoneType"
+#
+# Also remember that all examples have 'disable_action' set to True.  If you
+# want to use this action as a template, be sure to set this to False after
+# copying it.
+actions:
+
+  1: 
+    action: index_settings
+    description: "Ensuring no indices are read-only"
+    options:
+      index_settings:
+        index:
+          blocks:
+            read_only_allow_delete: null
+            write: null
+      ignore_unavailable: False
+      preserve_existing: False
+    filters:
+    - filtertype: pattern
+      kind: regex
+      value: '^(logstash-|winlogbeat-|filebeat-|metricbeat-|packetbeat-|uicrashreporting-).*$'
+
+  6:
+    action: index_settings
+    description: "Reducing index refresh period and replica count"
+    options:
+      index_settings:
+        index:
+          refresh_interval: -1
+          number_of_replicas: 0
+      ignore_unavailable: False
+      preserve_existing: False
+    filters:
+    - filtertype: pattern
+      kind: regex
+      value: '^(logstash-|winlogbeat-|filebeat-|metricbeat-|packetbeat-|uicrashreporting-).*$'
+    - filtertype: age
+      source: name
+      direction: older
+      timestring: '%Y.%m.%d'
+      unit: days
+      unit_count: 2
+      exclude:
+
