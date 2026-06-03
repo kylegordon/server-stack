@@ -51,6 +51,7 @@ services:
       - traefik.http.routers.firefish.rule=Host(`social.glasgownet.com`) && !HeaderRegexp(`User-Agent`, `(?i)Applebot`)
       - traefik.http.routers.firefish.entrypoints=websecure
       - traefik.http.routers.firefish.tls=true
+      - traefik.http.routers.firefish.tls.certresolver=letsencrypt
       - traefik.http.services.firefish.loadbalancer.server.port=3000
       - traefik.http.services.firefish.loadbalancer.healthcheck.path=/
       - traefik.http.services.firefish.loadbalancer.healthcheck.port=3000

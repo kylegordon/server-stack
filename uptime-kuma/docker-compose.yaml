@@ -35,6 +35,7 @@ services:
       - traefik.http.routers.uptime.rule=Host(`uptime.viewpoint.house`)
       - traefik.http.routers.uptime.entrypoints=websecure
       - traefik.http.routers.uptime.tls=true
+      - traefik.http.routers.uptime.tls.certresolver=letsencrypt
       - traefik.http.services.uptime.loadbalancer.server.port=3001
       - traefik.http.services.uptime.loadbalancer.healthcheck.path=/
       - traefik.http.services.uptime.loadbalancer.healthcheck.port=3001

@@ -38,6 +38,7 @@ services:
       - traefik.http.routers.homebox.rule=Host(`parts.viewpoint.house`)
       - traefik.http.routers.homebox.entrypoints=websecure
       - traefik.http.routers.homebox.tls=true
+      - traefik.http.routers.homebox.tls.certresolver=letsencrypt
       - traefik.http.services.homebox.loadbalancer.server.port=7745
       - traefik.http.services.homebox.loadbalancer.healthcheck.port=7745
       - traefik.http.services.homebox.loadbalancer.healthcheck.path=/
