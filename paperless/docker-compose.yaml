@@ -94,6 +94,7 @@ services:
       - traefik.http.routers.paperless.rule=Host(`paperless.viewpoint.house`)
       - traefik.http.routers.paperless.entrypoints=websecure
       - traefik.http.routers.paperless.tls=true
+      - traefik.http.routers.paperless.tls.certresolver=letsencrypt
       - traefik.http.services.paperless.loadbalancer.server.port=8000
       # - traefik.http.routers.paperless.middlewares=authelia@docker
       - homepage.group=Media
