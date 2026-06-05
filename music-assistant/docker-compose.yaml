@@ -1,14 +1,7 @@
 ---
 include:
   - ../common/volumes.yaml
-
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
-  homeautomation:
-    external: true
-    name: homeautomation
+  - ../common/networks.yaml
 
 volumes:
   music-assistant:

@@ -3,3 +3,6 @@ networks:
   traefik_proxy:
     external: true
     name: traefik_traefik_proxy
+  homeautomation:
+    external: true
+    name: homeautomation

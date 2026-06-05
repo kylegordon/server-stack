@@ -1,8 +1,8 @@
 ---
+include:
+  - ../common/networks.yaml
+
 networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
   immich:
     driver: bridge
 

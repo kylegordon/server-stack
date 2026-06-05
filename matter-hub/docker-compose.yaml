@@ -1,9 +1,5 @@
-networks:
-  traefik_traefik_proxy:
-    external: true
-    # Failure to provide the correct external network name results in:
-    # Error response from daemon: failed to set up container networking: invalid cluster node while attaching to network
-    name: traefik_traefik_proxy
+include:
+  - ../common/networks.yaml
 
 volumes:
     home-assistant-matter-hub:

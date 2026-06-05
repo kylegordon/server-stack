@@ -1,4 +1,7 @@
 
+include:
+  - ../common/networks.yaml
+
 volumes:
   librenms_logs:
     driver: local
@@ -39,9 +42,6 @@ volumes:
       device: ":/srv/nfs4/docker_nfs/smokeping/data/"
 
 networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
   monitoring:
     # driver: overlay
     # driver: bridge

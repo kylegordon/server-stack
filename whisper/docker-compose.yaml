@@ -1,6 +1,5 @@
-networks:
-  homeautomation:
-    external: true
+include:
+  - ../common/networks.yaml
 
 volumes:
   whisper:

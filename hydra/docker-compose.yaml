@@ -1,12 +1,7 @@
 ---
 include:
   - ../common/volumes.yaml
-  # - ../common/networks.yaml
-
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
+  - ../common/networks.yaml
 
 volumes:
   nzbhydra_config:

@@ -1,4 +1,7 @@
 
+include:
+  - ../common/networks.yaml
+
 volumes:
   nautobot_media:
     driver: local
@@ -43,9 +46,6 @@ volumes:
         device: ":/srv/nfs4/docker_nfs/nautobot/postgres/"
 
 networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
   nautobot:
     driver: bridge
 
