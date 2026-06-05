@@ -8,9 +8,9 @@ include:
   # Just a thought, maybe could have common volumes and networks
   - ../common/volumes.yaml
   - ../common/networks.yaml
-  - ../sonarr/docker-compose.yaml
-  - ../radarr/docker-compose.yaml
-  - ../calibre/docker-compose.yaml
-  - ../nzbget/docker-compose.yaml
-  - ../hydra/docker-compose.yaml
+  # - ../sonarr/docker-compose.yaml
+  # - ../radarr/docker-compose.yaml
+  # - ../calibre/docker-compose.yaml
+  # - ../nzbget/docker-compose.yaml
+  # - ../hydra/docker-compose.yaml
   # - ../music-assistant/docker-compose.yaml
