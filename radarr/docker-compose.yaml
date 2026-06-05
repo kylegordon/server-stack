@@ -1,3 +1,8 @@
+---
+include:
+  - ../common/volumes.yaml
+  # - ../common/networks.yaml
+
 networks:
   traefik_proxy:
     external: true
