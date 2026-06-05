@@ -62,7 +62,7 @@ services:
       - traefik.enable=false
 
   infisical:
-    image: infisical/infisical:v0.160.10
+    image: infisical/infisical:v0.160.11
     container_name: infisical
     restart: unless-stopped
     depends_on:
