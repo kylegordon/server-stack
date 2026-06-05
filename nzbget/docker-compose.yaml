@@ -1,7 +1,7 @@
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
+---
+include:
+  - ../common/volumes.yaml
+  - ../common/networks.yaml
 
 volumes:
   nzbget_config:

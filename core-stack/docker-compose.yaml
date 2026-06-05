@@ -1,10 +1,6 @@
 ---
-
-networks:
-    traefik_proxy:
-      external: true
-      # driver: overlay
-      name: traefik_traefik_proxy
+include:
+  - ../common/networks.yaml
 
 volumes:
   kea:

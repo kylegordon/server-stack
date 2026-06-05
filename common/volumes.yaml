@@ -1,0 +1,86 @@
+---
+volumes:
+  music:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/media/Tank/Music/"
+
+  downloads_complete:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/downloads/"
+      device: ":/media/Tank/Downloads/"
+
+  downloads_tmp:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/downloads/tmp/"
+      device: ":/media/Tank/Downloads/tmp/"
+
+  downloads_intermediate:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/downloads/nzbs/intermediate/"
+      device: ":/media/Tank/Downloads/nzbs/intermediate/"
+
+  readarr:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/readarr/"
+
+  complete:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/downloads/"
+      device: ":/media/Tank/Downloads/"
+
+  tv:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/tv/"
+      device: ":/media/Tank/TV/"
+
+  movies:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/movies/"
+      device: ":/media/Tank/Movies/"
+
+
+  audiobooks:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      # device: ":/srv/nfs4/store/Audio Books"
+      device: ":/media/Tank/Books/Audio Books/"
+
+  podcasts:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/podcasts/"
+
+  music_playlists:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/music_playlists/"

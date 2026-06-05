@@ -1,4 +1,7 @@
 
+include:
+  - ../common/networks.yaml
+
 volumes:
 
   logstash_config:
@@ -32,10 +35,6 @@ volumes:
 networks:
   elastic:
     driver: bridge
-
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
 
 services:
 

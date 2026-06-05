@@ -1,4 +1,7 @@
 ---
+include:
+  - ../common/networks.yaml
+
 volumes:
   peanut_config:
     driver: local
@@ -6,12 +9,6 @@ volumes:
       type: nfs
       o: addr=172.24.32.5,nolock,soft,rw
       device: ":/srv/nfs4/docker_nfs/peanut/config/"
-
-
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
 
 services:
   peanut:

@@ -11,10 +11,15 @@ docker compose -f whisper/docker-compose.yaml up -d
 docker compose -f eplzones/docker-compose.yaml up -d
 docker compose -f paperless/docker-compose.yaml up -d
 docker compose -f grafana/docker-compose.yaml up -d
-docker compose -f media-stack/docker-compose.yaml up -d
+docker compose -f hydra/docker-compose.yaml up -d
+docker compose -f nzbget/docker-compose.yaml up -d
+docker compose -f calibre/docker-compose.yaml up -d
+docker compose -f sonarr/docker-compose.yaml up -d
+docker compose -f radarr/docker-compose.yaml up -d
+docker compose -f music-assistant/docker-compose.yaml up -d
 docker compose -f monitoring-stack/docker-compose.yaml up -d  # needs librenms env_file environemt duplication looked at
 docker compose -f elk-stack/docker-compose.yaml up -d
-docker compose -f dawarich/docker-compose.yml up -d
+docker compose -f dawarich/docker-compose.yaml up -d
 docker compose -f warrior/docker-compose.yaml up -d
 docker compose -f ollama/docker-compose.yaml up -d
 docker compose -f homepage/docker-compose.yaml up -d

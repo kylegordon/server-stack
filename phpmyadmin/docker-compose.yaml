@@ -1,8 +1,7 @@
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
+include:
+  - ../common/networks.yaml
 
+networks:
   paperless:
     external: true
     name: paperless_paperless
