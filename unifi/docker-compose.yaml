@@ -8,7 +8,7 @@ networks:
 
 services:
   unifi-network-application:
-    image: lscr.io/linuxserver/unifi-network-application:10.3.58
+    image: lscr.io/linuxserver/unifi-network-application:10.4.57
     container_name: unifi-network-application
     networks:
       - unifi
