@@ -1,3 +1,7 @@
+---
+include:
+  - ../common/volumes.yaml
+
 networks:
   traefik_proxy:
     external: true
@@ -15,16 +19,12 @@ volumes:
       device: ":/srv/nfs4/docker_nfs/music-assistant/"
 
 services:
-  # Music Assistant disabled whilst I figure out the MDNS/5353/Openhome stuff
   music-assistant-server:
     image: ghcr.io/music-assistant/server:2.8.9
     container_name: music-assistant-server
     restart: unless-stopped
     # Network mode must be set to host for MA to work correctly
     network_mode: host
-    # networks:
-    #   - traefik_proxy
-    #   - homeautomation
     volumes:
       - music-assistant:/data/
       - music:/music/
