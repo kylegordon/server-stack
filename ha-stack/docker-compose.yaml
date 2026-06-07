@@ -1,17 +1,10 @@
 ---
 
-networks:
-    traefik_proxy:
-      external: true
-      # Failure to provide the correct external network name results in:
-      # Error response from daemon: failed to set up container networking: invalid cluster node while attaching to network
-      name: traefik_traefik_proxy
-
-    homeautomation:
-      name: homeautomation
-
+# traefik_proxy and homeautomation are created by ../network-stack and consumed here
+# as external via ../common/networks.yaml.
 # Applications that are included here likely have dependencies on each other
 include:
+  - ../common/networks.yaml
   - ../home-assistant/docker-compose.yaml
   - ../double-take/docker-compose.yaml
   - ../frigate/docker-compose.yaml

@@ -27,7 +27,7 @@ services:
     labels:
       # https://techoverflow.net/2022/03/27/how-to-fix-traefik-could-not-define-the-service-name-for-the-router-too-many-services/
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.ha.rule=Host(`viewpoint.house`) || Host(`172.24.32.13`)
       - traefik.http.routers.ha.entrypoints=haweb
       - traefik.http.routers.ha.service=ha

@@ -22,7 +22,7 @@ services:
       - homeautomation
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.z2m-http.entrypoints=web
       - traefik.http.routers.z2m-http.rule=Host(`z2m.viewpoint.house`)
       - traefik.http.routers.z2m-http.middlewares=z2m-https

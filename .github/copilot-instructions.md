@@ -21,9 +21,9 @@ This is a **Docker Compose-based home server infrastructure** repository contain
 **All volumes use NFS4 mounts** pointing to `172.24.32.5:/srv/nfs4/docker_nfs/<service>/` or `/media/Tank/` paths. This is critical for understanding volume configuration.
 
 ### Network Architecture
-- **Primary network**: `traefik_traefik_proxy` - External network for all web-accessible services
+- **Primary network**: `traefik_proxy` - External network for all web-accessible services
 - **Service-specific networks**: `homeautomation`, `monitoring`, `elastic`, etc.
-- Services requiring external network access **must** specify: `name: traefik_traefik_proxy` and `external: true`
+- Services requiring external network access **must** specify: `name: traefik_proxy` and `external: true`
 
 ### Multi-Host Deployment
 Three deployment targets controlled via `DOCKER_HOST` environment variable:
@@ -118,7 +118,7 @@ All services follow this pattern:
 networks:
   traefik_proxy:
     external: true
-    name: traefik_traefik_proxy
+    name: traefik_proxy
 
 volumes:
   service_data:
@@ -151,7 +151,7 @@ Services exposed via Traefik **must** include:
 - Entrypoint: `traefik.http.routers.<name>.entrypoints=web` or `websecure`
 - Service port: `traefik.http.services.<name>.loadbalancer.server.port=<port>`
 - For HTTPS: `traefik.http.routers.<name>.tls.certresolver=letsencrypt`
-- Network specification: `traefik.docker.network=traefik_traefik_proxy`
+- Network specification: `traefik.docker.network=traefik_proxy`
 
 ### Watchtower Auto-Update Labels
 Most services include: `com.centurylinklabs.watchtower.enable=true` for automatic updates
@@ -172,7 +172,7 @@ Services visible on homepage dashboard include:
 
 ### Compose Config Validation Quirks
 - **Missing .env files generate warnings but are not errors** - exit code is still 0
-- **Network name mismatches** cause: "invalid cluster node while attaching to network" - always use `name: traefik_traefik_proxy` for external networks
+- **Network name mismatches** cause: "invalid cluster node while attaching to network" - always use `name: traefik_proxy` for external networks
 - **Some services have multiple compose files** (e.g., traefik/docker-compose-deepcore.yaml, scrutiny/docker-compose-blackbird.yaml) for different deployment hosts
 
 ### Renovate Dependency Management
@@ -184,7 +184,7 @@ Services visible on homepage dashboard include:
 
 ### When Adding/Modifying Services:
 1. **Always validate compose syntax**: `docker compose -f <file> config --quiet`
-2. **Check for external network usage**: If exposing via Traefik, use `traefik_traefik_proxy` network with correct name
+2. **Check for external network usage**: If exposing via Traefik, use `traefik_proxy` network with correct name
 3. **Use NFS4 volumes**: Follow existing patterns for volume mounts pointing to 172.24.32.5
 4. **Add appropriate labels**: Traefik routing, Watchtower updates, Homepage dashboard
 5. **Consider deployment host**: Determine if service belongs on homeauto, blackbird, or deepcore

@@ -1,9 +1,8 @@
 ---
 
-networks:
-  traefik_proxy:
-    # driver: overlay
-    # driver: bridge
+# traefik_proxy is created by ../network-stack and consumed here as external.
+include:
+  - ../common/networks.yaml
 
 volumes:
 

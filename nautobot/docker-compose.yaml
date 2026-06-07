@@ -92,7 +92,7 @@ services:
     restart: unless-stopped
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.nautobot.rule=Host(`nautobot.viewpoint.house`)
       - traefik.http.routers.nautobot.entrypoints=websecure
       - traefik.http.routers.nautobot.tls=true

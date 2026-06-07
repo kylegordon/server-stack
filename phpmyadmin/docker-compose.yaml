@@ -22,7 +22,7 @@ services:
       - photoprism
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.phpmyadmin-http.rule=Host(`phpmyadmin.viewpoint.house`)
       - traefik.http.routers.phpmyadmin-http.entrypoints=web
       - traefik.http.routers.phpmyadmin-http.middlewares=phpmyadmin-https

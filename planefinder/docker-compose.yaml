@@ -28,7 +28,7 @@ services:
         tag: "{{.Name}}"
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.planefinder.rule=Host(`planefinder.viewpoint.house`)
       - traefik.http.routers.planefinder.entrypoints=websecure
       - traefik.http.routers.planefinder.tls=true

@@ -84,7 +84,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.swarm.network=traefik_proxy
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.librenms-http.entrypoints=web
       - traefik.http.routers.librenms-http.rule=Host(`nms.viewpoint.house`)
       - traefik.http.routers.librenms-http.middlewares=librenms-https

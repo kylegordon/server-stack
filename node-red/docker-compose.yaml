@@ -16,7 +16,7 @@ services:
           condition: service_started
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.nodered-http.entrypoints=web
       - traefik.http.routers.nodered-http.rule=Host(`nodered.viewpoint.house`)
       - traefik.http.routers.nodered-http.middlewares=nodered-https

@@ -27,7 +27,7 @@ services:
       # - recyclarr
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.radarr-http.entrypoints=web
       - traefik.http.routers.radarr-http.rule=Host(`movies.viewpoint.house`)
       - traefik.http.routers.radarr-http.middlewares=radarr-https

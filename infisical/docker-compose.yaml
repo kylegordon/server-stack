@@ -79,7 +79,7 @@ services:
       - traefik_proxy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.infisical-http.entrypoints=web
       - traefik.http.routers.infisical-http.rule=Host(`infisical.viewpoint.house`)
       - traefik.http.routers.infisical-http.middlewares=infisical-https
