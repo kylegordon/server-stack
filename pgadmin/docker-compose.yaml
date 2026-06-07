@@ -1,0 +1,59 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+  nautobot_net:
+    external: true
+    name: nautobot_nautobot
+  infisical_net:
+    external: true
+    name: infisical_infisical
+  immich_net:
+    external: true
+    name: immich_immich
+  dawarich_net:
+    external: true
+    name: dawarich_dawarich
+
+volumes:
+  pgadmin_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/pgadmin/data/"
+
+services:
+  pgadmin:
+    image: docker.io/dpage/pgadmin4:9.15
+    container_name: pgadmin
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      # - ./servers.json:/pgadmin4/servers.json:ro
+    networks:
+      - traefik_proxy
+      - nautobot_net
+      - infisical_net
+      - immich_net
+      - dawarich_net
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.pgadmin-http.entrypoints=web
+      - traefik.http.routers.pgadmin-http.rule=Host(`pgadmin.viewpoint.house`)
+      - traefik.http.routers.pgadmin-http.middlewares=pgadmin-https
+      - traefik.http.middlewares.pgadmin-https.redirectscheme.scheme=https
+      - traefik.http.routers.pgadmin.rule=Host(`pgadmin.viewpoint.house`)
+      - traefik.http.routers.pgadmin.entrypoints=websecure
+      - traefik.http.routers.pgadmin.tls=true
+      - traefik.http.routers.pgadmin.tls.certresolver=letsencrypt
+      - traefik.http.services.pgadmin.loadbalancer.server.port=80
+      - homepage.group=Management
+      - homepage.name=pgAdmin
+      - homepage.href=https://pgadmin.viewpoint.house
+      - homepage.icon=mdi-database
+      - homepage.description=PostgreSQL Administration
