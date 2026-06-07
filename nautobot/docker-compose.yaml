@@ -1,4 +1,7 @@
 
+include:
+  - ../common/networks.yaml
+
 volumes:
   nautobot_media:
     driver: local
@@ -43,9 +46,6 @@ volumes:
         device: ":/srv/nfs4/docker_nfs/nautobot/postgres/"
 
 networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
   nautobot:
     driver: bridge
 
@@ -92,7 +92,7 @@ services:
     restart: unless-stopped
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.nautobot.rule=Host(`nautobot.viewpoint.house`)
       - traefik.http.routers.nautobot.entrypoints=websecure
       - traefik.http.routers.nautobot.tls=true

@@ -1,4 +1,7 @@
 
+include:
+  - ../common/networks.yaml
+
 volumes:
   librenms_logs:
     driver: local
@@ -39,9 +42,6 @@ volumes:
       device: ":/srv/nfs4/docker_nfs/smokeping/data/"
 
 networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
   monitoring:
     # driver: overlay
     # driver: bridge
@@ -84,7 +84,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.swarm.network=traefik_proxy
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.librenms-http.entrypoints=web
       - traefik.http.routers.librenms-http.rule=Host(`nms.viewpoint.house`)
       - traefik.http.routers.librenms-http.middlewares=librenms-https

@@ -1,10 +1,6 @@
 ---
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
-  homeautomation:
-    external: true
+include:
+  - ../common/networks.yaml
 
 services:
   selenium:
@@ -17,7 +13,7 @@ services:
     restart: unless-stopped
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.selenium-http.entrypoints=web
       - traefik.http.routers.selenium-http.rule=Host(`selenium.viewpoint.house`)
       - traefik.http.routers.selenium-http.middlewares=selenium-https

@@ -1,17 +1,14 @@
-networks:
-  traefik_proxy:
-    external: true
-    # Failure to provide the correct external network name results in:
-    # Error response from daemon: failed to set up container networking: invalid cluster node while attaching to network
-    name: traefik_traefik_proxy
+include:
+  - ../common/networks.yaml
 
+networks:
   unifi:
     name: unifi
 
 
 services:
   unifi-network-application:
-    image: lscr.io/linuxserver/unifi-network-application:10.3.58
+    image: lscr.io/linuxserver/unifi-network-application:10.4.57
     container_name: unifi-network-application
     networks:
       - unifi

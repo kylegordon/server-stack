@@ -1,8 +1,6 @@
 ---
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
+include:
+  - ../common/networks.yaml
 
 volumes:
   borg_ui_data:
@@ -30,7 +28,7 @@ services:
       - borg_ui_cache:/home/borg/.cache/borg
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.borg-ui-http.entrypoints=web
       - traefik.http.routers.borg-ui-http.rule=Host(`borg-ui.viewpoint.house`)
       - traefik.http.routers.borg-ui-http.middlewares=borg-ui-https

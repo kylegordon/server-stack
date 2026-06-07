@@ -1,7 +1,7 @@
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
+---
+include:
+  - ../common/volumes.yaml
+  - ../common/networks.yaml
 
 volumes:
   nzbhydra_config:
@@ -20,7 +20,7 @@ volumes:
 
 services:
   hydra:
-    image: linuxserver/nzbhydra2:8.8.1
+    image: linuxserver/nzbhydra2:8.8.2
     container_name: hydra
     restart: unless-stopped
     environment:

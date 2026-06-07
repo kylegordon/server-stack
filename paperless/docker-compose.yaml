@@ -1,9 +1,7 @@
+include:
+  - ../common/networks.yaml
+
 networks:
-  traefik_proxy:
-    external: true
-    # Failure to specify the full external network name as below will result in:
-    # Error response from daemon: failed to set up container networking: invalid cluster node while attaching to network
-    name: traefik_traefik_proxy
   paperless:
     driver: bridge
 
@@ -86,7 +84,7 @@ services:
       - paperless
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.paperless-http.entrypoints=web
       - traefik.http.routers.paperless-http.rule=Host(`paperless.viewpoint.house`)
       - traefik.http.routers.paperless-http.middlewares=paperless-https

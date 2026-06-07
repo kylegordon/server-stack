@@ -1,15 +1,9 @@
 ---
+include:
+  - ../common/networks.yaml
+
 networks:
   ollama-docker:
-
-  traefik_proxy:
-    external: true
-    # name: frontend_traefik_proxy
-    name: traefik_traefik_proxy
-
-  homeautomation:
-    external: true
-    name: homeautomation
 
 volumes:
   ollama:
@@ -43,7 +37,7 @@ services:
 #       - ollama-docker
 
   ollama:
-    image: ollama/ollama:0.30.4
+    image: ollama/ollama:0.30.6
     ports:
       - 7869:11434
     volumes:
@@ -100,7 +94,7 @@ services:
       - traefik_proxy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.ollama-http.entrypoints=web
       - traefik.http.routers.ollama-http.rule=Host(`ollama.viewpoint.house`)
       - traefik.http.routers.ollama-http.middlewares=ollama-https

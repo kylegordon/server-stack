@@ -1,8 +1,8 @@
+include:
+  - ../common/networks.yaml
+
 networks:
   dawarich:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
 
 volumes:
   dawarich_db_data:
@@ -129,7 +129,7 @@ services:
         restart: true
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.dawarich-http.entrypoints=web
       - traefik.http.routers.dawarich-http.rule=Host(`timeline.viewpoint.house`)
       - traefik.http.routers.dawarich-http.middlewares=dawarich-https

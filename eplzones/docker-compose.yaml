@@ -1,9 +1,5 @@
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
-  homeautomation:
-    external: true
+include:
+  - ../common/networks.yaml
 
 volumes:
   eplzones_config:
@@ -33,7 +29,7 @@ services:
       retries: 5
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.EPLZones.rule=Host(`eplzones.viewpoint.house`)
       - traefik.http.routers.EPLZones.entrypoints=websecure
       - traefik.http.routers.EPLZones.tls=true

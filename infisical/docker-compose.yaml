@@ -1,8 +1,8 @@
 ---
+include:
+  - ../common/networks.yaml
+
 networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
   infisical:
     driver: bridge
 
@@ -62,7 +62,7 @@ services:
       - traefik.enable=false
 
   infisical:
-    image: infisical/infisical:v0.160.10
+    image: infisical/infisical:v0.160.11
     container_name: infisical
     restart: unless-stopped
     depends_on:
@@ -79,7 +79,7 @@ services:
       - traefik_proxy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.infisical-http.entrypoints=web
       - traefik.http.routers.infisical-http.rule=Host(`infisical.viewpoint.house`)
       - traefik.http.routers.infisical-http.middlewares=infisical-https
