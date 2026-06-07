@@ -51,9 +51,9 @@ docker compose -f piaware/docker-compose.yaml up -d
 docker compose -f planefinder/docker-compose.yaml up -d
 docker compose -f fr24feed/docker-compose.yaml up -d
 
-### PHPMyAdmin needs access to other services' networks
+### PHPMyAdmin and PGAdmin need access to other services' networks
 docker compose -f phpmyadmin/docker-compose.yaml up -d
-
+docker compose -f pgadmin/docker-compose.yaml up -d
 
 echo "----- Deploying to ADS-B receiver (172.24.32.11) -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.11
