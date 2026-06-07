@@ -104,7 +104,7 @@ services:
       - traefik.http.routers.komodo.entrypoints=websecure
       - traefik.http.routers.komodo.tls.certresolver=letsencrypt
       - traefik.http.services.komodo.loadbalancer.server.port=9120
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - homepage.group=Infrastructure
       - homepage.name=Komodo
       - homepage.href=https://komodo.viewpoint.house

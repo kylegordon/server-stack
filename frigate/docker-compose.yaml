@@ -62,7 +62,7 @@ services:
       retries: 10
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.frigate-http.entrypoints=web
       - traefik.http.routers.frigate-http.rule=Host(`cctv.viewpoint.house`)
       - traefik.http.routers.frigate-http.middlewares=frigate-https

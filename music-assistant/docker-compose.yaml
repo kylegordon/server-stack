@@ -32,7 +32,7 @@ services:
       - LOG_LEVEL=info
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.music-http.entrypoints=web
       - traefik.http.routers.music-http.rule=Host(`music.viewpoint.house`)
       - traefik.http.routers.music-http.middlewares=music-https

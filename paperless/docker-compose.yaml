@@ -84,7 +84,7 @@ services:
       - paperless
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.paperless-http.entrypoints=web
       - traefik.http.routers.paperless-http.rule=Host(`paperless.viewpoint.house`)
       - traefik.http.routers.paperless-http.middlewares=paperless-https

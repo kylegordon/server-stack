@@ -180,7 +180,7 @@ services:
       - traefik_proxy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.meshtastic.rule=Host(`meshtastic.viewpoint.house`)
       - traefik.http.routers.meshtastic.entrypoints=web
       - traefik.http.services.meshtastic.loadbalancer.server.port=8080
