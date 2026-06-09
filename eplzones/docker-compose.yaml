@@ -11,7 +11,7 @@ volumes:
 
 services:
   EPLZones:
-    image: everythingsmarthome/everything-presence-mmwave-configurator:2.2.2
+    image: everythingsmarthome/everything-presence-mmwave-configurator:2.2.3
     container_name: everything-presence-mmwave-configurator
     restart: unless-stopped
     networks:
