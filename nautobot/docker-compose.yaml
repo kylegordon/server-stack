@@ -51,7 +51,7 @@ networks:
 
 services:
   nautobot:
-    image: ghcr.io/nautobot/nautobot:2.4.34
+    image: ghcr.io/nautobot/nautobot:2.4.35
     container_name: nautobot
     environment:
       - NAUTOBOT_ALLOWED_HOSTS=${NAUTOBOT_ALLOWED_HOSTS}
