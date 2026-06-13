@@ -18,7 +18,7 @@ volumes:
 
 services:
   borg-ui:
-    image: ainullcode/borg-ui:2.2.4
+    image: ainullcode/borg-ui:2.2.5
     container_name: borg-ui
     restart: unless-stopped
     networks:
