@@ -171,7 +171,7 @@ services:
   #     - TZ=Europe/London
 
   meshtastic:
-    image: ghcr.io/meshtastic/web:2.6.7
+    image: ghcr.io/meshtastic/web:v2.7.1
     container_name: Meshtastic-Web
     restart: unless-stopped
     environment:
