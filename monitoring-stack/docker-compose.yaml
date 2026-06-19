@@ -48,7 +48,7 @@ networks:
 
 services:
   librenms:
-    image: librenms/librenms:26.6.0
+    image: librenms/librenms:26.6.1
     container_name: librenms
     hostname: librenms
     cap_add:
@@ -103,7 +103,7 @@ services:
       - homepage.description=System Monitoring
 
   dispatcher:
-    image: librenms/librenms:26.6.0
+    image: librenms/librenms:26.6.1
     container_name: librenms_dispatcher
     hostname: librenms-dispatcher
     cap_add:
@@ -160,7 +160,7 @@ services:
   #   restart: always
 
   syslog-ng:
-    image: librenms/librenms:26.6.0
+    image: librenms/librenms:26.6.1
     container_name: librenms_syslog
     # domainname: viewpoint.house
     hostname: librenms
