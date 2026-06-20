@@ -26,7 +26,7 @@ volumes:
 
 services:
   pgadmin:
-    image: docker.io/dpage/pgadmin4:9.15
+    image: docker.io/dpage/pgadmin4:9.16
     container_name: pgadmin
     restart: unless-stopped
     env_file:
