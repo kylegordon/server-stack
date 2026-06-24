@@ -1,8 +1,8 @@
 ---
+include:
+  - ../common/networks.yaml
+
 networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
   nautobot_net:
     external: true
     name: nautobot_nautobot
@@ -42,7 +42,7 @@ services:
       - dawarich_net
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.pgadmin-http.entrypoints=web
       - traefik.http.routers.pgadmin-http.rule=Host(`pgadmin.viewpoint.house`)
       - traefik.http.routers.pgadmin-http.middlewares=pgadmin-https
