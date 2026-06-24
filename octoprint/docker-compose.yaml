@@ -14,7 +14,7 @@ volumes:
 
 services:
   octoprint:
-    image: octoprint/octoprint:1.11.7
+    image: octoprint/octoprint:1.11.8
     # image: octoprint/octoprint:latest
     restart: unless-stopped
     ports:
