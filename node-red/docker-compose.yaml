@@ -9,7 +9,7 @@ volumes:
 services:
   nodered:
     restart: unless-stopped
-    image: nodered/node-red:5.0.0
+    image: nodered/node-red:5.0.1
     container_name: node-red
     depends_on:
       eclipse-mosquitto:
