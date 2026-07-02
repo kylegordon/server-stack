@@ -107,7 +107,7 @@ services:
       - homepage.description=Network Automation Platform
 
   postgres:
-    image: docker.io/library/postgres:15.18-alpine
+    image: docker.io/library/postgres:18.4-alpine
     container_name: nautobot-postgres
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-nautobot}
