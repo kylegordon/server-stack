@@ -37,7 +37,7 @@ volumes:
 
 services:
   immich_server:
-    image: ghcr.io/immich-app/immich-server:v2.7.5
+    image: ghcr.io/immich-app/immich-server:v3.0.1
     container_name: immich_server
     networks:
       - traefik_proxy
@@ -80,7 +80,7 @@ services:
       - homepage.description=Self-hosted photo and video backup
 
   immich_machine_learning:
-    image: ghcr.io/immich-app/immich-machine-learning:v2.7.5
+    image: ghcr.io/immich-app/immich-machine-learning:v3.0.1
     container_name: immich_machine_learning
     networks:
       - immich
