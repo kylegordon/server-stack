@@ -17,6 +17,7 @@ docker compose -f nzbget/docker-compose.yaml up -d
 docker compose -f calibre/docker-compose.yaml up -d
 docker compose -f sonarr/docker-compose.yaml up -d
 docker compose -f radarr/docker-compose.yaml up -d
+docker compose -f recyclarr/docker-compose.yaml up -d
 docker compose -f music-assistant/docker-compose.yaml up -d
 docker compose -f monitoring-stack/docker-compose.yaml up -d  # needs librenms env_file environemt duplication looked at
 docker compose -f elk-stack/docker-compose.yaml up -d
@@ -45,6 +46,8 @@ docker compose -f netalertx/docker-compose.yaml up -d  # NetAlertX - network mon
 docker compose -f borg-ui/docker-compose.yaml up -d
 # docker compose -f selenium/docker-compose.yaml up -d
 docker compose -f nautobot/docker-compose.yaml up -d
+docker compose -f evcc/docker-compose.yaml up -d
+docker compose -f ha-mcp/docker-compose.yaml up -d
 
 docker compose -f opensky/docker-compose.yaml up -d
 docker compose -f piaware/docker-compose.yaml up -d
