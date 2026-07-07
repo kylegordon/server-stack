@@ -9,7 +9,7 @@ networks:
 
 services:
   ha-mcp:
-    image: ghcr.io/homeassistant-ai/ha-mcp:7.9.0
+    image: ghcr.io/homeassistant-ai/ha-mcp:7.10.0
     container_name: ha-mcp-server
     environment:
       - HOMEASSISTANT_URL=https://viewpoint.house
