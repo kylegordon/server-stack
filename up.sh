@@ -47,7 +47,6 @@ docker compose -f borg-ui/docker-compose.yaml up -d
 # docker compose -f selenium/docker-compose.yaml up -d
 docker compose -f nautobot/docker-compose.yaml up -d
 docker compose -f evcc/docker-compose.yaml up -d
-docker compose -f ha-mcp/docker-compose.yaml up -d
 
 docker compose -f opensky/docker-compose.yaml up -d
 docker compose -f piaware/docker-compose.yaml up -d
