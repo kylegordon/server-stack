@@ -67,6 +67,8 @@ services:
     ports:
       - 1900:1900/udp
       - 2869:2869/tcp
+      - 9584:9584/tcp  # HA-MCP
+      - 9000:9000/tcp  # OCPP
       # - 5353:5353/udp
       # - 5353:5353/tcp
     environment:
