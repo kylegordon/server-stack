@@ -52,6 +52,7 @@ services:
   komodo:
     image: ghcr.io/moghtech/komodo-core:1.19.5
     container_name: komodo
+    init: true
     networks:
       - traefik_proxy
       - komodo
