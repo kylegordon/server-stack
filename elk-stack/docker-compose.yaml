@@ -301,7 +301,7 @@ services:
   #     - traefik.enable=false
 
   kibana01:
-    image: docker.elastic.co/kibana/kibana:9.4.3
+    image: docker.elastic.co/kibana/kibana:9.4.4
     container_name: kibana
     restart: unless-stopped
     # ports:
