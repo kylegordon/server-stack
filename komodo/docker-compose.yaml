@@ -31,6 +31,12 @@ volumes:
       type: nfs4
       o: addr=172.24.32.5,rw
       device: ":/srv/nfs4/docker_nfs/komodo/periphery/"
+  komodo_keys:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/komodo/keys/"
 
 services:
   mongo:
@@ -50,7 +56,7 @@ services:
       - komodo.skip=
 
   komodo:
-    image: ghcr.io/moghtech/komodo-core:1.19.5
+    image: ghcr.io/moghtech/komodo-core:2.2.0
     container_name: komodo
     init: true
     networks:
@@ -58,6 +64,7 @@ services:
       - komodo
     volumes:
       - komodo_data:/data
+      - komodo_keys:/keys
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:
       - .env
