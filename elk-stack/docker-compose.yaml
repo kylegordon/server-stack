@@ -125,7 +125,7 @@ services:
       - elastic
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:9.4.3
+    image: docker.elastic.co/beats/filebeat:9.4.4
     container_name: filebeat
     restart: unless-stopped
     user: root #To read the docker socket
@@ -154,7 +154,7 @@ services:
       - traefik.enable=false
 
   auditbeat:
-    image: docker.elastic.co/beats/auditbeat:9.4.3
+    image: docker.elastic.co/beats/auditbeat:9.4.4
     container_name: auditbeat
     restart: unless-stopped
     user: root #To read the docker socket
@@ -184,7 +184,7 @@ services:
       - traefik.enable=false
 
   apm-server:
-    image: docker.elastic.co/apm/apm-server:9.4.3
+    image: docker.elastic.co/apm/apm-server:9.4.4
     container_name: apm-server
     restart: unless-stopped
     depends_on:
