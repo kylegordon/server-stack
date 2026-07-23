@@ -45,6 +45,13 @@ volumes:
         o: addr=172.24.32.5,rw
         device: ":/srv/nfs4/docker_nfs/nautobot/postgres/"
 
+  postgresv18_data:
+    driver: local
+    driver_opts:
+        type: nfs4
+        o: addr=172.24.32.5,rw
+        device: ":/srv/nfs4/docker_nfs/nautobot/postgresv18/"
+
 networks:
   nautobot:
     driver: bridge
@@ -107,7 +114,7 @@ services:
       - homepage.description=Network Automation Platform
 
   postgres:
-    image: docker.io/library/postgres:15.18-alpine
+    image: docker.io/library/postgres:18.4-alpine
     container_name: nautobot-postgres
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-nautobot}
@@ -116,7 +123,7 @@ services:
     networks:
       - nautobot
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgresv18_data:/var/lib/postgresql
     restart: unless-stopped
 
   redis:
