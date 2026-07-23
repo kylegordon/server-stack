@@ -26,7 +26,6 @@ docker compose -f warrior/docker-compose.yaml up -d
 docker compose -f ollama/docker-compose.yaml up -d
 docker compose -f homepage/docker-compose.yaml up -d
 docker compose -f peanut/docker-compose.yaml up -d
-# docker compose -f miniflux/docker-compose.yaml up -d
 docker compose -f scrutiny/docker-compose.yaml up -d
 docker compose -f ebusd/docker-compose.yaml up -d
 # docker compose -f watchtower/docker-compose.yaml up -d
