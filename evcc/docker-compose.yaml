@@ -1,0 +1,45 @@
+---
+include:
+  - ../common/networks.yaml
+
+volumes:
+  evcc-data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/evcc/data/"
+
+services:
+  evcc:
+    command:
+      - evcc
+    container_name: evcc
+    image: evcc/evcc:0.312.1
+    networks:
+      - traefik_proxy
+    ports:
+    #   - 7070:7070/tcp
+      - 8887:8887/tcp
+    volumes:
+      - evcc-data:/root/.evcc
+      # - /home/user/.evcc:/root/.evcc
+      # - /home/user/evcc.yaml:/etc/evcc.yaml # optional
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.evcc-http.entrypoints=web
+      - traefik.http.routers.evcc-http.rule=Host(`evcc.viewpoint.house`)
+      - traefik.http.routers.evcc-http.middlewares=evcc-https
+      - traefik.http.middlewares.evcc-https.redirectscheme.scheme=https
+      - traefik.http.routers.evcc.rule=Host(`evcc.viewpoint.house`)
+      - traefik.http.routers.evcc.entrypoints=websecure
+      - traefik.http.routers.evcc.tls=true
+      - traefik.http.routers.evcc.tls.certresolver=letsencrypt
+      - traefik.http.services.evcc.loadbalancer.server.port=7070
+      - traefik.http.services.evcc.loadbalancer.healthcheck.port=7070
+      - homepage.group=Home Automation
+      - homepage.name=EVCC
+      - homepage.href=https://evcc.viewpoint.house
+      - homepage.icon=mdi-ev-station
+      - homepage.description=EV Charge Controller

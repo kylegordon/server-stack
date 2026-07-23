@@ -1,0 +1,28 @@
+services:
+  github-runner:
+    image: myoung34/github-runner:latest
+    container_name: github-runner
+    restart: unless-stopped
+    environment:
+      - REPO_URL=${REPO_URL}
+      - ACCESS_TOKEN=${ACCESS_TOKEN}
+      - RUNNER_NAME=${RUNNER_NAME:-github-runner}
+      - RUNNER_WORKDIR=${RUNNER_WORKDIR:-/tmp/runner/work}
+      - RUNNER_GROUP=${RUNNER_GROUP:-Default}
+      - LABELS=${LABELS:-self-hosted,docker}
+      - EPHEMERAL=${EPHEMERAL:-false}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - runner-data:/tmp/runner
+    security_opt:
+      - label:disable
+    networks:
+      - github-runner-network
+
+volumes:
+  runner-data:
+    driver: local
+
+networks:
+  github-runner-network:
+    driver: bridge

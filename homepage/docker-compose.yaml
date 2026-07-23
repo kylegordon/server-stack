@@ -1,8 +1,6 @@
 ---
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
+include:
+  - ../common/networks.yaml
 
 volumes:
   homepage_config:
@@ -13,7 +11,7 @@ volumes:
       device: ":/srv/nfs4/docker_nfs/homepage/"
 services:
   homepage:
-    image: ghcr.io/benphelps/homepage:latest
+    image: ghcr.io/gethomepage/homepage:v1.13.2
     container_name: homepage
     restart: unless-stopped
     networks:
@@ -27,6 +25,7 @@ services:
       - traefik.http.routers.homepage.rule=Host(`home.viewpoint.house`)
       - traefik.http.routers.homepage.entrypoints=websecure
       - traefik.http.routers.homepage.tls=true
+      - traefik.http.routers.homepage.tls.certresolver=letsencrypt
       - traefik.http.services.homepage.loadbalancer.server.port=3000
       - traefik.http.services.homepage.loadbalancer.healthcheck.path=/
       - traefik.http.services.homepage.loadbalancer.healthcheck.port=3000

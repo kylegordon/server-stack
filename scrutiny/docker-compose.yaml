@@ -1,9 +1,7 @@
+include:
+  - ../common/networks.yaml
+
 networks:
-  traefik_proxy:
-    external: true
-    # Failure to specify the full external network name as below will result in:
-    # Error response from daemon: failed to set up container networking: invalid cluster node while attaching to network
-    name: traefik_traefik_proxy
   scrutiny:
     driver: bridge
 
@@ -46,7 +44,7 @@ services:
       start_period: 10s
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.scrutiny-web-http.entrypoints=web
       - traefik.http.routers.scrutiny-web-http.rule=Host(`scrutiny.viewpoint.house`)
       - traefik.http.routers.scrutiny-web-http.middlewares=scrutiny-web-https
@@ -54,6 +52,7 @@ services:
       - traefik.http.routers.scrutiny-web.rule=Host(`scrutiny.viewpoint.house`)
       - traefik.http.routers.scrutiny-web.entrypoints=websecure
       - traefik.http.routers.scrutiny-web.tls=true
+      - traefik.http.routers.scrutiny-web.tls.certresolver=letsencrypt
       - traefik.http.services.scrutiny-web.loadbalancer.server.port=8080
       - traefik.http.services.scrutiny-web.loadbalancer.healthcheck.path=/api/health
       - traefik.http.services.scrutiny-web.loadbalancer.healthcheck.port=8080

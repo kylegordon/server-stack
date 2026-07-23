@@ -1,6 +1,5 @@
-networks:
-  homeautomation:
-    external: true
+include:
+  - ../common/networks.yaml
 
 volumes:
   piper:
@@ -14,7 +13,7 @@ services:
   piper:
     container_name: piper
     restart: unless-stopped
-    image: rhasspy/wyoming-piper:2.2.2
+    image: rhasspy/wyoming-piper:2.3.1
     # Choose a voice from https://rhasspy.github.io/piper-samples/
     command: --voice en_GB-alba-medium
     networks:

@@ -1,9 +1,7 @@
+include:
+  - ../common/networks.yaml
+
 networks:
-  traefik_proxy:
-    external: true
-    # Failure to specify the full external network name as below will result in:
-    # Error response from daemon: failed to set up container networking: invalid cluster node while attaching to network
-    name: traefik_traefik_proxy
   paperless:
     driver: bridge
 
@@ -39,7 +37,7 @@ volumes:
 
 services:
   paperless_broker:
-    image: docker.io/library/redis:8.6.3-alpine
+    image: docker.io/library/redis:8.8.0-alpine
     restart: unless-stopped
     networks:
       - paperless
@@ -47,7 +45,7 @@ services:
       - paperless_redisdata:/data
 
   paperless_db:
-    image: docker.io/library/mariadb:12.2.2
+    image: docker.io/library/mariadb:12.3.2
     restart: unless-stopped
     networks:
       - paperless
@@ -63,7 +61,7 @@ services:
       retries: 3
 
   paperless-ngx:
-    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.15
+    image: ghcr.io/paperless-ngx/paperless-ngx:3.0.0
     container_name: paperless-ngx
     depends_on:
       paperless_broker:
@@ -86,7 +84,7 @@ services:
       - paperless
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.paperless-http.entrypoints=web
       - traefik.http.routers.paperless-http.rule=Host(`paperless.viewpoint.house`)
       - traefik.http.routers.paperless-http.middlewares=paperless-https
@@ -94,6 +92,7 @@ services:
       - traefik.http.routers.paperless.rule=Host(`paperless.viewpoint.house`)
       - traefik.http.routers.paperless.entrypoints=websecure
       - traefik.http.routers.paperless.tls=true
+      - traefik.http.routers.paperless.tls.certresolver=letsencrypt
       - traefik.http.services.paperless.loadbalancer.server.port=8000
       # - traefik.http.routers.paperless.middlewares=authelia@docker
       - homepage.group=Media

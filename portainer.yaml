@@ -1,0 +1,21 @@
+---
+
+volumes:
+  portainer_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/store/docker_nfs/portainer/"
+
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    # container_name: portainer
+    ports:
+      - 9000:9000
+    volumes:
+      - portainer_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped

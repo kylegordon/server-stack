@@ -1,10 +1,6 @@
 ---
-
-networks:
-    traefik_proxy:
-      external: true
-      # driver: overlay
-      name: traefik_traefik_proxy
+include:
+  - ../common/networks.yaml
 
 volumes:
   kea:
@@ -175,7 +171,7 @@ services:
   #     - TZ=Europe/London
 
   meshtastic:
-    image: ghcr.io/meshtastic/web:2.6.7
+    image: ghcr.io/meshtastic/web:v2.7.1
     container_name: Meshtastic-Web
     restart: unless-stopped
     environment:
@@ -184,7 +180,7 @@ services:
       - traefik_proxy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.meshtastic.rule=Host(`meshtastic.viewpoint.house`)
       - traefik.http.routers.meshtastic.entrypoints=web
       - traefik.http.services.meshtastic.loadbalancer.server.port=8080

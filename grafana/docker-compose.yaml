@@ -1,7 +1,5 @@
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
+include:
+  - ../common/networks.yaml
 
 volumes:
   grafana:
@@ -13,7 +11,7 @@ volumes:
 
 services:
   grafana:
-    image: grafana/grafana:13.0.1
+    image: grafana/grafana:13.1.1
     container_name: grafana
     restart: unless-stopped
     env_file:
@@ -29,6 +27,7 @@ services:
       - traefik.http.routers.grafana.rule=Host(`grafana.viewpoint.house`)
       - traefik.http.routers.grafana.entrypoints=websecure
       - traefik.http.routers.grafana.tls=true
+      - traefik.http.routers.grafana.tls.certresolver=letsencrypt
       - traefik.http.services.grafana.loadbalancer.server.port=3000
       - traefik.http.services.grafana.loadbalancer.healthcheck.path=/
       - traefik.http.services.grafana.loadbalancer.healthcheck.port=3000

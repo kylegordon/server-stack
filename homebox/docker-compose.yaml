@@ -1,7 +1,5 @@
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
+include:
+  - ../common/networks.yaml
 
 volumes:
   homebox_data:
@@ -13,7 +11,7 @@ volumes:
 
 services:
   homebox:
-    image: ghcr.io/sysadminsmedia/homebox:0.25.0
+    image: ghcr.io/sysadminsmedia/homebox:0.26.2
     container_name: homebox
     environment:
       - TZ=Europe/London
@@ -38,6 +36,7 @@ services:
       - traefik.http.routers.homebox.rule=Host(`parts.viewpoint.house`)
       - traefik.http.routers.homebox.entrypoints=websecure
       - traefik.http.routers.homebox.tls=true
+      - traefik.http.routers.homebox.tls.certresolver=letsencrypt
       - traefik.http.services.homebox.loadbalancer.server.port=7745
       - traefik.http.services.homebox.loadbalancer.healthcheck.port=7745
       - traefik.http.services.homebox.loadbalancer.healthcheck.path=/

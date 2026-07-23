@@ -1,9 +1,5 @@
-networks:
-  traefik_traefik_proxy:
-    external: true
-    # Failure to provide the correct external network name results in:
-    # Error response from daemon: failed to set up container networking: invalid cluster node while attaching to network
-    name: traefik_traefik_proxy
+include:
+  - ../common/networks.yaml
 
 volumes:
     home-assistant-matter-hub:
@@ -15,7 +11,7 @@ volumes:
 
 services:
   matter-hub:
-    image: ghcr.io/riddix/home-assistant-matter-hub:2.0.45
+    image: ghcr.io/riddix/home-assistant-matter-hub:2.0.49
     network_mode: host
     # networks:
     #   - traefik_proxy
@@ -26,7 +22,7 @@ services:
       - home-assistant-matter-hub:/data
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.matter-hub.rule=Host(`matter-hub.viewpoint.house`) || Host(`172.24.32.13`)
       - traefik.http.routers.matter-hub.entrypoints=web
       - traefik.http.services.matter-hub.loadbalancer.server.port=8482

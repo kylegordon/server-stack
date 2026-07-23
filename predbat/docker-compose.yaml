@@ -9,7 +9,7 @@ volumes:
 services:
   predbat:
     container_name: predbat
-    image: nipar44/predbat_addon:v8.39.5
+    image: nipar44/predbat_addon:v8.46.0
     restart: unless-stopped
     volumes:
       # - /docker/predbat/config:/config:rw
@@ -25,10 +25,11 @@ services:
           condition: service_healthy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.predbat.rule=Host(`predbat.viewpoint.house`)
       - traefik.http.routers.predbat.entrypoints=websecure
       - traefik.http.routers.predbat.tls=true
+      - traefik.http.routers.predbat.tls.certresolver=letsencrypt
       - traefik.http.services.predbat.loadbalancer.server.port=5052
       - traefik.http.services.predbat.loadbalancer.healthcheck.path=/
       - traefik.http.services.predbat.loadbalancer.healthcheck.port=5052

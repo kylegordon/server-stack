@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPHome Device Status</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background: #5568d3;
+        }
+        
+        .refresh-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .status-message {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: #667eea;
+            color: white;
+        }
+        
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tbody tr:hover {
+            background: #f5f5f5;
+        }
+        
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-online {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .status-offline {
+            background: #f44336;
+            color: white;
+        }
+        
+        .status-unknown {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 18px;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #c62828;
+        }
+        
+        .version {
+            font-family: 'Courier New', monospace;
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+        
+        .last-updated {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ESPHome Device Monitor</h1>
+        
+        <div class="controls">
+            <span class="status-message" id="statusMessage">Ready</span>
+            <button class="refresh-btn" id="refreshBtn" onclick="loadDevices()">Refresh</button>
+        </div>
+        
+        <div class="table-container">
+            <div id="content"></div>
+        </div>
+        
+        <div class="last-updated" id="lastUpdated"></div>
+    </div>
+
+    <script>
+        const ESPHOME_URL = 'https://esphome.viewpoint.house';
+        let autoRefreshInterval = null;
+
+        function updateStatus(message, isError = false) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.style.color = isError ? '#c62828' : '#666';
+        }
+
+        function updateLastUpdated() {
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = 
+                `Last updated: ${now.toLocaleString()}`;
+        }
+
+        async function fetchWithTimeout(url, timeout = 5000) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+            
+            try {
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                return response;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                throw error;
+            }
+        }
+
+        async function getDeviceList() {
+            try {
+                const response = await fetchWithTimeout(`${ESPHOME_URL}/devices`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching device list:', error);
+                throw error;
+            }
+        }
+
+        async function getDeviceStatus(deviceName) {
+            try {
+                const response = await fetchWithTimeout(`${ESPHOME_URL}/devices/${deviceName}/status`, 3000);
+                if (!response.ok) {
+                    return { online: false, version: 'Unknown' };
+                }
+                const data = await response.json();
+                return {
+                    online: data.online || false,
+                    version: data.version || data.esphome_version || 'Unknown'
+                };
+            } catch (error) {
+                console.error(`Error fetching status for ${deviceName}:`, error);
+                return { online: false, version: 'Unknown' };
+            }
+        }
+
+        function createStatusBadge(online) {
+            const statusClass = online ? 'status-online' : 'status-offline';
+            const statusText = online ? 'Online' : 'Offline';
+            return `<span class="status-badge ${statusClass}">${statusText}</span>`;
+        }
+
+        function renderTable(devices) {
+            const sortedDevices = devices.sort((a, b) => {
+                if (a.online !== b.online) return b.online ? 1 : -1;
+                return a.name.localeCompare(b.name);
+            });
+
+            const html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Device Name</th>
+                            <th>Status</th>
+                            <th>Version</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sortedDevices.map(device => `
+                            <tr>
+                                <td><strong>${device.name}</strong></td>
+                                <td>${createStatusBadge(device.online)}</td>
+                                <td><span class="version">${device.version}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            document.getElementById('content').innerHTML = html;
+        }
+
+        function renderError(message) {
+            document.getElementById('content').innerHTML = `
+                <div class="error">
+                    <strong>Error:</strong> ${message}
+                </div>
+            `;
+        }
+
+        function renderLoading() {
+            document.getElementById('content').innerHTML = `
+                <div class="loading">Loading devices...</div>
+            `;
+        }
+
+        async function loadDevices() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            refreshBtn.disabled = true;
+            renderLoading();
+            updateStatus('Loading devices...');
+
+            try {
+                // Get device list
+                updateStatus('Fetching device list...');
+                const deviceList = await getDeviceList();
+                
+                if (!deviceList || !Array.isArray(deviceList)) {
+                    throw new Error('Invalid device list format');
+                }
+
+                if (deviceList.length === 0) {
+                    renderError('No devices found');
+                    updateStatus('No devices found', true);
+                    return;
+                }
+
+                updateStatus(`Loading status for ${deviceList.length} devices...`);
+
+                // Fetch status for all devices in parallel
+                const devicePromises = deviceList.map(async (device) => {
+                    const deviceName = device.name || device;
+                    const status = await getDeviceStatus(deviceName);
+                    return {
+                        name: deviceName,
+                        ...status
+                    };
+                });
+
+                const devices = await Promise.all(devicePromises);
+                
+                renderTable(devices);
+                updateStatus(`Showing ${devices.length} devices`);
+                updateLastUpdated();
+
+            } catch (error) {
+                console.error('Error loading devices:', error);
+                renderError(`Failed to load devices: ${error.message}`);
+                updateStatus('Error loading devices', true);
+            } finally {
+                refreshBtn.disabled = false;
+            }
+        }
+
+        // Auto-refresh every 30 seconds
+        function startAutoRefresh() {
+            autoRefreshInterval = setInterval(loadDevices, 30000);
+        }
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDevices();
+            startAutoRefresh();
+        });
+    </script>
+</body>
+</html>

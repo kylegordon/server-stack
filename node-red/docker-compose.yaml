@@ -9,14 +9,14 @@ volumes:
 services:
   nodered:
     restart: unless-stopped
-    image: nodered/node-red:4.1.10
+    image: nodered/node-red:5.0.1
     container_name: node-red
     depends_on:
       eclipse-mosquitto:
           condition: service_started
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.nodered-http.entrypoints=web
       - traefik.http.routers.nodered-http.rule=Host(`nodered.viewpoint.house`)
       - traefik.http.routers.nodered-http.middlewares=nodered-https
@@ -24,6 +24,7 @@ services:
       - traefik.http.routers.nodered.rule=Host(`nodered.viewpoint.house`)
       - traefik.http.routers.nodered.entrypoints=websecure
       - traefik.http.routers.nodered.tls=true
+      - traefik.http.routers.nodered.tls.certresolver=letsencrypt
       - traefik.http.services.nodered.loadbalancer.server.port=1880
       - traefik.http.services.nodered.loadbalancer.healthcheck.path=/
       - traefik.http.services.nodered.loadbalancer.healthcheck.port=1880

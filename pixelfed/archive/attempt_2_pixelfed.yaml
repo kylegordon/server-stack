@@ -1,0 +1,89 @@
+### From https://blog.pixelfed.de/2020/05/29/pixelfed-in-docker/
+---
+version: '2.1'
+
+networks:
+  pixelfed:
+    internal: true
+  traefik_proxy:
+    external: true
+    name: frontend_traefik_proxy
+
+services:
+  app:
+    image: zknt/pixelfed
+    restart: unless-stopped
+    env_file:
+      - ./env
+    networks:
+      - pixelfed
+      - traefik_proxy
+    volumes:
+      # - "app-storage:/var/www/storage"
+      - "/docker/pixelfed/app/storage:/var/www/storage"
+      - "./env:/var/www/.env"
+    depends_on:
+      - db
+      - redis
+    # The port statement makes Pixelfed run on Port 8080, no SSL.
+    # For a real instance you need a frontend proxy instead!
+    # ports:
+    #   - "8080:80"
+    labels:
+      # traefik
+      - traefik.enable=true
+      - traefik.docker.network=traefik_proxy
+
+      # traefikv2
+      - "traefik.http.routers.pixelfed.rule=Host(`pixelfed.glasgownet.com`)"
+      - "traefik.http.routers.pixelfed.entrypoints=https"
+      - "traefik.http.services.pixelfed.loadbalancer.server.port=80"
+
+  worker:
+    image: zknt/pixelfed
+    restart: unless-stopped
+    env_file:
+      - ./env
+    networks:
+      - pixelfed
+    volumes:
+      # - "app-storage:/var/www/storage"
+      - "/docker/pixelfed/app/storage:/var/www/storage"
+      - "./env:/var/www/.env"
+    entrypoint: /worker-entrypoint.sh
+    depends_on:
+      - db
+      - redis
+      - app
+    healthcheck:
+      test: php artisan horizon:status | grep running
+      interval: 60s
+      timeout: 5s
+      retries: 1
+
+  db:
+    image: zknt/mariadb
+    restart: unless-stopped
+    env_file:
+      - ./env
+    networks:
+      - pixelfed
+    environment:
+      - MYSQL_ROOT_PASSWORD=changeMeForProduction
+    volumes:
+      # - "db-data:/var/lib/mysql"
+      - "/docker/pixelfed/db:/var/lib/mysql"
+
+  redis:
+    image: zknt/redis
+    restart: unless-stopped
+    networks:
+      - pixelfed
+    volumes:
+      # - "redis-data:/data"
+      - "/docker/pixelfed/redis:/data"
+
+# volumes:
+#   db-data:
+#   redis-data:
+#   app-storage:

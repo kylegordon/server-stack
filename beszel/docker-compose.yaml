@@ -1,8 +1,6 @@
 ---
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
+include:
+  - ../common/networks.yaml
 
 volumes:
   beszel_agent_data:
@@ -31,6 +29,7 @@ services:
       - traefik.http.routers.beszel.rule=Host(`beszel.viewpoint.house`)
       - traefik.http.routers.beszel.entrypoints=websecure
       - traefik.http.routers.beszel.tls=true
+      - traefik.http.routers.beszel.tls.certresolver=letsencrypt
       - traefik.http.services.beszel.loadbalancer.server.port=8090
       - traefik.http.services.beszel.loadbalancer.healthcheck.port=8090
       - homepage.group=Monitoring

@@ -1,8 +1,6 @@
 ---
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
+include:
+  - ../common/networks.yaml
 
 services:
   pfclient:
@@ -30,10 +28,11 @@ services:
         tag: "{{.Name}}"
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.planefinder.rule=Host(`planefinder.viewpoint.house`)
       - traefik.http.routers.planefinder.entrypoints=websecure
       - traefik.http.routers.planefinder.tls=true
+      - traefik.http.routers.planefinder.tls.certresolver=letsencrypt
       - traefik.http.services.planefinder.loadbalancer.server.port=30053
       - traefik.http.services.planefinder.loadbalancer.healthcheck.path=/
       - traefik.http.services.planefinder.loadbalancer.healthcheck.port=30053

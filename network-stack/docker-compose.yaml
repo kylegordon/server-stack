@@ -1,0 +1,23 @@
+networks:
+  traefik_proxy:
+    name: traefik_proxy
+  homeautomation:
+    name: homeautomation
+
+services:
+  # Keepalive container attached to both networks so creation is guaranteed and the
+  # networks are never pruned while consumers are down.
+  network-stack:
+    image: alpine:latest
+    container_name: network-stack
+    command: sleep infinity
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+      - homeautomation
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: 3
+

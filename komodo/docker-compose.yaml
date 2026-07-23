@@ -1,8 +1,8 @@
 ---
+include:
+  - ../common/networks.yaml
+
 networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
   komodo:
     driver: bridge
 
@@ -31,10 +31,16 @@ volumes:
       type: nfs4
       o: addr=172.24.32.5,rw
       device: ":/srv/nfs4/docker_nfs/komodo/periphery/"
+  komodo_keys:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/komodo/keys/"
 
 services:
   mongo:
-    image: docker.io/library/mongo:8.3.2
+    image: docker.io/library/mongo:8.3.7
     container_name: komodo-mongo
     command: --quiet --wiredTigerCacheSizeGB 0.25
     networks:
@@ -50,13 +56,15 @@ services:
       - komodo.skip=
 
   komodo:
-    image: ghcr.io/moghtech/komodo-core:1.19.5
+    image: ghcr.io/moghtech/komodo-core:2.2.0
     container_name: komodo
+    init: true
     networks:
       - traefik_proxy
       - komodo
     volumes:
       - komodo_data:/data
+      - komodo_keys:/keys
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:
       - .env
@@ -104,7 +112,7 @@ services:
       - traefik.http.routers.komodo.entrypoints=websecure
       - traefik.http.routers.komodo.tls.certresolver=letsencrypt
       - traefik.http.services.komodo.loadbalancer.server.port=9120
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - homepage.group=Infrastructure
       - homepage.name=Komodo
       - homepage.href=https://komodo.viewpoint.house
@@ -112,7 +120,7 @@ services:
       - homepage.description=Docker Management Platform
 
   periphery:
-    image: ghcr.io/moghtech/komodo-periphery:1.19.5
+    image: ghcr.io/moghtech/komodo-periphery:2.2.0
     container_name: komodo-periphery
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

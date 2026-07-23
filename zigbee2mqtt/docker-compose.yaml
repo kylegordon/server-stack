@@ -9,7 +9,7 @@ volumes:
 services:
   zigbee2mqtt:
     container_name: zigbee2mqtt
-    image: koenkk/zigbee2mqtt:2.10.1
+    image: koenkk/zigbee2mqtt:2.12.1
     restart: unless-stopped
     healthcheck:
       test: "wget --no-verbose --tries=1 --spider http://localhost:8080 || exit 1"
@@ -22,7 +22,7 @@ services:
       - homeautomation
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.z2m-http.entrypoints=web
       - traefik.http.routers.z2m-http.rule=Host(`z2m.viewpoint.house`)
       - traefik.http.routers.z2m-http.middlewares=z2m-https
@@ -30,6 +30,7 @@ services:
       - traefik.http.routers.z2m.rule=Host(`z2m.viewpoint.house`)
       - traefik.http.routers.z2m.entrypoints=websecure
       - traefik.http.routers.z2m.tls=true
+      - traefik.http.routers.z2m.tls.certresolver=letsencrypt
       - traefik.http.services.z2m.loadbalancer.server.port=8080
       - traefik.http.services.z2m.loadbalancer.healthcheck.path=/
       - traefik.http.services.z2m.loadbalancer.healthcheck.port=8080

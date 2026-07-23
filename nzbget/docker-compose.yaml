@@ -1,7 +1,7 @@
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
+---
+include:
+  - ../common/volumes.yaml
+  - ../common/networks.yaml
 
 volumes:
   nzbget_config:
@@ -28,7 +28,7 @@ volumes:
 
 services:
   nzbget:
-    image: linuxserver/nzbget:26.1.20260522
+    image: linuxserver/nzbget:26.2.20260717
     container_name: nzbget
     restart: unless-stopped
     networks:
@@ -52,6 +52,7 @@ services:
       - traefik.http.routers.nzbget.rule=Host(`nzbget.viewpoint.house`)
       - traefik.http.routers.nzbget.entrypoints=websecure
       - traefik.http.routers.nzbget.tls=true
+      - traefik.http.routers.nzbget.tls.certresolver=letsencrypt
       - traefik.http.services.nzbget.loadbalancer.server.port=6789
       # - traefik.http.services.nzbget.loadbalancer.healthcheck.port=6789
       # - traefik.http.services.nzbget.loadbalancer.healthcheck.path=/

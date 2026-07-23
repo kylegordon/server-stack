@@ -1,4 +1,7 @@
 
+include:
+  - ../common/networks.yaml
+
 volumes:
   nautobot_media:
     driver: local
@@ -43,15 +46,12 @@ volumes:
         device: ":/srv/nfs4/docker_nfs/nautobot/postgres/"
 
 networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
   nautobot:
     driver: bridge
 
 services:
   nautobot:
-    image: ghcr.io/nautobot/nautobot:2.4.33
+    image: ghcr.io/nautobot/nautobot:3.1.8
     container_name: nautobot
     environment:
       - NAUTOBOT_ALLOWED_HOSTS=${NAUTOBOT_ALLOWED_HOSTS}
@@ -92,10 +92,11 @@ services:
     restart: unless-stopped
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.nautobot.rule=Host(`nautobot.viewpoint.house`)
       - traefik.http.routers.nautobot.entrypoints=websecure
       - traefik.http.routers.nautobot.tls=true
+      - traefik.http.routers.nautobot.tls.certresolver=letsencrypt
       - traefik.http.services.nautobot.loadbalancer.server.port=8080
       - traefik.http.services.nautobot.loadbalancer.healthcheck.path=/
       - traefik.http.services.nautobot.loadbalancer.healthcheck.port=8080
@@ -119,7 +120,7 @@ services:
     restart: unless-stopped
 
   redis:
-    image: docker.io/library/redis:8.6.3-alpine
+    image: docker.io/library/redis:8.8.0-alpine
     container_name: nautobot-redis
     command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:-redispassword}"]
     networks:

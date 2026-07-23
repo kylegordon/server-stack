@@ -1,4 +1,7 @@
 
+include:
+  - ../common/networks.yaml
+
 volumes:
 
   logstash_config:
@@ -33,10 +36,6 @@ networks:
   elastic:
     driver: bridge
 
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
-
 services:
 
   cerebro:
@@ -50,10 +49,11 @@ services:
       - traefik_proxy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.cerebro.rule=Host(`cerebro.viewpoint.house`)
       - traefik.http.routers.cerebro.entrypoints=websecure
       - traefik.http.routers.cerebro.tls=true
+      - traefik.http.routers.cerebro.tls.certresolver=letsencrypt
       - homepage.group=Monitoring
       - homepage.name=Cerebro
       - homepage.icon=mdi-chip
@@ -71,10 +71,11 @@ services:
       - traefik_proxy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.elastichq.rule=Host(`elastichq.viewpoint.house`)
       - traefik.http.routers.elastichq.entrypoints=websecure
       - traefik.http.routers.elastichq.tls=true
+      - traefik.http.routers.elastichq.tls.certresolver=letsencrypt
       - homepage.group=Monitoring
       - homepage.name=ElasticHQ
       - homepage.icon=mdi-chip
@@ -82,7 +83,7 @@ services:
       - homepage.description=ELK - ElasticHQ
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:9.4.1
+    image: docker.elastic.co/logstash/logstash:9.4.4
     container_name: logstash
     restart: unless-stopped
     volumes:
@@ -124,7 +125,7 @@ services:
       - elastic
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:9.4.1
+    image: docker.elastic.co/beats/filebeat:9.4.4
     container_name: filebeat
     restart: unless-stopped
     user: root #To read the docker socket
@@ -153,7 +154,7 @@ services:
       - traefik.enable=false
 
   auditbeat:
-    image: docker.elastic.co/beats/auditbeat:9.4.1
+    image: docker.elastic.co/beats/auditbeat:9.4.4
     container_name: auditbeat
     restart: unless-stopped
     user: root #To read the docker socket
@@ -183,7 +184,7 @@ services:
       - traefik.enable=false
 
   apm-server:
-    image: docker.elastic.co/apm/apm-server:9.4.1
+    image: docker.elastic.co/apm/apm-server:9.4.4
     container_name: apm-server
     restart: unless-stopped
     depends_on:
@@ -208,7 +209,7 @@ services:
     labels:
       - traefik.enable=false
   es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.4.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.4.4
     container_name: es01
     restart: unless-stopped
     # network_mode: host
@@ -242,7 +243,7 @@ services:
       - traefik.enable=false
 
   es02:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.4.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.4.4
     container_name: es02
     restart: unless-stopped
     # network_mode: host
@@ -300,7 +301,7 @@ services:
   #     - traefik.enable=false
 
   kibana01:
-    image: docker.elastic.co/kibana/kibana:9.4.1
+    image: docker.elastic.co/kibana/kibana:9.4.4
     container_name: kibana
     restart: unless-stopped
     # ports:
@@ -312,10 +313,11 @@ services:
       ELASTICSEARCH_HOSTS: http://es01:9200
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.kibana01.rule=Host(`logs.viewpoint.house`)
       - traefik.http.routers.kibana01.entrypoints=websecure
       - traefik.http.routers.kibana01.tls=true
+      - traefik.http.routers.kibana01.tls.certresolver=letsencrypt
       - traefik.http.services.kibana01.loadbalancer.server.port=5601
       - traefik.http.services.kibana01.loadbalancer.healthcheck.path=/
       - traefik.http.services.kibana01.loadbalancer.healthcheck.port=5601
@@ -329,7 +331,7 @@ services:
       - traefik_proxy
 
   metricbeat:
-    image: docker.elastic.co/beats/metricbeat:9.4.1
+    image: docker.elastic.co/beats/metricbeat:9.4.4
     container_name: metricbeat
     command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
     restart: unless-stopped

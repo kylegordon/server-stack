@@ -4,8 +4,9 @@ volumes:
 
 services:
   periphery:
-    image: ghcr.io/moghtech/komodo-periphery:1.19.5
+    image: ghcr.io/moghtech/komodo-periphery:2.2.0
     container_name: komodo-periphery-octoprint
+    init: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/proc

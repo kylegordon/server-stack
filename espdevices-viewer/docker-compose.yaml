@@ -1,0 +1,40 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+services:
+  espdevices-viewer:
+    build: .
+    container_name: espdevices-viewer
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.espdevices-viewer-http.entrypoints=web
+      - traefik.http.routers.espdevices-viewer-http.rule=Host(`espdevices.viewpoint.house`)
+      - traefik.http.routers.espdevices-viewer-http.middlewares=espdevices-viewer-https
+      - traefik.http.middlewares.espdevices-viewer-https.redirectscheme.scheme=https
+      - traefik.http.routers.espdevices-viewer.rule=Host(`espdevices.viewpoint.house`)
+      - traefik.http.routers.espdevices-viewer.entrypoints=websecure
+      - traefik.http.routers.espdevices-viewer.tls=true
+      - traefik.http.routers.espdevices-viewer.tls.certresolver=letsencrypt
+      - traefik.http.routers.espdevices-viewer.tls.domains[0].main=espdevices.viewpoint.house
+      - traefik.http.services.espdevices-viewer.loadbalancer.server.port=80
+      - traefik.http.services.espdevices-viewer.loadbalancer.healthcheck.path=/
+      - traefik.http.services.espdevices-viewer.loadbalancer.healthcheck.port=80
+      - homepage.group=Home Automation
+      - homepage.name=ESPHome Devices
+      - homepage.icon=mdi-devices
+      - homepage.href=https://espdevices.viewpoint.house
+      - homepage.description=ESPHome Device Monitor
+      - com.centurylinklabs.watchtower.enable=true
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      start_period: 10s
+      interval: 30s
+      timeout: 5s
+      retries: 3

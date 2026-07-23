@@ -1,6 +1,7 @@
 services:
   mdns_repeater:
-    image: jdbeeler/mdns-repeater:latest
+    # image: jdbeeler/mdns-repeater:latest
+    image: mdns-repeater:local  # Use local build
     network_mode: "host"
     restart: unless-stopped
     privileged: true

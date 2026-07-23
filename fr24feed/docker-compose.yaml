@@ -1,8 +1,6 @@
 ---
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
+include:
+  - ../common/networks.yaml
 
 services:
   fr24feed:
@@ -38,10 +36,11 @@ services:
       retries: 5
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.fr24feed.rule=Host(`fr24feed.viewpoint.house`)
       - traefik.http.routers.fr24feed.entrypoints=websecure
       - traefik.http.routers.fr24feed.tls=true
+      - traefik.http.routers.fr24feed.tls.certresolver=letsencrypt
       - traefik.http.services.fr24feed.loadbalancer.server.port=8754
       - traefik.http.services.fr24feed.loadbalancer.healthcheck.path=/
       - traefik.http.services.fr24feed.loadbalancer.healthcheck.port=8754

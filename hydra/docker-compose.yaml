@@ -1,7 +1,7 @@
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
+---
+include:
+  - ../common/volumes.yaml
+  - ../common/networks.yaml
 
 volumes:
   nzbhydra_config:
@@ -20,7 +20,7 @@ volumes:
 
 services:
   hydra:
-    image: linuxserver/nzbhydra2:8.8.1
+    image: linuxserver/nzbhydra2:8.9.0
     container_name: hydra
     restart: unless-stopped
     environment:
@@ -43,6 +43,7 @@ services:
       - traefik.http.routers.hydra.rule=Host(`hydra.viewpoint.house`)
       - traefik.http.routers.hydra.entrypoints=websecure
       - traefik.http.routers.hydra.tls=true
+      - traefik.http.routers.hydra.tls.certresolver=letsencrypt
       - traefik.http.services.hydra.loadbalancer.server.port=5076
       - traefik.http.services.hydra.loadbalancer.healthcheck.port=5076
       - traefik.http.services.hydra.loadbalancer.healthcheck.path=/
