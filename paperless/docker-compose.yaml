@@ -61,7 +61,7 @@ services:
       retries: 3
 
   paperless-ngx:
-    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.15
+    image: ghcr.io/paperless-ngx/paperless-ngx:3.0.2
     container_name: paperless-ngx
     depends_on:
       paperless_broker:
