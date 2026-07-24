@@ -13,6 +13,12 @@ volumes:
       type: nfs4
       o: addr=172.24.32.5,rw
       device: ":/srv/nfs4/docker_nfs/infisical/db/"
+  infisical_dbv18_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/infisical/dbv18/"
   infisical_redis_data:
     driver: local
     driver_opts:
@@ -23,7 +29,7 @@ volumes:
 services:
 
   db:
-    image: docker.io/library/postgres:14.23-alpine
+    image: docker.io/library/postgres:18.4-alpine
     container_name: infisical-db
     restart: unless-stopped
     env_file:
@@ -31,7 +37,7 @@ services:
     environment:
       - POSTGRES_DB=infisical
     volumes:
-      - infisical_db_data:/var/lib/postgresql/data
+      - infisical_dbv18_data:/var/lib/postgresql
     networks:
       - infisical
     healthcheck:
