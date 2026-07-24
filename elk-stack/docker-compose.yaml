@@ -42,8 +42,6 @@ services:
     image: lmenezes/cerebro:0.9.4
     container_name: cerebro
     restart: unless-stopped
-    ports:
-      - 9000:9000
     networks:
       - elastic
       - traefik_proxy
