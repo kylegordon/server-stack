@@ -9,7 +9,7 @@ volumes:
 
 services:
   home-assistant:
-    image: homeassistant/home-assistant:2026.7.3
+    image: homeassistant/home-assistant:2026.7.4
     container_name: home-assistant
     depends_on:
       zigbee2mqtt:
