@@ -11,6 +11,12 @@ volumes:
       type: nfs4
       o: addr=172.24.32.5,rw
       device: ":/srv/nfs4/docker_nfs/dawarich/db_data/"
+  dawarich_dbv18_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/dawarich/dbv18_data/"
   dawarich_gem_cache_app:
     driver: local
     driver_opts:
@@ -71,10 +77,10 @@ services:
   db:
     labels:
       - traefik.enable=false
-    image: postgis/postgis:14-3.5-alpine
+    image: postgis/postgis:18-3.6-alpine
     container_name: dawarich_db
     volumes:
-      - dawarich_db_data:/var/lib/postgresql/data
+      - dawarich_dbv18_data:/var/lib/postgresql
       - dawarich_shared:/var/shared
     networks:
       - dawarich
