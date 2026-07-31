@@ -43,7 +43,7 @@ services:
       timeout: 3s
 
   redis:
-    image: docker.io/library/redis:8.8.1-alpine
+    image: docker.io/library/redis:8.10.0-alpine
     restart: unless-stopped
     networks:
       - wallabag
