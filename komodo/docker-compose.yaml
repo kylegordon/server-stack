@@ -120,7 +120,7 @@ services:
       - homepage.description=Docker Management Platform
 
   periphery:
-    image: ghcr.io/moghtech/komodo-periphery:2.2.0
+    image: ghcr.io/moghtech/komodo-periphery:2.3.1
     container_name: komodo-periphery
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
