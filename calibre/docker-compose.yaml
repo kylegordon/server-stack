@@ -54,6 +54,7 @@ services:
       - traefik.enable=true
       - traefik.http.routers.calibre-http.entrypoints=web
       - traefik.http.routers.calibre-http.rule=Host(`calibre.viewpoint.house`)
+      - traefik.http.routers.calibre-http.service=calibre
       - traefik.http.routers.calibre-http.middlewares=calibre-https
       - traefik.http.middlewares.calibre-https.redirectscheme.scheme=https
       - traefik.http.routers.calibre.rule=Host(`calibre.viewpoint.house`)
