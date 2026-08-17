@@ -45,6 +45,7 @@ docker compose -f netalertx/docker-compose.yaml up -d  # NetAlertX - network mon
 docker compose -f borg-ui/docker-compose.yaml up -d
 # docker compose -f selenium/docker-compose.yaml up -d
 docker compose -f nautobot/docker-compose.yaml up -d
+docker compose -f forgejo/docker-compose.yaml up -d
 docker compose -f evcc/docker-compose.yaml up -d
 
 docker compose -f opensky/docker-compose.yaml up -d

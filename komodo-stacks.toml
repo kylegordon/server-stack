@@ -417,6 +417,16 @@ repo = "kylegordon/server-stack"
 run_directory = "phpmyadmin"
 file_paths = ["docker-compose.yaml"]
 
+[[stack]]
+name = "forgejo"
+tags = ["homeauto", "infrastructure"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+run_directory = "forgejo"
+file_paths = ["docker-compose.yaml"]
+
 ##############################################
 # sdrpi - adsb receiver (172.24.32.11)       #
 ##############################################
