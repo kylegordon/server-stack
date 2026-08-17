@@ -22,9 +22,10 @@ services:
       - home-assistant-matter-hub:/data
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_proxy
-      - traefik.http.routers.matter-hub.rule=Host(`matter-hub.viewpoint.house`) || Host(`172.24.32.13`)
+      - traefik.http.routers.matter-hub.rule=Host(`matter-hub.viewpoint.house`)
       - traefik.http.routers.matter-hub.entrypoints=web
-      - traefik.http.services.matter-hub.loadbalancer.server.port=8482
+      # network_mode: host means there's no container network for Traefik to
+      # discover an IP from, so the backend is pinned to the host explicitly.
+      - traefik.http.services.matter-hub.loadbalancer.server.url=http://172.24.32.13:8482
       - traefik.http.services.matter-hub.loadbalancer.healthcheck.hostname=172.24.32.13
       - traefik.http.services.matter-hub.loadbalancer.healthcheck.port=8482
