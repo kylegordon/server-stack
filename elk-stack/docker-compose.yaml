@@ -52,6 +52,7 @@ services:
       - traefik.http.routers.cerebro.entrypoints=websecure
       - traefik.http.routers.cerebro.tls=true
       - traefik.http.routers.cerebro.tls.certresolver=letsencrypt
+      - traefik.http.services.cerebro.loadbalancer.server.port=9000
       - homepage.group=Monitoring
       - homepage.name=Cerebro
       - homepage.icon=mdi-chip
