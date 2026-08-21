@@ -78,7 +78,15 @@ jobs:
             fi
           }
 
+          # Stacks that are disabled (commented out in up.sh / komodo-stacks.toml)
+          # and not kept in sync with the rest of the repo's env-var conventions.
+          SKIP_PATTERN="^\./pixelfed/"
+
           while IFS= read -r f; do
+            if [[ "$f" =~ $SKIP_PATTERN ]]; then
+              echo "⏭️   $f  (disabled stack — skipped)"
+              continue
+            fi
             validate_file "$f" || FAILED=$((FAILED + 1))
           done < <(find . -name "docker-compose*.yaml" | sort)
 
