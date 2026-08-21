@@ -79,6 +79,7 @@ services:
       - traefik.http.routers.forgejo.rule=Host(`git.viewpoint.house`)
       - traefik.http.routers.forgejo.entrypoints=websecure
       - traefik.http.routers.forgejo.tls=true
+      - traefik.http.routers.forgejo.tls.certresolver=letsencrypt
       - traefik.http.services.forgejo.loadbalancer.server.port=3000
       - homepage.group=Infrastructure
       - homepage.name=Forgejo
