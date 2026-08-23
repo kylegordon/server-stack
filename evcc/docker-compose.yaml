@@ -15,7 +15,7 @@ services:
     command:
       - evcc
     container_name: evcc
-    image: evcc/evcc:0.314.2
+    image: evcc/evcc:0.314.3
     networks:
       - traefik_proxy
     ports:
