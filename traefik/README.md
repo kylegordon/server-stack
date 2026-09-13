@@ -113,17 +113,19 @@ Notes on the shape of this:
   exception to the "do not add `tls.certresolver` to individual service routers" rule above —
   that rule exists to protect the wildcard strategy, which by definition cannot cover a zone
   Route 53 does not host.
-- **HTTP-01 tolerates this stack's redirect pattern — but only because the redirect is
-  per-service.** Deepcore declares no **entrypoint-level** redirection: its `web` and
-  `websecure` entrypoints in `docker-compose-deepcore.yaml` have no `redirections` sub-key.
-  HTTP → HTTPS is done per-service with a `redirectscheme` middleware on the service's own
-  `web` router, and Traefik's `acme-http@internal` router matches
-  `PathPrefix('/.well-known/acme-challenge/')` at maximum priority, so it outranks a plain
-  `Host(...)` service router. **Do not add an entrypoint-level redirect to deepcore**
-  (`--entrypoints.web.http.redirections.entrypoint.to=websecure`): it creates a
-  `web-to-websecure@internal` router that swallows the challenge request, and HTTP-01
-  renewals then fail *silently*, surfacing ~60 days later as an expired certificate. See
-  <https://github.com/traefik/traefik/issues/7825>.
+- **HTTP-01 is compatible with HTTP → HTTPS redirection**, in both the per-service form
+  this repo uses and the entrypoint-level form. Traefik's `acme-http@internal` router
+  matches `PathPrefix('/.well-known/acme-challenge/')` at the maximum possible priority, so
+  it outranks both a plain `Host(...)` service router and the `web-to-websecure@internal`
+  router that entrypoint-level redirection creates. Verified against the pinned `v3.7.13`:
+  with `--entrypoints.web.http.redirections.entrypoint.to=websecure` set, a request to
+  `/.well-known/acme-challenge/…` on `:80` is answered by the ACME router (404 — no such
+  token) while every other path is redirected (301); the two internal routers report
+  priorities `9223372036854775807` and `9223372036854775806` respectively.
+  (<https://github.com/traefik/traefik/issues/7825> describes older behaviour and does not
+  apply to this version.) Deepcore itself declares no entrypoint-level redirection — its
+  `web` and `websecure` entrypoints have no `redirections` sub-key — and does HTTP → HTTPS
+  per-service with a `redirectscheme` middleware on the service's own `web` router.
 
 #### Applying it
 
