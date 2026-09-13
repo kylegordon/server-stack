@@ -31,6 +31,10 @@ services:
       - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=route53
       - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.letsencrypt-http.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt-http.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.letsencrypt-http.acme.email=${LETSENCRYPT_EMAIL}
+      - --certificatesresolvers.letsencrypt-http.acme.storage=/letsencrypt/acme-http.json
     labels:
       # Configure wildcard certificates for viewpoint.house domain
       - "traefik.http.routers.wildcard-viewpoint.rule=Host(`viewpoint.house`)"
