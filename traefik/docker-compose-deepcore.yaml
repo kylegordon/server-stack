@@ -41,7 +41,11 @@ services:
       # www.rlotte.me.uk and swtvc.  These live only on the host, in /docker/traefik/config.yml.
       - --providers.file.filename=/etc/traefik/config.yml
       - --providers.file.watch=true
-      # Several backends behind this proxy present self-signed certificates.
+      # Several backends behind this proxy present self-signed certificates.  This is the
+      # root-level, STATIC serversTransport (singular), so a CLI argument is the only form
+      # available — it cannot be expressed as a Docker label, because labels carry dynamic
+      # config only.  Do not confuse it with dynamic `serversTransports` (plural), which are
+      # named transports referenced per-service and are a different thing entirely.
       - --serverstransport.insecureskipverify=true
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
