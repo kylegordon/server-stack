@@ -79,7 +79,9 @@ Persistent data lives on the NFS server at 172.24.32.5 (`/srv/nfs4/docker_nfs/�
 
 ### Traefik / TLS
 
-All HTTPS services use wildcard Let's Encrypt certificates for `*.viewpoint.house` and `*.glasgownet.com` via AWS Route 53 DNS challenge. When adding a service, use only:
+On **homeauto**, all HTTPS services use wildcard Let's Encrypt certificates for
+`*.viewpoint.house` and `*.glasgownet.com` via AWS Route 53 DNS challenge. When adding a
+service there, use only:
 
 ```yaml
 labels:
@@ -91,6 +93,13 @@ labels:
 ```
 
 Do **not** add `tls.certresolver` or `tls.domains` to individual service routers — this defeats the shared wildcard certificate.
+
+**Deepcore is the exception, and works differently.** It holds no AWS credential, issues
+per-name certificates over HTTP-01, and supports no wildcards; services there *do* name
+`tls.certresolver=letsencrypt-http` on their own router. Its entire static configuration
+lives in `traefik/docker-compose-deepcore.yaml`'s `command:` list and must stay there — a
+`/etc/traefik/traefik.yaml` on the host silently discards that whole list, which hid a
+broken certificate resolver for a year. See `traefik/README.md` before changing it.
 
 ### Watchtower auto-updates
 
