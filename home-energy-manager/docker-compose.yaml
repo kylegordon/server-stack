@@ -1,0 +1,42 @@
+---
+include:
+  - ../common/networks.yaml
+
+volumes:
+  home-energy-manager:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/home-energy-manager/"
+
+services:
+  givenergy-local:
+    # https://github.com/psylsph/home-energy-manager
+    # Talks Modbus directly to the GivEnergy data adapter on the LAN.
+    # Set the inverter IP in the UI under Settings -> Host.
+    container_name: givenergy-local
+    image: psylsph/home-energy-manager:0.83.5
+    restart: unless-stopped
+    environment:
+      # Server-side day boundaries (daily report, tariff slots, midnight
+      # rollover) are computed in the container's timezone - do not leave on UTC
+      - TZ=Europe/London
+      - GIVENERGY_LOCAL_CONFIG_DIR=/root/.givenergy-local
+    volumes:
+      - home-energy-manager:/root/.givenergy-local
+    networks:
+      - traefik_proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.home-energy-manager.rule=Host(`energy.viewpoint.house`)
+      - traefik.http.routers.home-energy-manager.entrypoints=websecure
+      - traefik.http.routers.home-energy-manager.tls=true
+      - traefik.http.services.home-energy-manager.loadbalancer.server.port=7337
+      - traefik.http.services.home-energy-manager.loadbalancer.healthcheck.path=/
+      - traefik.http.services.home-energy-manager.loadbalancer.healthcheck.port=7337
+      - homepage.group=Home Automation
+      - homepage.name=Home Energy Manager
+      - homepage.icon=mdi-solar-power
+      - homepage.href=https://energy.viewpoint.house
+      - homepage.description=GivEnergy local monitoring and control
