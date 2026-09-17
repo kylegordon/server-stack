@@ -29,6 +29,10 @@ services:
       - traefik_proxy
     labels:
       - traefik.enable=true
+      - traefik.http.routers.home-energy-manager-http.entrypoints=web
+      - traefik.http.routers.home-energy-manager-http.rule=Host(`energy.viewpoint.house`)
+      - traefik.http.routers.home-energy-manager-http.middlewares=home-energy-manager-https
+      - traefik.http.middlewares.home-energy-manager-https.redirectscheme.scheme=https
       - traefik.http.routers.home-energy-manager.rule=Host(`energy.viewpoint.house`)
       - traefik.http.routers.home-energy-manager.entrypoints=websecure
       - traefik.http.routers.home-energy-manager.tls=true
