@@ -427,6 +427,17 @@ repo = "kylegordon/server-stack"
 run_directory = "forgejo"
 file_paths = ["docker-compose.yaml"]
 
+[[stack]]
+name = "home-energy-manager"
+description = "GivEnergy local inverter monitoring and control (Home Energy Manager)"
+tags = ["homeauto", "home-automation"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+run_directory = "home-energy-manager"
+file_paths = ["docker-compose.yaml"]
+
 ##############################################
 # sdrpi - adsb receiver (172.24.32.11)       #
 ##############################################
