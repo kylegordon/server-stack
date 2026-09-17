@@ -32,6 +32,7 @@ services:
       - traefik.http.routers.home-energy-manager.rule=Host(`energy.viewpoint.house`)
       - traefik.http.routers.home-energy-manager.entrypoints=websecure
       - traefik.http.routers.home-energy-manager.tls=true
+      - traefik.http.routers.home-energy-manager.tls.certresolver=letsencrypt
       - traefik.http.services.home-energy-manager.loadbalancer.server.port=7337
       - traefik.http.services.home-energy-manager.loadbalancer.healthcheck.path=/
       - traefik.http.services.home-energy-manager.loadbalancer.healthcheck.port=7337
