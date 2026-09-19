@@ -21,6 +21,7 @@ services:
     image: ainullcode/borg-ui:2.2.6
     container_name: borg-ui
     restart: unless-stopped
+    privileged: true
     networks:
       - traefik_proxy
     volumes:
