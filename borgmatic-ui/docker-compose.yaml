@@ -1,0 +1,59 @@
+---
+networks:
+  traefik_proxy:
+    external: true
+    name: traefik_traefik_proxy
+
+volumes:
+  borgmatic_ui_config:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/borgmatic-ui/config/"
+  borgmatic_ui_data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      o: addr=172.24.32.5,rw
+      device: ":/srv/nfs4/docker_nfs/borgmatic-ui/data/"
+
+services:
+  borgmatic-ui:
+    image: ghcr.io/speedbitsinfinitytools/borgmatic-ui:1.0.42
+    container_name: borgmatic-ui
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+    volumes:
+      - borgmatic_ui_config:/app/config
+      - borgmatic_ui_data:/app/data
+      - /:/host:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - NODE_ENV=production
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.http.routers.borgmatic-ui-http.entrypoints=web
+      - traefik.http.routers.borgmatic-ui-http.rule=Host(`borgmatic-ui.viewpoint.house`)
+      - traefik.http.routers.borgmatic-ui-http.middlewares=borgmatic-ui-https
+      - traefik.http.middlewares.borgmatic-ui-https.redirectscheme.scheme=https
+      - traefik.http.routers.borgmatic-ui.rule=Host(`borgmatic-ui.viewpoint.house`)
+      - traefik.http.routers.borgmatic-ui.entrypoints=websecure
+      - traefik.http.routers.borgmatic-ui.tls=true
+      - traefik.http.routers.borgmatic-ui.tls.certresolver=letsencrypt
+      - traefik.http.services.borgmatic-ui.loadbalancer.server.port=8000
+      - traefik.http.services.borgmatic-ui.loadbalancer.healthcheck.port=8000
+      - traefik.http.services.borgmatic-ui.loadbalancer.healthcheck.path=/
+      - homepage.group=Storage
+      - homepage.icon=mdi-backup-restore
+      - homepage.name=Borgmatic UI
+      - homepage.href=https://borgmatic-ui.viewpoint.house
+      - homepage.description=Borg Backup Web UI
+      - com.centurylinklabs.watchtower.enable=true
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
