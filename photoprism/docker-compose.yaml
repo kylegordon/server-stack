@@ -108,7 +108,7 @@ services:
   ## see https://docs.photoprism.org/getting-started/faq/#should-i-use-sqlite-mariadb-or-mysql
   photoprism_mariadb:
     restart: unless-stopped
-    image: docker.io/library/mariadb:12.3
+    image: docker.io/library/mariadb:13.0
     networks:
       - photoprism
     security_opt:
