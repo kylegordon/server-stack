@@ -45,7 +45,7 @@ services:
       - paperless_redisdata:/data
 
   paperless_db:
-    image: docker.io/library/mariadb:12.3.3
+    image: docker.io/library/mariadb:13.0.2
     restart: unless-stopped
     networks:
       - paperless
