@@ -16,7 +16,7 @@ services:
     # Talks Modbus directly to the GivEnergy data adapter on the LAN.
     # Set the inverter IP in the UI under Settings -> Host.
     container_name: givenergy-local
-    image: psylsph/home-energy-manager:v0.83.7
+    image: psylsph/home-energy-manager:v0.84.1
     restart: unless-stopped
     environment:
       # Server-side day boundaries (daily report, tariff slots, midnight
