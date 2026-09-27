@@ -18,7 +18,7 @@ volumes:
 
 services:
   borg-ui:
-    image: ainullcode/borg-ui:2.3.1
+    image: ainullcode/borg-ui:2.3.2
     container_name: borg-ui
     restart: unless-stopped
     privileged: true
