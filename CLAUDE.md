@@ -79,7 +79,7 @@ Persistent data lives on the NFS server at 172.24.32.5 (`/srv/nfs4/docker_nfs/�
 
 ### Traefik / TLS
 
-Certificates are Let's Encrypt via AWS Route 53 DNS challenge, issued by the `letsencrypt` resolver. Wildcard routers for `viewpoint.house` / `glasgownet.com` are declared on the Traefik container itself, but in practice **each service gets its own per-service certificate** — so every service router needs `tls.certresolver=letsencrypt`.
+On **homeauto**, certificates are Let's Encrypt via AWS Route 53 DNS challenge, issued by the `letsencrypt` resolver. Wildcard routers for `viewpoint.house` / `glasgownet.com` are declared on the Traefik container itself, but in practice **each service gets its own per-service certificate** — so every service router needs `tls.certresolver=letsencrypt`.
 
 There is **no global HTTP→HTTPS redirect** on the `web` entrypoint (no `--entrypoints.web.http.redirections.*` in `traefik/docker-compose.yaml`). Each service declares its own redirect via a second router on `web` plus a `redirectscheme` middleware. Omit it and the service simply doesn't answer on port 80.
 
@@ -102,6 +102,13 @@ labels:
 ```
 
 Do **not** add `tls.domains` to individual service routers.
+
+**Deepcore is the exception, and works differently.** It holds no AWS credential, issues
+per-name certificates over HTTP-01, and supports no wildcards; services there name
+`tls.certresolver=letsencrypt-http` (not `letsencrypt`) on their own router. Its entire static configuration
+lives in `traefik/docker-compose-deepcore.yaml`'s `command:` list and must stay there — a
+`/etc/traefik/traefik.yaml` on the host silently discards that whole list, which hid a
+broken certificate resolver for a year. See `traefik/README.md` before changing it.
 
 ### Watchtower auto-updates
 
