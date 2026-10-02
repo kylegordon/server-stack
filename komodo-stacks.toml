@@ -168,6 +168,7 @@ repo = "kylegordon/server-stack"
 run_directory = "."
 file_paths = ["warrior.yaml"]
 
+# ollama (incl. Open WebUI) is currently disabled in up.sh
 [[stack]]
 name = "ollama"
 tags = ["homeauto", "ai"]

@@ -23,7 +23,7 @@ docker compose -f monitoring-stack/docker-compose.yaml up -d  # needs librenms e
 docker compose -f elk-stack/docker-compose.yaml up -d
 docker compose -f dawarich/docker-compose.yaml up -d
 docker compose -f warrior/docker-compose.yaml up -d
-docker compose -f ollama/docker-compose.yaml up -d
+# docker compose -f ollama/docker-compose.yaml up -d  --- Ollama/Open WebUI disabled - unused ---
 docker compose -f homepage/docker-compose.yaml up -d
 docker compose -f peanut/docker-compose.yaml up -d
 docker compose -f scrutiny/docker-compose.yaml up -d
