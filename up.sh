@@ -47,6 +47,7 @@ docker compose -f borg-ui/docker-compose.yaml up -d
 docker compose -f nautobot/docker-compose.yaml up -d
 docker compose -f forgejo/docker-compose.yaml up -d
 docker compose -f evcc/docker-compose.yaml up -d
+docker compose -f home-energy-manager/docker-compose.yaml up -d
 
 docker compose -f opensky/docker-compose.yaml up -d
 docker compose -f piaware/docker-compose.yaml up -d

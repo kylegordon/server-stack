@@ -37,7 +37,7 @@ services:
 #       - ollama-docker
 
   ollama:
-    image: ollama/ollama:0.34.0
+    image: ollama/ollama:0.35.0
     ports:
       - 7869:11434
     volumes:
@@ -61,7 +61,7 @@ services:
       retries: 3
 
   ollama-webui:
-    image: ghcr.io/open-webui/open-webui:v0.11.3
+    image: ghcr.io/open-webui/open-webui:v0.11.4
     container_name: ollama-webui
     volumes:
       - ollama-webui:/app/backend/data
