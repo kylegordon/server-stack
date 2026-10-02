@@ -108,8 +108,13 @@ ERR > Router uses a nonexistent certificate resolver \
 ```
 
 **The fix:** the whole static configuration now lives in the compose `command:` list, and the
-host file is gone (kept as `/docker/traefik/traefik.yaml.disabled-2026-09-14`). The repo is now
+host file is retired (renamed to `/docker/traefik/traefik.yaml.disabled-<date>`). The repo is now
 the source of truth for it.
+
+That includes plugins, which are static config too. The `wp-fail2ban` middleware on the `swtvc`
+routers in `config.yml` needs the `fail2ban` plugin declared in `command:`. Before this change,
+adding the plugin meant putting a `traefik.yaml` back on the host, which silently dropped
+`letsencrypt-http` again. Declare any future plugin in `command:` the same way.
 
 `/docker/traefik/` is still mounted at `/etc/traefik/`, because the file *provider* reads
 `config.yml` from it — the routers and services for `lodge`, `glasgownet.com`,

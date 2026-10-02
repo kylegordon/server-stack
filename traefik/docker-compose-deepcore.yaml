@@ -47,6 +47,10 @@ services:
       # config only.  Do not confuse it with dynamic `serversTransports` (plural), which are
       # named transports referenced per-service and are a different thing entirely.
       - --serverstransport.insecureskipverify=true
+      # Plugins are static config.  The swtvc routers in /docker/traefik/config.yml use this
+      # one as their `wp-fail2ban` middleware, so dropping it takes those routers down.
+      - --experimental.plugins.fail2ban.modulename=github.com/tomMoulard/fail2ban
+      - --experimental.plugins.fail2ban.version=v0.9.0
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --log.level=INFO
