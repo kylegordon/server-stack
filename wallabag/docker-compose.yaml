@@ -35,6 +35,8 @@ services:
       - wallabag
     env_file:
       - .env
+    environment:
+      MARIADB_AUTO_UPGRADE: "1"
     volumes:
       - /docker/wallabag/data:/var/lib/mysql
     healthcheck:
