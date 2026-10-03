@@ -53,6 +53,8 @@ services:
       - paperless_dbdata:/var/lib/mysql
     env_file:
       - .env
+    environment:
+      MARIADB_AUTO_UPGRADE: "1"
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       start_period: 10s
