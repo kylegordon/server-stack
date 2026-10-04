@@ -7,6 +7,10 @@ services:
     image: ghcr.io/moghtech/komodo-periphery:2.3.3
     container_name: komodo-periphery-octoprint
     init: true
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor=unconfined
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/proc
