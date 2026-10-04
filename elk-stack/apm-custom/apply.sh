@@ -4,6 +4,7 @@
 # WARNING: writes to production ES.
 set -euo pipefail
 ES=${ES:-http://172.24.32.13:9200}
+KIBANA=${KIBANA:-https://logs.viewpoint.house}
 DIR=$(cd "$(dirname "$0")" && pwd)
 
 put() { # put <path> <file>
@@ -52,11 +53,17 @@ enrich() {
   echo "pipeline logs-apm.app@custom"; put _ingest/pipeline/logs-apm.app@custom "$DIR/pipelines/logs-apm.app@custom.json"
 }
 
+kibana() {
+  echo "kibana saved objects"
+  curl -sf -H 'kbn-xsrf: true' -X POST "$KIBANA/api/saved_objects/_import?overwrite=true" \
+    -F file=@"$DIR/kibana/saved-objects.ndjson" | jq -c .
+}
+
 case "${1:-all}" in
   pipelines) pipelines ;;
   ilm) ilm ;;
   enrich) enrich ;;
-  kibana) echo "section '$1' not implemented yet" >&2 ;;
-  all) pipelines; ilm; enrich ;;
+  kibana) kibana ;;
+  all) pipelines; ilm; enrich; kibana ;;
   *) echo "usage: $0 [pipelines|ilm|enrich|kibana|all]" >&2; exit 2 ;;
 esac

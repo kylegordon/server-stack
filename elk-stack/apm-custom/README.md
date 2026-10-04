@@ -77,3 +77,12 @@ have no service) are left unchanged without error.
 - Policies are immutable: to change `enrich/traefik-service-map.json`, PUT a pipeline without the enrich
   processors, delete the policy (`DELETE _enrich/policy/traefik-service-map`), then rerun `apply.sh enrich`.
 - The enrich steps are best-effort (`ignore_failure`): a missing policy never fails an access-log doc.
+
+## Kibana saved searches
+
+`kibana/saved-objects.ndjson` holds two data views and the saved searches **Traefik access log**
+and **Container logs** (Discover). `bash apply.sh kibana` imports them with `overwrite=true`
+(set `KIBANA` to override `https://logs.viewpoint.house`).
+
+Tier 2 lookup: from an access-log doc, open **Container logs** and filter on its
+`container.name` with `@timestamp` +/- 2 s.
