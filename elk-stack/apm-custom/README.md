@@ -43,3 +43,15 @@ error the five fields are removed and `error.message` is set.
 
 - `bash test.sh` runs `_simulate` cases against `$ES` (no PUT needed); exits non-zero on failure.
 - `bash apply.sh pipelines` PUTs the pipelines (writes to production ES).
+
+## 30-day retention (ILM)
+
+`ilm/apm-30d.json` (hot: rollover 1d / 50gb; delete at 30d) is attached to `traces-apm-default`
+and `logs-apm.app.traefik-default` via the `traces-apm@custom` / `logs-apm.app@custom` component
+templates (`component-templates/`), which only set `index.lifecycle.name` and `prefer_ilm`.
+
+- `bash apply.sh ilm` PUTs the policy and templates, sets the policy on existing backing indices,
+  and rolls over a stream only if its write index was not already on `apm-30d` (safe to rerun).
+- `bash apply.sh all` runs `pipelines` then `ilm`.
+- Verify: `curl -s $ES/traces-apm-default/_ilm/explain | jq '[.indices[].policy]|unique'`.
+- Curator (`elk-stack/curator/`) has no actions targeting `traces-apm*` / `logs-apm*`.
