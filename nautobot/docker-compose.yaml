@@ -78,6 +78,13 @@ services:
       # Redis Connection Settings
       - NAUTOBOT_REDIS_HOST=${NAUTOBOT_REDIS_HOST:-redis}
       - NAUTOBOT_REDIS_PASSWORD=${REDIS_PASSWORD:-redispassword}
+
+      # Request tracing (joins Traefik traces via apm-server OTLP)
+      - OTEL_PYTHON_DJANGO_INSTRUMENT=True
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://172.24.32.13:8200
+      - OTEL_EXPORTER_OTLP_INSECURE=True
+      - OTEL_SERVICE_NAME=nautobot
       # - NAUTOBOT_ALLOWED_HOSTS=*
       # - NAUTOBOT_SECRET_KEY=your-secret-key
       # - NAUTOBOT_CREATE_SUPERUSER=true
