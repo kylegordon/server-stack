@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# Idempotent apply of elk-stack/apm-custom config to Elasticsearch/Kibana.
+# Usage: apply.sh [pipelines|ilm|enrich|kibana|all]   (default: all)
+# WARNING: writes to production ES.
+set -euo pipefail
+ES=${ES:-http://172.24.32.13:9200}
+KIBANA=${KIBANA:-https://logs.viewpoint.house}
+DIR=$(cd "$(dirname "$0")" && pwd)
+
+put() { # put <path> <file>
+  curl -sS --fail-with-body -H 'Content-Type: application/json' -X PUT "$ES/$1" -d @"$2" | jq -c . ; }
+
+pipelines() {
+  # redact-secrets first: traces-apm@custom calls it. logs-apm.app@custom is NOT here: its enrich
+  # processor needs the traefik-service-map policy executed first, so enrich() PUTs it.
+  for n in redact-secrets traces-apm@custom; do
+    echo "pipeline $n"; put "_ingest/pipeline/$n" "$DIR/pipelines/$n.json"
+  done
+}
+
+ilm() {
+  echo "ilm policy apm-30d"; put _ilm/policy/apm-30d "$DIR/ilm/apm-30d.json"
+  for n in traces-apm@custom logs-apm.app@custom; do
+    echo "component template $n"; put "_component_template/$n" "$DIR/component-templates/$n.json"
+  done
+  for ds in traces-apm-default logs-apm.app.traefik-default; do
+    # Roll over only if the write index is not yet on apm-30d (keeps reruns from
+    # creating a new empty index every time). Checked before the settings PUT.
+    code=$(curl -s -o /tmp/ds.$$ -w '%{http_code}' "$ES/_data_stream/$ds")
+    if [[ $code == 404 ]]; then
+      echo "skip $ds: not created yet (component template applies at creation)"; rm -f /tmp/ds.$$; continue
+    elif [[ $code != 200 ]]; then
+      echo "data stream lookup $ds failed ($code): $(cat /tmp/ds.$$)" >&2; rm -f /tmp/ds.$$; exit 1
+    fi
+    write_idx=$(jq -r '.data_streams[0].indices[-1].index_name' /tmp/ds.$$); rm -f /tmp/ds.$$
+    cur=$(curl -sS --fail-with-body "$ES/$write_idx/_ilm/explain" | jq -r '.indices[].policy // "none"')
+    echo "settings $ds (write index $write_idx, policy $cur)"
+    put "$ds/_settings" <(echo '{"index.lifecycle.name":"apm-30d"}')
+    if [ "$cur" != apm-30d ]; then
+      echo "rollover $ds"
+      curl -sS --fail-with-body -X POST "$ES/$ds/_rollover" | jq -c .
+    fi
+  done
+}
+
+enrich() {
+  # order matters: policy needs its source index docs before it can execute, and
+  # the pipeline referencing the policy can only be PUT once the policy exists.
+  curl -sf -X PUT "$ES/traefik-service-map" -H 'Content-Type: application/json' \
+    -d '{"mappings":{"properties":{"service":{"type":"keyword"},"container":{"properties":{"name":{"type":"keyword"}}}}}}' \
+    -o /dev/null || true   # 400 already exists on reruns; real errors surface at the policy step
+  echo "enrich policy traefik-service-map"
+  code=$(curl -s -o /tmp/enrich-put.$$ -w '%{http_code}' -H 'Content-Type: application/json' \
+    -X PUT "$ES/_enrich/policy/traefik-service-map" -d @"$DIR/enrich/traefik-service-map.json")
+  if [[ $code == 200 ]]; then jq -c . /tmp/enrich-put.$$
+  elif [[ $code == 409 ]] || grep -q 'already exists' /tmp/enrich-put.$$; then echo "  (policy already exists, unchanged)"
+  else echo "policy PUT failed ($code): $(cat /tmp/enrich-put.$$)" >&2; rm -f /tmp/enrich-put.$$; exit 1; fi
+  rm -f /tmp/enrich-put.$$
+  echo "service map"; "$DIR/service-map.sh"
+  echo "pipeline logs-apm.app@custom"; put _ingest/pipeline/logs-apm.app@custom "$DIR/pipelines/logs-apm.app@custom.json"
+}
+
+kibana() {
+  echo "kibana saved objects"
+  local resp
+  resp=$(curl -sf -H 'kbn-xsrf: true' -X POST "$KIBANA/api/saved_objects/_import?overwrite=true" \
+    -F file=@"$DIR/kibana/saved-objects.ndjson") || { echo "kibana import failed (HTTP error)" >&2; exit 1; }
+  echo "$resp" | jq -c .
+  # _import returns HTTP 200 even when objects fail; check the body
+  if ! echo "$resp" | jq -e '.success == true' >/dev/null; then
+    echo "kibana import failed" >&2; echo "$resp" | jq -c '.errors' >&2; exit 1
+  fi
+}
+
+case "${1:-all}" in
+  pipelines) pipelines ;;
+  ilm) ilm ;;
+  enrich) enrich ;;
+  kibana) kibana ;;
+  all) pipelines; enrich; ilm; kibana ;;
+  *) echo "usage: $0 [pipelines|ilm|enrich|kibana|all]" >&2; exit 2 ;;
+esac

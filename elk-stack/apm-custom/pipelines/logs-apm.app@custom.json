@@ -1,0 +1,35 @@
+{
+  "description": "Redact secrets, then add the backend container name (custom hook)",
+  "processors": [
+    {
+      "pipeline": {
+        "name": "redact-secrets"
+      }
+    },
+    {
+      "enrich": {
+        "policy_name": "traefik-service-map",
+        "field": "labels.ServiceName",
+        "target_field": "_svcmap",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "container.name",
+        "copy_from": "_svcmap.container.name",
+        "ignore_empty_value": true,
+        "if": "ctx._svcmap != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "remove": {
+        "field": "_svcmap",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ]
+}

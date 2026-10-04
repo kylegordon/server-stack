@@ -36,6 +36,439 @@ networks:
   elastic:
     driver: bridge
 
+configs:
+  logstash_yml:
+    content: |
+      # Shouldn't all this go in the docker environment variables anyway?
+
+      #path.data: /var/lib/logstash
+      pipeline.batch.size: 100
+      path.logs: /var/log/logstash
+      xpack.monitoring.enabled: true
+      xpack.monitoring.elasticsearch.hosts: ["http://es01:9200", "http://es02:9200"]
+
+      #modules_setup: true
+      #modules:
+      #  - name: netflow
+      #    var.input.udp.port: 9995
+      #    var.elasticsearch.hosts: [ "http://es01:9200", "http://es02:9200", "http://es03:9200" ]
+      #    var.elasticsearch.ssl.enabled: false
+      #    var.kibana.host: kibana01:5601
+      #    var.kibana.scheme: http
+      #    var.kibana.ssl.enabled: false
+      #    var.kibana.ssl.verification_mode: disable
+  logstash_pipelines_yml:
+    content: |
+      # This file is where you define your pipelines. You can define multiple.
+      # For more information on multiple pipelines, see the documentation:
+      #   https://www.elastic.co/guide/en/logstash/current/multiple-pipelines.html
+
+      - pipeline.id: syslog
+        path.config: "/usr/share/logstash/pipelines/syslog.conf"
+      - pipeline.id: gelf
+        path.config: "/usr/share/logstash/pipelines/gelf.conf"
+      - pipeline.id: fluentd
+        path.config: "/usr/share/logstash/pipelines/fluentd.conf"
+      - pipeline.id: esphome
+        path.config: "/usr/share/logstash/pipelines/syslog-esphome.conf"
+      - pipeline.id: opnsense
+        path.config: "/usr/share/logstash/pipelines/syslog-opnsense.conf"
+      #- pipeline.id: netflow
+      #  path.config: "/usr/share/logstash/pipelines/netflow.conf"
+  logstash_syslog:
+    content: |+
+      input {
+        tcp {
+          port => 5514
+          tags => [ "syslog", "syslog-tcp", "logging" ]
+        }
+        udp {
+          port => 5514
+          tags => [ "syslog", "syslog-udp", "logging" ]
+        }
+      }
+
+      filter {
+        if "syslog" in [tags] {
+          grok {
+            match => ["message", "%{HAPROXYHTTP}"]
+            match => ["message", "%{HAPROXYTCP}"]
+            match => ["message", "(?m)<%{POSINT:syslog_pri}>%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}" ]
+            add_field => [ "received_at", "%{@timestamp}" ]
+            #add_tag => [ "haproxy" ]
+          }
+
+          if [program] == "haproxy" {
+            mutate { add_tag => [ "haproxy" ] }
+          }
+
+          date {
+            # Set the Logstash @timestamp field during entry into Elasticsearch
+            match => [ "syslog_timestamp", "MMM dd HH:mm:ss",
+            "MMM  d HH:mm:ss", "ISO8601" ]
+          }
+
+          # Delete message to save space if parsing is successful
+          #if "_grokparsefailure" not in [tags] {
+          #  mutate { remove_field => "message" }
+          #}
+
+          #grok {
+          # match => ["host", "10.200.0.5"]
+          # add_tag => [ "fortinet" ]
+          #}
+          #grok {
+          # match => ["host", "10.2.3.6"]
+          # add_tag => [ "fortimail" ]
+          #}
+          #grok {
+          # match => ["host", "10.2.3.8"]
+          # add_tag => [ "pfsense", "fw1" ]
+          #}
+          #grok {
+          # match => ["host", "10.2.3.9"]
+          # add_tag => [ "pfsense", "fw2" ]
+          #}
+        }
+
+      }
+
+      output {
+        elasticsearch {
+          hosts => [ "es01", "es02" ]
+          #index => "logstash-%{+YYYY.MM.dd}"
+        }
+      }
+
+  logstash_gelf:
+    content: |+
+      input {
+        gelf {
+          port => 12201
+          tags => [ "gelf" ]
+        }
+      }
+
+      filter {
+        if "gelf" in [tags] {
+          mutate {
+
+            # From https://discuss.elastic.co/t/how-to-trim-zero-or-more-leading-and-trailing-spaces-from-key-value-pairs/117933/8
+            gsub => [
+              "message", "^\s*", "",
+              "message", "\s*$$", ""
+            ]
+          }
+
+          # GELF "host" is a string but ECS maps host as an object; move into ECS fields.
+          mutate {
+            rename => {
+              "host"           => "[host][name]"
+              "container_name" => "[container][name]"
+              "container_id"   => "[container][id]"
+              "image_name"     => "[container][image][name]"
+            }
+          }
+        }
+
+        if [tag] == "influxdb" {
+          if "httpd" in [message] {
+            grok {
+              match => { "message" => "%{HTTPD_COMMONLOG}" }
+            }
+            date {
+              match => [ "timestamp", "dd/MMM/yyyy:HH:mm:ss Z" ]
+            }
+          } else {
+            kv {}
+            date {
+              match => [ "ts", ISO8601 ]
+            }
+            if [verb] {
+              kv {
+                source => "request"
+                field_split => "\&"
+              }
+              mutate { rename => [ "db", "db_instance" ] }
+            }
+          }
+
+          # Delete message to save space if parsing is successful
+          #if "_grokparsefailure" not in [tags] {
+          #  mutate { remove_field => "message" }
+          #}
+
+          # Delete timestamp to save space if parsing is successful
+          #if "_dateparsefailure" not in [tags] {
+          #  mutate { remove_field => [ "ts", "timestamp" ] }
+          #}
+        }
+      }
+
+      output {
+        elasticsearch {
+          hosts => [ "es01", "es02" ]
+          data_stream => "true"
+          data_stream_type => "logs"
+          data_stream_dataset => "docker"
+          data_stream_namespace => "default"
+        }
+      }
+
+  logstash_fluentd:
+    content: |+
+      input {
+        tcp {
+          codec => fluent
+          port => 4000
+          tags => [ "fluentd" ]
+        }
+      }
+
+      output {
+        elasticsearch {
+          hosts => [ "es01", "es02" ]
+          #index => "logstash-%{+YYYY.MM.dd}"
+        }
+      }
+
+  logstash_esphome:
+    content: |+
+      input {
+        tcp {
+          port => 515
+          tags => [ "esphome", "esphome-tcp", "logging" ]
+        }
+        udp {
+          port => 515
+          tags => [ "esphome", "esphome-udp", "logging" ]
+        }
+      }
+
+      filter {
+        if "esphome" in [tags] {
+          grok {
+            # This was the original
+            match => ["message", "(?m)<%{POSINT:syslog_pri}>%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}" ]
+            # Below is from https://www.elastic.co/guide/en/logstash/current/config-examples.html
+            #match => { "message" => "%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}" }
+
+            add_field => [ "received_at", "%{@timestamp}" ]
+
+
+            # void SyslogComponent::log(uint8_t level, const std::string &tag, const std::string &payload) {
+          
+
+          }
+
+          date {
+            # Set the Logstash @timestamp field during entry into Elasticsearch
+            match => [ "syslog_timestamp", "MMM dd HH:mm:ss",
+            "MMM  d HH:mm:ss", "ISO8601" ]
+          }
+
+          # Delete message to save space if parsing is successful
+          if "_grokparsefailure" not in [tags] {
+            mutate { remove_field => "message" }
+          }
+
+        }
+
+      }
+
+      output {
+        elasticsearch {
+          hosts => [ "es01", "es02" ]
+          #index => "logstash-%{+YYYY.MM.dd}"
+        }
+      }
+
+  logstash_opnsense:
+    content: |+
+      input {
+        udp {
+          port => 516
+          type => "opnsense"
+        }
+      }
+
+
+      filter {
+        if [type] == "opnsense" {
+          grok {
+            match => {
+              "message" => "^<%{POSINT:log.syslog.priority}>%{SYSLOGTIMESTAMP:syslog_timestamp} %{HOSTNAME:host.hostname} %{DATA:process.name}\[%{POSINT:process.pid}\]: %{GREEDYDATA:filterlog_payload}"
+            }
+          }
+
+          csv {
+            source => "filterlog_payload"
+            separator => ","
+            skip_empty_columns => true
+            columns => [
+              "rule_number","subrule_number","anchor","tracker","network.interface.name",
+              "event.reason","event.action","network.direction","network.iana_number",
+              "ip.tos","ip.ecn","ip.ttl","network.id","ip.fragment_offset","ip.flags",
+              "network.transport_number","network.transport","network.bytes",
+              "source.ip","destination.ip","source.port","destination.port",
+              "network.bytes_payload","network.tcp.flags","network.tcp.seq","network.tcp.ack",
+              "network.tcp.window","network.tcp.urg","network.tcp.options"
+            ]
+          }
+
+          mutate {
+            convert => {
+              "source.port"      => "integer"
+              "destination.port" => "integer"
+              "network.bytes"    => "integer"
+              "ip.ttl"           => "integer"
+            }
+          }
+
+          mutate {
+            lowercase => [ "event.action", "network.transport", "network.direction" ]
+            gsub => [ "event.action", "block", "deny" ]
+          }
+
+          date {
+            match => [ "syslog_timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
+            timezone => "UTC"
+            target => "@timestamp"
+          }
+
+          mutate {
+            add_field => {
+              "event.kind"     => "event"
+              "event.category" => "network_traffic"
+              "event.type"     => "connection"
+            }
+            remove_field => [ "filterlog_payload", "message", "syslog_timestamp" ]
+          }
+
+      #    # Only enrich public IPs (skip RFC1918, loopback, link-local, multicast)
+      #    if [source][ip] and !([source][ip] =~ /^10\./ or [source][ip] =~ /^192\.168\./ or [source][ip] =~ /^172\.(1[6-9]|2[0-9]|3[0-1])\./ or [source][ip] =~ /^127\./ or [source][ip] =~ /^169\.254\./ or [source][ip] =~ /^fc00:/ or [source][ip] =~ /^fe80:/) {
+      #      geoip {
+      #        source => "[source][ip]"
+      #        target => "[source][geo]"
+      #        fields => [ "city_name", "continent_name", "country_iso_code", "location", "region_name" ]
+      #      }
+      #      geoip {
+      #        source => "[source][ip]"
+      #        target => "[source][as]"
+      #        database => "/usr/share/GeoIP/GeoLite2-ASN.mmdb"
+      #        fields => [ "asn", "organization_name" ]
+      #      }
+      #    }
+      #
+      #    if [destination][ip] and !([destination][ip] =~ /^10\./ or [destination][ip] =~ /^192\.168\./ or [destination][ip] =~ /^172\.(1[6-9]|2[0-9]|3[0-1])\./ or [destination][ip] =~ /^127\./ or [destination][ip] =~ /^169\.254\./ or [destination][ip] =~ /^fc00:/ or [destination][ip] =~ /^fe80:/) {
+      #      geoip {
+      #        source => "[destination][ip]"
+      #        target => "[destination][geo]"
+      #        fields => [ "city_name", "continent_name", "country_iso_code", "location", "region_name" ]
+      #      }
+      #      geoip {
+      #        source => "[destination][ip]"
+      #        target => "[destination][as]"
+      #        database => "/usr/share/GeoIP/GeoLite2-ASN.mmdb"
+      #        fields => [ "asn", "organization_name" ]
+      #      }
+      #    }
+        }
+      }
+
+      output {
+        elasticsearch {
+          hosts => [ "es01", "es02" ]
+          #index => "logstash-%{+YYYY.MM.dd}"
+        }
+      }
+
+  filebeat_yml:
+    content: |+
+      filebeat.inputs:
+      - type: netflow
+        max_message_size: 10KiB
+        host: "0.0.0.0:2055"
+        protocols: [ v5, v9, ipfix ]
+        expiration_timeout: 30m
+        queue_size: 8192
+        detect_sequence_reset: true
+
+      - type: filestream
+        id: syslog-ingest
+        take_over:
+          enabled: true
+        paths:
+          - /var/log/syslog
+
+      - type: filestream
+        id: apache2-ingest
+        take_over:
+          enabled: true
+        paths:
+          - "/var/log/apache2/*"
+        fields:
+          apache: true
+        fields_under_root: true
+
+      - type: filestream
+        enabled: true
+        id: container-logs-ingest
+        prospector.scanner.symlinks: true
+        parsers:
+          - container: ~
+        take_over:
+          enabled: true
+        paths:
+          - /var/lib/docker/containers/*/*-json.log
+        processors:
+          - add_docker_metadata:
+              host: "unix:///var/run/docker.sock"
+          # Application JSON goes under json.* so it cannot overwrite ECS fields such as host
+          - decode_json_fields:
+              fields: ["message"]
+              target: "json"
+              overwrite_keys: false
+              add_error_key: false
+          # Traefik access logs are collected via OTLP; drop the duplicate stdout lines
+          - drop_event:
+              when:
+                and:
+                  - equals:
+                      container.name: traefik
+                  - has_fields: ["json.RequestPath"]
+
+      processors:
+        # decode the log field (sub JSON document) if JSON encoded, then maps it's fields to elasticsearch fields
+        # (not for container events, which are decoded under json.* by their input)
+      - decode_json_fields:
+          when.not.has_fields: ["container.id"]
+          fields: ["log", "message"]
+          target: ""
+          # overwrite existing target elasticsearch fields while decoding json fields
+          overwrite_keys: true
+
+      filebeat.config.modules:
+        path: $${path.config}/modules.d/*.yml
+        reload.enabled: false
+
+      setup.kibana:
+        # This hostname is a docker container name
+        host: "kibana01:5601"
+
+      # Kibana hides its version from unauthenticated callers, so loading dashboards makes Filebeat 9 exit at startup
+      setup.dashboards.enabled: false
+
+      monitoring.enabled: true
+
+      output.elasticsearch:
+        hosts: ["es01", "es02"]
+        pipeline: geoip-info
+        indices:
+          - index: "logs-docker-default"
+            when.has_fields: ["container.id"]
+
+
 services:
 
   cerebro:
@@ -85,20 +518,21 @@ services:
     image: docker.elastic.co/logstash/logstash:9.5.4
     container_name: logstash
     restart: unless-stopped
-    volumes:
-      # - logstash_config:/usr/share/logstash/config/:ro
-      - type: bind
-        source: /docker/logstash/config/logstash.yml
+    configs:
+      - source: logstash_yml
         target: /usr/share/logstash/config/logstash.yml
-        read_only: true
-      - type: bind
-        source: /docker/logstash/config/pipelines.yml
+      - source: logstash_pipelines_yml
         target: /usr/share/logstash/config/pipelines.yml
-        read_only: true
-      - type: bind
-        source: /docker/logstash/config/pipelines
-        target: /usr/share/logstash/pipelines
-        read_only: true
+      - source: logstash_syslog
+        target: /usr/share/logstash/pipelines/syslog.conf
+      - source: logstash_gelf
+        target: /usr/share/logstash/pipelines/gelf.conf
+      - source: logstash_fluentd
+        target: /usr/share/logstash/pipelines/fluentd.conf
+      - source: logstash_esphome
+        target: /usr/share/logstash/pipelines/syslog-esphome.conf
+      - source: logstash_opnsense
+        target: /usr/share/logstash/pipelines/syslog-opnsense.conf
     ports:
       # Specifying IP as otherwise clashes with check_mk on 127.0.0.1:5000
       - "172.24.32.13:5000:5000/tcp"
@@ -129,11 +563,12 @@ services:
     restart: unless-stopped
     user: root #To read the docker socket
     command: ["--environment", "container"]  #TODO: Remove after 8.17.1/8.18.0
-    volumes:
-      - type: bind
-        source: /docker/filebeat/config/filebeat.yml
+    configs:
+      - source: filebeat_yml
         target: /usr/share/filebeat/filebeat.yml
-        read_only: true
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     # healthcheck:
     #   test: filebeat test config
     #   interval: 30s
@@ -310,6 +745,9 @@ services:
     environment:
       ELASTICSEARCH_URL: http://es01:9200
       ELASTICSEARCH_HOSTS: http://es01:9200
+      ELASTIC_APM_ACTIVE: "true"
+      ELASTIC_APM_CONTEXT_PROPAGATION_ONLY: "false"
+      ELASTIC_APM_SERVER_URL: http://apm-server:8200
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik_proxy

@@ -110,6 +110,29 @@ lives in `traefik/docker-compose-deepcore.yaml`'s `command:` list and must stay 
 `/etc/traefik/traefik.yaml` on the host silently discards that whole list, which hid a
 broken certificate resolver for a year. See `traefik/README.md` before changing it.
 
+### ELK config and request tracing
+
+ELK config lives in the repo, inline in `elk-stack/docker-compose.yaml` as top-level `configs:`
+with `content:` (Logstash `logstash.yml`, `pipelines.yml` and the 5 pipelines; `filebeat.yml`).
+A literal `$` must be written `$$`. Bind mounts and `configs: file:` resolve on the *remote*
+host when `DOCKER_HOST=ssh://` is used, which is why the config is inline. The old host copies
+under `/docker/logstash` and `/docker/filebeat` are unused. Validate with (local docker only;
+runs `logstash --config.test_and_exit` on every pipeline and `filebeat test config`, plus a few
+content assertions on `filebeat.yml`):
+
+```bash
+elk-stack/test-configs.sh
+```
+
+Container logs land in `logs-docker-default` with `container.name` (GELF via Logstash,
+json-file via Filebeat).
+
+Request logging/tracing: Traefik exports OTLP access logs and traces to apm-server. Every
+access-log doc in `logs-apm.app.traefik-*` carries `trace.id`. Secrets are redacted and a 30-day
+ILM applies via `elk-stack/apm-custom/` (`apply.sh`, `test.sh`, `service-map.sh`). Rerun
+`service-map.sh` after adding or removing routed services. Grafana, Kibana and Nautobot join
+traces via OTLP env vars. Details: `elk-stack/apm-custom/README.md`.
+
 ### Watchtower auto-updates
 
 Most services opt in to Watchtower image auto-updates:
@@ -141,7 +164,7 @@ Services expose themselves to the [homepage](https://gethomepage.dev) dashboard 
 
 ## Known TODOs in the codebase
 
-- `elk-stack/docker-compose.yaml:45` — remove `--environment container` flag after Elasticsearch 8.17.1/8.18.0
+- `elk-stack/docker-compose.yaml:565` — remove `--environment container` flag after Elasticsearch 8.17.1/8.18.0
 - `up.sh:15` — monitoring-stack `librenms env_file environment duplication` needs review
 - Commented-out services in `up.sh`: miniflux, watchtower, warpgate, pixelfed, ollama (incl. Open WebUI)
 

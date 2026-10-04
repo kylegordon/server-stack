@@ -1,0 +1,7 @@
+{
+  "match": {
+    "indices": "traefik-service-map",
+    "match_field": "service",
+    "enrich_fields": ["container.name"]
+  }
+}
