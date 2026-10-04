@@ -37,6 +37,12 @@ services:
       - --entrypoints.haweb.address=:8123
       - --log.level=INFO
       - --accesslog=true
+      - --experimental.otlpLogs=true
+      - --accesslog.format=json
+      - --accesslog.bufferingsize=100
+      - --accesslog.dualoutput=true
+      - --accesslog.otlp.http.endpoint=http://172.24.32.13:8200/v1/logs
+      - --accesslog.otlp.serviceName=traefik
       - --tracing.otlp=true
       - --tracing.otlp.http=true
       - --tracing.otlp.http.endpoint=http://172.24.32.13:8200/v1/traces
