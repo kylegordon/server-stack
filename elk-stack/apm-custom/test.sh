@@ -40,6 +40,14 @@ each_field no-query '/x' '/x'
 # message is JSON text: the value must not swallow the rest of the JSON
 check json-message message '{"RequestPath":"/x?apikey=SECRET","RouterName":"r1"}' \
   '{"RequestPath":"/x?apikey=REDACTED","RouterName":"r1"}'
+# Go JSON encoding stores & as the six chars backslash-u0026 inside message
+AMP='\u0026'
+check json-escaped-amp message '{"RequestPath":"/x?a=1'$AMP'token=SECRET","RouterName":"r1"}' \
+  '{"RequestPath":"/x?a=1'$AMP'token=REDACTED","RouterName":"r1"}'
+check json-escaped-two message '{"RequestPath":"/x?apikey=S1'$AMP'token=S2","RouterName":"r1"}' \
+  '{"RequestPath":"/x?apikey=REDACTED'$AMP'token=REDACTED","RouterName":"r1"}'
+check json-escaped-keep message '{"RequestPath":"/x?apikey=S1'$AMP'ok=1","RouterName":"r1"}' \
+  '{"RequestPath":"/x?apikey=REDACTED'$AMP'ok=1","RouterName":"r1"}'
 # url.query has no leading ? for its first param
 check query-first url.query 'apikey=SECRET&ok=1' 'apikey=REDACTED&ok=1'
 
