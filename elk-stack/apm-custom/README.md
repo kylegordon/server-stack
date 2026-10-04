@@ -56,7 +56,7 @@ templates (`component-templates/`), which only set `index.lifecycle.name` and `p
 
 - `bash apply.sh ilm` PUTs the policy and templates, sets the policy on existing backing indices,
   and rolls over a stream only if its write index was not already on `apm-30d` (safe to rerun).
-- `bash apply.sh all` runs `pipelines` then `ilm`.
+- `bash apply.sh all` runs `pipelines`, `enrich`, `ilm`, then `kibana` (`logs-apm.app@custom` is PUT by `enrich`, after its enrich policy exists).
 - Verify: `curl -s $ES/traces-apm-default/_ilm/explain | jq '[.indices[].policy]|unique'`.
 - Curator (`elk-stack/curator/`) has no actions targeting `traces-apm*` / `logs-apm*`.
 
