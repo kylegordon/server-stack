@@ -82,6 +82,7 @@ services:
       # Request tracing (joins Traefik traces via apm-server OTLP)
       - OTEL_PYTHON_DJANGO_INSTRUMENT=True
       - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://172.24.32.13:8200
       - OTEL_EXPORTER_OTLP_INSECURE=True
       - OTEL_SERVICE_NAME=nautobot

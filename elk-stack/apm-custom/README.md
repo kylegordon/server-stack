@@ -40,10 +40,10 @@ Redacted headers (`Authorization`, `Cookie`, ...) appear with the value `REDACTE
 ## Redaction pipeline
 
 `pipelines/redact-secrets.json` masks secret query values (`apikey`, `api_key`,
-`token`, `access_token`, `auth`, `password`, `signature`, case-insensitive) in
-`url.original`, `url.full`, `url.query`, `message` and `labels.RequestPath`.
+`token`, `access_token`, `auth`, `password`, `signature`, `authsig`, case-insensitive) in
+`url.original`, `url.full`, `url.query`, `message`, `labels.RequestPath` and `labels.request_Referer`.
 It is called by `traces-apm@custom` and `logs-apm.app@custom`. On any processor
-error the five fields are removed and `error.message` is set.
+error the six fields are removed and `error.message` is set.
 
 - `bash test.sh` runs `_simulate` cases against `$ES` (no PUT needed); exits non-zero on failure.
 - `bash apply.sh pipelines` PUTs the pipelines (writes to production ES).

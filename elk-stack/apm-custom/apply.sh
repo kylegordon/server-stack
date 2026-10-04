@@ -8,11 +8,12 @@ KIBANA=${KIBANA:-https://logs.viewpoint.house}
 DIR=$(cd "$(dirname "$0")" && pwd)
 
 put() { # put <path> <file>
-  curl -sf -H 'Content-Type: application/json' -X PUT "$ES/$1" -d @"$2" | jq -c . ; }
+  curl -sS --fail-with-body -H 'Content-Type: application/json' -X PUT "$ES/$1" -d @"$2" | jq -c . ; }
 
 pipelines() {
-  # redact-secrets first: the @custom pipelines call it
-  for n in redact-secrets traces-apm@custom logs-apm.app@custom; do
+  # redact-secrets first: traces-apm@custom calls it. logs-apm.app@custom is NOT here: its enrich
+  # processor needs the traefik-service-map policy executed first, so enrich() PUTs it.
+  for n in redact-secrets traces-apm@custom; do
     echo "pipeline $n"; put "_ingest/pipeline/$n" "$DIR/pipelines/$n.json"
   done
 }
@@ -25,13 +26,19 @@ ilm() {
   for ds in traces-apm-default logs-apm.app.traefik-default; do
     # Roll over only if the write index is not yet on apm-30d (keeps reruns from
     # creating a new empty index every time). Checked before the settings PUT.
-    write_idx=$(curl -sf "$ES/_data_stream/$ds" | jq -r '.data_streams[0].indices[-1].index_name')
-    cur=$(curl -sf "$ES/$write_idx/_ilm/explain" | jq -r '.indices[].policy // "none"')
+    code=$(curl -s -o /tmp/ds.$$ -w '%{http_code}' "$ES/_data_stream/$ds")
+    if [[ $code == 404 ]]; then
+      echo "skip $ds: not created yet (component template applies at creation)"; rm -f /tmp/ds.$$; continue
+    elif [[ $code != 200 ]]; then
+      echo "data stream lookup $ds failed ($code): $(cat /tmp/ds.$$)" >&2; rm -f /tmp/ds.$$; exit 1
+    fi
+    write_idx=$(jq -r '.data_streams[0].indices[-1].index_name' /tmp/ds.$$); rm -f /tmp/ds.$$
+    cur=$(curl -sS --fail-with-body "$ES/$write_idx/_ilm/explain" | jq -r '.indices[].policy // "none"')
     echo "settings $ds (write index $write_idx, policy $cur)"
     put "$ds/_settings" <(echo '{"index.lifecycle.name":"apm-30d"}')
     if [ "$cur" != apm-30d ]; then
       echo "rollover $ds"
-      curl -sf -X POST "$ES/$ds/_rollover" | jq -c .
+      curl -sS --fail-with-body -X POST "$ES/$ds/_rollover" | jq -c .
     fi
   done
 }
@@ -70,6 +77,6 @@ case "${1:-all}" in
   ilm) ilm ;;
   enrich) enrich ;;
   kibana) kibana ;;
-  all) pipelines; ilm; enrich; kibana ;;
+  all) pipelines; enrich; ilm; kibana ;;
   *) echo "usage: $0 [pipelines|ilm|enrich|kibana|all]" >&2; exit 2 ;;
 esac

@@ -116,7 +116,9 @@ ELK config lives in the repo, inline in `elk-stack/docker-compose.yaml` as top-l
 with `content:` (Logstash `logstash.yml`, `pipelines.yml` and the 5 pipelines; `filebeat.yml`).
 A literal `$` must be written `$$`. Bind mounts and `configs: file:` resolve on the *remote*
 host when `DOCKER_HOST=ssh://` is used, which is why the config is inline. The old host copies
-under `/docker/logstash` and `/docker/filebeat` are unused. Validate with:
+under `/docker/logstash` and `/docker/filebeat` are unused. Validate with (local docker only;
+runs `logstash --config.test_and_exit` on every pipeline and `filebeat test config`, plus a few
+content assertions on `filebeat.yml`):
 
 ```bash
 elk-stack/test-configs.sh

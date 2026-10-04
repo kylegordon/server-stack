@@ -4,7 +4,7 @@
 set -u
 ES=${ES:-http://172.24.32.13:9200}
 DIR=$(cd "$(dirname "$0")" && pwd)
-FIELDS=(url.original url.full url.query message labels.RequestPath)
+FIELDS=(url.original url.full url.query message labels.RequestPath labels.request_Referer)
 fails=0
 
 # sim <field> <value>  -> prints the simulate result for one doc
@@ -34,6 +34,7 @@ each_field encoded-name '/x?api%5Fkey=SECRET' '/x?api%5Fkey=REDACTED'
 each_field all-names \
   '/x?apikey=1&api_key=2&api%5Fkey=3&token=4&access_token=5&auth=6&password=7&signature=8' \
   '/x?apikey=REDACTED&api_key=REDACTED&api%5Fkey=REDACTED&token=REDACTED&access_token=REDACTED&auth=REDACTED&password=REDACTED&signature=REDACTED'
+each_field authsig '/api/x?authSig=JWT.A.B&ok=1' '/api/x?authSig=REDACTED&ok=1'
 each_field lookalike '/x?tokenizer=keep' '/x?tokenizer=keep'
 each_field no-query '/x' '/x'
 
@@ -59,9 +60,9 @@ else echo "FAIL no-fields: $(jq -c '.docs[0]' <<<"$out")"; fails=$((fails+1)); f
 
 # failure: url.original an object forces a processor error -> URL fields removed
 out=$(jq -n --slurpfile p "$DIR/pipelines/redact-secrets.json" \
-  '{pipeline:$p[0],docs:[{_source:{url:{original:{a:1},full:"/x?token=S"},message:"m",labels:{RequestPath:"/x?token=S"}}}]}' |
+  '{pipeline:$p[0],docs:[{_source:{url:{original:{a:1},full:"/x?token=S"},message:"m",labels:{RequestPath:"/x?token=S",request_Referer:"/x?token=S"}}}]}' |
   curl -s -H 'Content-Type: application/json' -X POST "$ES/_ingest/pipeline/_simulate" -d @-)
-if jq -e '.docs[0].doc._source | (.error.message|type=="string") and (.url.original==null) and (.url.full==null) and (.message==null) and (.labels.RequestPath==null)' <<<"$out" >/dev/null
+if jq -e '.docs[0].doc._source | (.error.message|type=="string") and (.url.original==null) and (.url.full==null) and (.message==null) and (.labels.RequestPath==null) and (.labels.request_Referer==null)' <<<"$out" >/dev/null
 then echo "PASS failure-removes-fields"
 else echo "FAIL failure-removes-fields: $(jq -c '.docs[0]' <<<"$out")"; fails=$((fails+1)); fi
 
