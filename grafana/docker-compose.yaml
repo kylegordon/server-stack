@@ -16,6 +16,11 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      - GF_TRACING_OPENTELEMETRY_OTLP_ADDRESS=172.24.32.13:8200
+      - GF_TRACING_OPENTELEMETRY_OTLP_PROPAGATION=w3c
+      - GF_TRACING_OPENTELEMETRY_SAMPLER_TYPE=const
+      - GF_TRACING_OPENTELEMETRY_SAMPLER_PARAM=1
     networks:
       - traefik_proxy
     labels:
