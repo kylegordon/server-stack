@@ -31,7 +31,11 @@ The access log JSON is also in `message` as a string. APM stores each log attrib
 
 Note: `service.name` is `traefik` (the OTLP serviceName), not the backend service.
 
-Headers: none kept yet (no `--accesslog.fields.headers.*` flags), so no header fields present.
+Headers (allowlist; others dropped): `labels.request_<Header>` for request headers (e.g.
+`labels.request_User-Agent`, `labels.request_X-Real-Ip`), `labels.origin_<Header>` and
+`labels.downstream_<Header>` for response headers (e.g. `labels.downstream_Content-Type`).
+Redacted headers (`Authorization`, `Cookie`, ...) appear with the value `REDACTED`.
+`X-Forwarded-For` only appears when the client sent one.
 
 ## Redaction pipeline
 
