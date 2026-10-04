@@ -383,6 +383,91 @@ configs:
         }
       }
 
+  filebeat_yml:
+    content: |+
+      filebeat.inputs:
+      - type: netflow
+        max_message_size: 10KiB
+        host: "0.0.0.0:2055"
+        protocols: [ v5, v9, ipfix ]
+        expiration_timeout: 30m
+        queue_size: 8192
+        detect_sequence_reset: true
+
+      - type: filestream
+        id: syslog-ingest
+        take_over:
+          enabled: true
+        paths:
+          - /var/log/syslog
+
+      - type: filestream
+        id: apache2-ingest
+        take_over:
+          enabled: true
+        paths:
+          - "/var/log/apache2/*"
+        fields:
+          apache: true
+        fields_under_root: true
+
+      - type: filestream
+        enabled: true
+        id: container-logs-ingest
+        prospector.scanner.symlinks: true
+        parsers:
+          - container: ~
+        take_over:
+          enabled: true
+        paths:
+          - /var/lib/docker/containers/*/*-json.log
+        processors:
+          - add_docker_metadata:
+              host: "unix:///var/run/docker.sock"
+          # Application JSON goes under json.* so it cannot overwrite ECS fields such as host
+          - decode_json_fields:
+              fields: ["message"]
+              target: "json"
+              overwrite_keys: false
+              add_error_key: false
+          # Traefik access logs are collected via OTLP; drop the duplicate stdout lines
+          - drop_event:
+              when:
+                and:
+                  - equals:
+                      container.name: traefik
+                  - has_fields: ["json.RequestPath"]
+
+      processors:
+        # decode the log field (sub JSON document) if JSON encoded, then maps it's fields to elasticsearch fields
+        # (not for container events, which are decoded under json.* by their input)
+      - decode_json_fields:
+          when.not.has_fields: ["container.id"]
+          fields: ["log", "message"]
+          target: ""
+          # overwrite existing target elasticsearch fields while decoding json fields
+          overwrite_keys: true
+
+      filebeat.config.modules:
+        path: $${path.config}/modules.d/*.yml
+        reload.enabled: false
+
+      setup.kibana:
+        # This hostname is a docker container name
+        host: "kibana01:5601"
+
+      setup.dashboards.enabled: true
+
+      monitoring.enabled: true
+
+      output.elasticsearch:
+        hosts: ["es01", "es02"]
+        pipeline: geoip-info
+        indices:
+          - index: "logs-docker-default"
+            when.has_fields: ["container.id"]
+
+
 services:
 
   cerebro:
@@ -477,11 +562,12 @@ services:
     restart: unless-stopped
     user: root #To read the docker socket
     command: ["--environment", "container"]  #TODO: Remove after 8.17.1/8.18.0
-    volumes:
-      - type: bind
-        source: /docker/filebeat/config/filebeat.yml
+    configs:
+      - source: filebeat_yml
         target: /usr/share/filebeat/filebeat.yml
-        read_only: true
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     # healthcheck:
     #   test: filebeat test config
     #   interval: 30s
