@@ -84,5 +84,9 @@ have no service) are left unchanged without error.
 and **Container logs** (Discover). `bash apply.sh kibana` imports them with `overwrite=true`
 (set `KIBANA` to override `https://logs.viewpoint.house`).
 
+The **Backend services** dashboard (`backend-services`, default last 24h) shows per-`container.name`
+requests, 5xx rate, p50/p95 latency (table + time series) with both saved searches embedded. Clicking a
+`container.name` value filters every panel.
+
 Tier 2 lookup: from an access-log doc, open **Container logs** and filter on its
 `container.name` with `@timestamp` +/- 2 s.
