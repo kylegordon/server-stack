@@ -55,8 +55,14 @@ enrich() {
 
 kibana() {
   echo "kibana saved objects"
-  curl -sf -H 'kbn-xsrf: true' -X POST "$KIBANA/api/saved_objects/_import?overwrite=true" \
-    -F file=@"$DIR/kibana/saved-objects.ndjson" | jq -c .
+  local resp
+  resp=$(curl -sf -H 'kbn-xsrf: true' -X POST "$KIBANA/api/saved_objects/_import?overwrite=true" \
+    -F file=@"$DIR/kibana/saved-objects.ndjson") || { echo "kibana import failed (HTTP error)" >&2; exit 1; }
+  echo "$resp" | jq -c .
+  # _import returns HTTP 200 even when objects fail; check the body
+  if ! echo "$resp" | jq -e '.success == true' >/dev/null; then
+    echo "kibana import failed" >&2; echo "$resp" | jq -c '.errors' >&2; exit 1
+  fi
 }
 
 case "${1:-all}" in
