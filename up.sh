@@ -89,6 +89,7 @@ docker compose -f scrutiny/docker-compose-deepcore.yaml up -d
 docker compose -f traefik/docker-compose-deepcore.yaml up -d
 docker compose -f wallabag/docker-compose.yaml up -d
 docker compose -f rss/docker-compose.yaml up -d
+docker compose -f karakeep/docker-compose.yaml up -d
 # docker compose -f pixelfed/docker-compose.yaml up -d
 docker compose -f social-stack/docker-compose.yaml up -d
 docker compose -f obsidian-sync/docker-compose.yaml up -d
