@@ -456,7 +456,8 @@ configs:
         # This hostname is a docker container name
         host: "kibana01:5601"
 
-      setup.dashboards.enabled: true
+      # Kibana hides its version from unauthenticated callers, so loading dashboards makes Filebeat 9 exit at startup
+      setup.dashboards.enabled: false
 
       monitoring.enabled: true
 

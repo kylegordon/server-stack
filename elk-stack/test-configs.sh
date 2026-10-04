@@ -83,9 +83,10 @@ if [ ! -s "$fb" ]; then echo "FAIL filebeat_yml: missing"; exit 1; fi
 for want in '/var/lib/docker/containers/*/*-json.log' 'add_docker_metadata' 'logs-docker-default' 'target: "json"'; do
   grep -qF -- "$want" "$fb" && echo "ok   filebeat_yml contains $want" || { echo "FAIL filebeat_yml: missing $want"; fail=1; }
 done
-# lines removed from the host file, ignoring comments and blanks, must be exactly the old path
+# lines removed from the host file, ignoring comments and blanks, must be exactly the old path and dashboards=true
 removed=$(diff <(ssh -o BatchMode=yes "$HOST" cat /docker/filebeat/config/filebeat.yml) "$fb" | grep '^< ' | grep -vE '^< *(#|$)' || true)
-if [ "$removed" = '<     - /var/lib/docker/containers/*.log' ]; then echo "ok   filebeat_yml removes only the old path from the host file"
+want_removed=$(printf '%s\n' '<     - /var/lib/docker/containers/*.log' '< setup.dashboards.enabled: true')
+if [ "$removed" = "$want_removed" ]; then echo "ok   filebeat_yml removes only the old path and dashboards=true from the host file"
 else echo "FAIL filebeat_yml: unexpected removals vs host:"; echo "$removed"; fail=1; fi
 chmod 600 "$fb"
 out=$(docker run --rm --user root -v "$fb:/usr/share/filebeat/filebeat.yml:ro" "$FB_IMAGE" test config -c /usr/share/filebeat/filebeat.yml --strict.perms=false 2>&1)
