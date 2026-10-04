@@ -35,10 +35,24 @@ ilm() {
   done
 }
 
+enrich() {
+  # order matters: policy needs its source index docs before it can execute, and
+  # the pipeline referencing the policy can only be PUT once the policy exists.
+  curl -sf -X PUT "$ES/traefik-service-map" -H 'Content-Type: application/json' \
+    -d '{"mappings":{"properties":{"service":{"type":"keyword"},"container":{"properties":{"name":{"type":"keyword"}}}}}}' \
+    -o /dev/null 2>&1 || true   # already exists on reruns
+  echo "enrich policy traefik-service-map"
+  put _enrich/policy/traefik-service-map "$DIR/enrich/traefik-service-map.json" ||
+    echo "  (policy exists; policies are immutable, delete it first to change it)"
+  echo "service map"; "$DIR/service-map.sh"
+  echo "pipeline logs-apm.app@custom"; put _ingest/pipeline/logs-apm.app@custom "$DIR/pipelines/logs-apm.app@custom.json"
+}
+
 case "${1:-all}" in
   pipelines) pipelines ;;
   ilm) ilm ;;
-  enrich|kibana) echo "section '$1' not implemented yet" >&2 ;;
-  all) pipelines; ilm ;;
+  enrich) enrich ;;
+  kibana) echo "section '$1' not implemented yet" >&2 ;;
+  all) pipelines; ilm; enrich ;;
   *) echo "usage: $0 [pipelines|ilm|enrich|kibana|all]" >&2; exit 2 ;;
 esac

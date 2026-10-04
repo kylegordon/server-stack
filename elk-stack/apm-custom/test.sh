@@ -65,5 +65,29 @@ if jq -e '.docs[0].doc._source | (.error.message|type=="string") and (.url.origi
 then echo "PASS failure-removes-fields"
 else echo "FAIL failure-removes-fields: $(jq -c '.docs[0]' <<<"$out")"; fails=$((fails+1)); fi
 
+# enrich: simulate the STORED pipeline (needs `apply.sh enrich` to have run)
+sim_stored() { # sim_stored <ServiceName value>
+  jq -n --arg v "$1" '{docs:[{_source:{labels:{ServiceName:$v}}}]}' |
+    curl -s -H 'Content-Type: application/json' -X POST "$ES/_ingest/pipeline/logs-apm.app@custom/_simulate" -d @-
+}
+check_enrich() { # check_enrich <label> <service> <expected container.name or "">
+  local out got err
+  out=$(sim_stored "$2")
+  got=$(jq -r '.docs[0].doc._source.container.name // ""' <<<"$out")
+  err=$(jq -r '(.docs[0].error.reason // .docs[0].doc._source.error.message) // empty' <<<"$out")
+  if [[ $got == "$3" && -z $err && $(jq -r '.docs[0].doc._source | has("_svcmap")' <<<"$out") == false ]]; then echo "PASS $1"
+  else echo "FAIL $1: got '$got' want '$3' err '$err'"; fails=$((fails+1)); fi
+}
+check_enrich enrich-known kibana01@docker kibana
+check_enrich enrich-host-network music@docker music-assistant-server
+check_enrich enrich-nonexistent nonexistent@docker ""
+check_enrich enrich-ghost-container ghost@docker ""
+check_enrich enrich-internal api@internal ""
+# no ServiceName at all: no error
+out=$(jq -n '{docs:[{_source:{message:"x"}}]}' |
+  curl -s -H 'Content-Type: application/json' -X POST "$ES/_ingest/pipeline/logs-apm.app@custom/_simulate" -d @-)
+if jq -e '.docs[0].doc._source | (.container.name==null) and (.error==null)' <<<"$out" >/dev/null
+then echo "PASS enrich-no-servicename"; else echo "FAIL enrich-no-servicename: $(jq -c '.docs[0]' <<<"$out")"; fails=$((fails+1)); fi
+
 [[ $fails -eq 0 ]] && echo "ALL PASS" || echo "$fails FAILED"
 exit $((fails>0))

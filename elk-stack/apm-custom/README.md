@@ -59,3 +59,19 @@ templates (`component-templates/`), which only set `index.lifecycle.name` and `p
 - `bash apply.sh all` runs `pipelines` then `ilm`.
 - Verify: `curl -s $ES/traces-apm-default/_ilm/explain | jq '[.indices[].policy]|unique'`.
 - Curator (`elk-stack/curator/`) has no actions targeting `traces-apm*` / `logs-apm*`.
+
+## Backend container enrichment
+
+`logs-apm.app@custom` enriches access logs with `container.name` by looking up
+`labels.ServiceName` (e.g. `kibana01@docker`) in the `traefik-service-map` enrich policy.
+Unknown services and docs without `labels.ServiceName` (e.g. http->https redirect hits, which
+have no service) are left unchanged without error.
+
+- `service-map.sh` builds the map from Traefik's API (`:8090/api/http/services`) joined to
+  `docker inspect` on homeauto (by container IP; host-network containers by their
+  `traefik.http.services.<svc>.loadbalancer.server.port`/`.url` label), reloads the
+  `traefik-service-map` index and executes the policy. `--dry-run` prints the map and lists
+  unmapped services.
+- `bash apply.sh enrich` PUTs the policy, runs `service-map.sh`, then PUTs the pipeline.
+- Re-run `service-map.sh` after containers are added or recreated (IPs change); new docs only.
+- Policies are immutable: to change `enrich/traefik-service-map.json`, delete the policy first.
