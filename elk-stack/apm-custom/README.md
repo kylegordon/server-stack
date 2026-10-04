@@ -32,3 +32,14 @@ The access log JSON is also in `message` as a string. APM stores each log attrib
 Note: `service.name` is `traefik` (the OTLP serviceName), not the backend service.
 
 Headers: none kept yet (no `--accesslog.fields.headers.*` flags), so no header fields present.
+
+## Redaction pipeline
+
+`pipelines/redact-secrets.json` masks secret query values (`apikey`, `api_key`,
+`token`, `access_token`, `auth`, `password`, `signature`, case-insensitive) in
+`url.original`, `url.full`, `url.query`, `message` and `labels.RequestPath`.
+It is called by `traces-apm@custom` and `logs-apm.app@custom`. On any processor
+error the five fields are removed and `error.message` is set.
+
+- `bash test.sh` runs `_simulate` cases against `$ES` (no PUT needed); exits non-zero on failure.
+- `bash apply.sh pipelines` PUTs the pipelines (writes to production ES).

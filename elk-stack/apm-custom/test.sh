@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Simulate-based tests for the ingest pipelines. No PUT needed: the pipeline
+# JSON is inlined into _ingest/pipeline/_simulate.
+set -u
+ES=${ES:-http://172.24.32.13:9200}
+DIR=$(cd "$(dirname "$0")" && pwd)
+FIELDS=(url.original url.full url.query message labels.RequestPath)
+fails=0
+
+# sim <field> <value>  -> prints the simulate result for one doc
+sim() {
+  jq -n --slurpfile p "$DIR/pipelines/redact-secrets.json" --arg f "$1" --arg v "$2" \
+    '{pipeline: $p[0], docs: [{_source: ({} | setpath($f|split("."); $v))}]}' |
+    curl -s -H 'Content-Type: application/json' -X POST "$ES/_ingest/pipeline/_simulate" -d @-
+}
+
+# check <label> <field> <input> <expected>
+check() {
+  local label=$1 f=$2 in=$3 want=$4 out got err
+  out=$(sim "$f" "$in")
+  got=$(jq -r --arg f "$f" '.docs[0].doc._source | getpath($f|split("."))' <<<"$out")
+  err=$(jq -r '.docs[0].doc._source.error.message // empty' <<<"$out")
+  if [[ $got == "$want" && -z $err ]]; then echo "PASS $label [$f]"
+  else echo "FAIL $label [$f]: got '$got' want '$want' err '$err'"; fails=$((fails+1)); fi
+}
+
+each_field() { for f in "${FIELDS[@]}"; do check "$1" "$f" "$2" "$3"; done; }
+
+each_field basic '/x?apikey=SECRET&ok=1' '/x?apikey=REDACTED&ok=1'
+each_field case '/x?ApiKey=SECRET' '/x?ApiKey=REDACTED'
+each_field last+fragment '/x?a=1&token=SECRET#f' '/x?a=1&token=REDACTED#f'
+each_field empty '/x?token=' '/x?token=REDACTED'
+each_field encoded-name '/x?api%5Fkey=SECRET' '/x?api%5Fkey=REDACTED'
+each_field all-names \
+  '/x?apikey=1&api_key=2&api%5Fkey=3&token=4&access_token=5&auth=6&password=7&signature=8' \
+  '/x?apikey=REDACTED&api_key=REDACTED&api%5Fkey=REDACTED&token=REDACTED&access_token=REDACTED&auth=REDACTED&password=REDACTED&signature=REDACTED'
+each_field lookalike '/x?tokenizer=keep' '/x?tokenizer=keep'
+each_field no-query '/x' '/x'
+
+# message is JSON text: the value must not swallow the rest of the JSON
+check json-message message '{"RequestPath":"/x?apikey=SECRET","RouterName":"r1"}' \
+  '{"RequestPath":"/x?apikey=REDACTED","RouterName":"r1"}'
+# url.query has no leading ? for its first param
+check query-first url.query 'apikey=SECRET&ok=1' 'apikey=REDACTED&ok=1'
+
+# no fields at all: unchanged, no error
+out=$(jq -n --slurpfile p "$DIR/pipelines/redact-secrets.json" '{pipeline:$p[0],docs:[{_source:{}}]}' |
+  curl -s -H 'Content-Type: application/json' -X POST "$ES/_ingest/pipeline/_simulate" -d @-)
+if [[ $(jq -c '.docs[0].doc._source' <<<"$out") == '{}' ]]; then echo "PASS no-fields"
+else echo "FAIL no-fields: $(jq -c '.docs[0]' <<<"$out")"; fails=$((fails+1)); fi
+
+# failure: url.original an object forces a processor error -> URL fields removed
+out=$(jq -n --slurpfile p "$DIR/pipelines/redact-secrets.json" \
+  '{pipeline:$p[0],docs:[{_source:{url:{original:{a:1},full:"/x?token=S"},message:"m",labels:{RequestPath:"/x?token=S"}}}]}' |
+  curl -s -H 'Content-Type: application/json' -X POST "$ES/_ingest/pipeline/_simulate" -d @-)
+if jq -e '.docs[0].doc._source | (.error.message|type=="string") and (.url.original==null) and (.url.full==null) and (.message==null) and (.labels.RequestPath==null)' <<<"$out" >/dev/null
+then echo "PASS failure-removes-fields"
+else echo "FAIL failure-removes-fields: $(jq -c '.docs[0]' <<<"$out")"; fails=$((fails+1)); fi
+
+[[ $fails -eq 0 ]] && echo "ALL PASS" || echo "$fails FAILED"
+exit $((fails>0))

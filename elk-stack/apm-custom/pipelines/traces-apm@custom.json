@@ -1,0 +1,10 @@
+{
+  "description": "Redact secrets (custom hook)",
+  "processors": [
+    {
+      "pipeline": {
+        "name": "redact-secrets"
+      }
+    }
+  ]
+}
