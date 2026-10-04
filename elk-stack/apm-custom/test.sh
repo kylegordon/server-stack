@@ -89,5 +89,19 @@ out=$(jq -n '{docs:[{_source:{message:"x"}}]}' |
 if jq -e '.docs[0].doc._source | (.container.name==null) and (.error==null)' <<<"$out" >/dev/null
 then echo "PASS enrich-no-servicename"; else echo "FAIL enrich-no-servicename: $(jq -c '.docs[0]' <<<"$out")"; fails=$((fails+1)); fi
 
+# enrich is best-effort. A missing policy is rejected when the pipeline is built (so it can never
+# reach a doc), so force a runtime failure instead: container is a string, so setting container.name
+# fails. The doc must still come back, redacted, with no _svcmap and no error. Proven necessary by
+# the negative control (same pipeline without ignore_failure must fail).
+fail_doc='{labels:{ServiceName:"kibana01@docker",RequestPath:"/x?token=S"},container:"x"}'
+run_fail() { jq -n --slurpfile p "$DIR/pipelines/logs-apm.app@custom.json" "\$p[0] | $1 | {pipeline:., docs:[{_source:$fail_doc}]}" |
+  curl -s -H 'Content-Type: application/json' -X POST "$ES/_ingest/pipeline/_simulate" -d @-; }
+out=$(run_fail '.')
+if jq -e '.docs[0].doc._source | (._svcmap==null) and (.error==null) and (.labels.RequestPath=="/x?token=REDACTED")' <<<"$out" >/dev/null
+then echo "PASS enrich-failure-best-effort"; else echo "FAIL enrich-failure-best-effort: $(jq -c '.docs[0]' <<<"$out")"; fails=$((fails+1)); fi
+out=$(run_fail 'del(.processors[].[]?.ignore_failure)')
+if jq -e '.docs[0].error != null' <<<"$out" >/dev/null
+then echo "PASS enrich-failure-control (fails without ignore_failure)"; else echo "FAIL enrich-failure-control: failure not reproduced"; fails=$((fails+1)); fi
+
 [[ $fails -eq 0 ]] && echo "ALL PASS" || echo "$fails FAILED"
 exit $((fails>0))

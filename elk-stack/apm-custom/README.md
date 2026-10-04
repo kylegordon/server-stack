@@ -74,4 +74,6 @@ have no service) are left unchanged without error.
   unmapped services.
 - `bash apply.sh enrich` PUTs the policy, runs `service-map.sh`, then PUTs the pipeline.
 - Re-run `service-map.sh` after containers are added or recreated (IPs change); new docs only.
-- Policies are immutable: to change `enrich/traefik-service-map.json`, delete the policy first.
+- Policies are immutable: to change `enrich/traefik-service-map.json`, PUT a pipeline without the enrich
+  processors, delete the policy (`DELETE _enrich/policy/traefik-service-map`), then rerun `apply.sh enrich`.
+- The enrich steps are best-effort (`ignore_failure`): a missing policy never fails an access-log doc.

@@ -40,10 +40,14 @@ enrich() {
   # the pipeline referencing the policy can only be PUT once the policy exists.
   curl -sf -X PUT "$ES/traefik-service-map" -H 'Content-Type: application/json' \
     -d '{"mappings":{"properties":{"service":{"type":"keyword"},"container":{"properties":{"name":{"type":"keyword"}}}}}}' \
-    -o /dev/null 2>&1 || true   # already exists on reruns
+    -o /dev/null || true   # 400 already exists on reruns; real errors surface at the policy step
   echo "enrich policy traefik-service-map"
-  put _enrich/policy/traefik-service-map "$DIR/enrich/traefik-service-map.json" ||
-    echo "  (policy exists; policies are immutable, delete it first to change it)"
+  code=$(curl -s -o /tmp/enrich-put.$$ -w '%{http_code}' -H 'Content-Type: application/json' \
+    -X PUT "$ES/_enrich/policy/traefik-service-map" -d @"$DIR/enrich/traefik-service-map.json")
+  if [[ $code == 200 ]]; then jq -c . /tmp/enrich-put.$$
+  elif [[ $code == 409 ]] || grep -q 'already exists' /tmp/enrich-put.$$; then echo "  (policy already exists, unchanged)"
+  else echo "policy PUT failed ($code): $(cat /tmp/enrich-put.$$)" >&2; rm -f /tmp/enrich-put.$$; exit 1; fi
+  rm -f /tmp/enrich-put.$$
   echo "service map"; "$DIR/service-map.sh"
   echo "pipeline logs-apm.app@custom"; put _ingest/pipeline/logs-apm.app@custom "$DIR/pipelines/logs-apm.app@custom.json"
 }
