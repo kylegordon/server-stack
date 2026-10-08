@@ -45,7 +45,7 @@ services:
       - paperless_redisdata:/data
 
   paperless_db:
-    image: docker.io/library/mariadb:12.3.3
+    image: docker.io/library/mariadb:13.0.2
     restart: unless-stopped
     networks:
       - paperless
@@ -53,6 +53,8 @@ services:
       - paperless_dbdata:/var/lib/mysql
     env_file:
       - .env
+    environment:
+      MARIADB_AUTO_UPGRADE: "1"
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       start_period: 10s
