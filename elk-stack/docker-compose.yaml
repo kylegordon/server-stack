@@ -515,7 +515,7 @@ services:
       - homepage.description=ELK - ElasticHQ
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:9.5.4
+    image: docker.elastic.co/logstash/logstash:9.5.5
     container_name: logstash
     restart: unless-stopped
     configs:
