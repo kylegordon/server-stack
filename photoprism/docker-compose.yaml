@@ -108,7 +108,7 @@ services:
   ## see https://docs.photoprism.org/getting-started/faq/#should-i-use-sqlite-mariadb-or-mysql
   photoprism_mariadb:
     restart: unless-stopped
-    image: docker.io/library/mariadb:12.3
+    image: docker.io/library/mariadb:13.0.2
     networks:
       - photoprism
     security_opt:
@@ -122,6 +122,7 @@ services:
       - MYSQL_DATABASE=${PHOTOPRISM_MYSQL_DATABASE}
       - MYSQL_USER=${PHOTOPRISM_MYSQL_USER}
       - MYSQL_PASSWORD=${PHOTOPRISM_MYSQL_PASSWORD}
+      - MARIADB_AUTO_UPGRADE=1
     # healthcheck:
     #   test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
     #   start_period: 10s
