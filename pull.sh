@@ -39,7 +39,6 @@ docker compose -f komodo/docker-compose-blackbird.yaml pull
 export DOCKER_HOST=ssh://bagpuss@deepcore.glasgownet.com
 echo "Pulling deepcore stacks"
 docker compose -f traefik/docker-compose-deepcore.yaml pull
-docker compose -f pixelfed/docker-compose.yaml pull
 docker compose -f social-stack/docker-compose.yaml pull
 docker compose -f rss/docker-compose.yaml pull
 docker compose -f obsidian-sync/docker-compose.yaml pull
