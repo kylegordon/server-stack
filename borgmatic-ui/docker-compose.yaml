@@ -1,8 +1,6 @@
 ---
-networks:
-  traefik_proxy:
-    external: true
-    name: traefik_traefik_proxy
+include:
+  - ../common/networks.yaml
 
 volumes:
   borgmatic_ui_config:
@@ -34,7 +32,7 @@ services:
       - NODE_ENV=production
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_traefik_proxy
+      - traefik.docker.network=traefik_proxy
       - traefik.http.routers.borgmatic-ui-http.entrypoints=web
       - traefik.http.routers.borgmatic-ui-http.rule=Host(`borgmatic-ui.viewpoint.house`)
       - traefik.http.routers.borgmatic-ui-http.middlewares=borgmatic-ui-https
