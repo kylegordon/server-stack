@@ -166,7 +166,7 @@ Services expose themselves to the [homepage](https://gethomepage.dev) dashboard 
 
 - `elk-stack/docker-compose.yaml:565` — remove `--environment container` flag after Elasticsearch 8.17.1/8.18.0
 - `up.sh:15` — monitoring-stack `librenms env_file environment duplication` needs review
-- Commented-out services in `up.sh`: miniflux, watchtower, warpgate, pixelfed, ollama (incl. Open WebUI)
+- Commented-out services in `up.sh`: miniflux, watchtower, warpgate, ollama (incl. Open WebUI)
 
 ## Komodo
 

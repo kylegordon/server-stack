@@ -168,7 +168,7 @@ Services visible on homepage dashboard include:
 ### TODO Items
 - `elk-stack/docker-compose.yaml:45` - Contains TODO comment about removing `--environment container` flag after Elasticsearch 8.17.1/8.18.0
 - `up.sh:15` - monitoring-stack has note: "needs librenms env_file environment duplication looked at"
-- Several services are commented out in `up.sh`: miniflux, watchtower, warpgate, pixelfed, obsidian-sync
+- Several services are commented out in `up.sh`: miniflux, watchtower, warpgate, obsidian-sync
 
 ### Compose Config Validation Quirks
 - **Missing .env files generate warnings but are not errors** - exit code is still 0

@@ -620,17 +620,6 @@ repo = "kylegordon/server-stack"
 run_directory = "rss"
 file_paths = ["docker-compose.yaml"]
 
-# pixelfed is currently disabled in up.sh
-# [[stack]]
-# name = "pixelfed"
-# tags = ["deepcore", "social"]
-# deploy = false
-# [stack.config]
-# server = "deepcore"
-# repo = "kylegordon/server-stack"
-# run_directory = "pixelfed"
-# file_paths = ["docker-compose.yaml"]
-
 [[stack]]
 name = "social-stack"
 tags = ["deepcore", "social"]

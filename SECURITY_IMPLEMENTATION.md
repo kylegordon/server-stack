@@ -10,8 +10,7 @@ I've successfully implemented proper secret management across your Docker Compos
 2. **`lemmy-stack/.lemmy.env`** - Lemmy database and API credentials  
 3. **`obsidian-sync/.obsidian.env`** - CouchDB credentials
 4. **`ollama/.ollama.env`** - Ollama WebUI configuration and secrets
-5. **`pixelfed/.pixelfed.env`** - Pixelfed database and Redis credentials
-6. **`elk-stack/.elk.env`** - Elasticsearch cluster configuration
+5. **`elk-stack/.elk.env`** - Elasticsearch cluster configuration
 
 ### .env.example Templates Created:
 
@@ -19,7 +18,6 @@ I've successfully implemented proper secret management across your Docker Compos
 - **`.lemmy.env.example`** - Template for Lemmy setup
 - **`.obsidian.env.example`** - Template for Obsidian sync
 - **`.ollama.env.example`** - Template for Ollama WebUI
-- **`.pixelfed.env.example`** - Template for Pixelfed
 - **`.elk.env.example`** - Template for ELK stack
 
 ### Docker Compose Files Updated:
@@ -90,7 +88,6 @@ Your deployment scripts need updating:
 | `lemmy-stack/.lemmy.env` | ✅ Secure placeholder | Generate real passwords |
 | `obsidian-sync/.obsidian.env` | ✅ Secure placeholder | Generate real passwords |
 | `ollama/.ollama.env` | ✅ Secure placeholder | Generate real passwords |
-| `pixelfed/.pixelfed.env` | ✅ Secure placeholder | Generate real passwords |
 | `elk-stack/.elk.env` | ✅ Ready for security | Enable when ready |
 
 Your secrets are now properly organized and your repository is much more secure. Just remember to handle those AWS credentials immediately!
