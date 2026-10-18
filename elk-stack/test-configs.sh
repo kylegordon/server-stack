@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Check the inline Logstash configs in elk-stack/docker-compose.yaml.
+# Check the inline Logstash and Beats configs in elk-stack/docker-compose.yaml.
 #  1. Every pipeline passes `logstash --config.test_and_exit`.
 #  2. filebeat_yml has the expected content and passes `filebeat test config`.
+#  3. auditbeat_yml and metricbeat_yml resolve to dashboards disabled and pass `test config`.
 # Needs local docker only; the inline configs in the compose file are the source of truth.
 set -uo pipefail
 cd "$(dirname "$0")/.."
@@ -52,4 +53,23 @@ done
 chmod 600 "$fb"
 out=$(docker run --rm --user root -v "$fb:/usr/share/filebeat/filebeat.yml:ro" "$FB_IMAGE" test config -c /usr/share/filebeat/filebeat.yml --strict.perms=false 2>&1)
 if grep -q 'Config OK' <<<"$out"; then echo "ok   filebeat_yml: Config OK"; else echo "FAIL filebeat_yml: filebeat test config"; echo "$out" | tail -10; fail=1; fi
+
+# --- auditbeat, metricbeat ---
+for beat in auditbeat metricbeat; do
+  cfg="$tmp/$beat.yml"
+  jq -j ".configs.${beat}_yml.content // empty" <<<"$rendered" | sed 's/\$\$/$/g' >"$cfg"
+  if [ ! -s "$cfg" ]; then echo "FAIL ${beat}_yml: missing"; fail=1; continue; fi
+  if grep -qF 'path.config' "$cfg" && ! grep -qF '${path.config}/modules.d/*.yml' "$cfg"; then echo "FAIL ${beat}_yml: \${path.config} lost (write \$\${path.config})"; fail=1; fi
+  chmod 600 "$cfg"
+  run=(docker run --rm --user root -v "$cfg:/usr/share/$beat/$beat.yml:ro" "$(jq -r ".services.$beat.image" <<<"$rendered")")
+  # Check the setting as the Beat resolves it, so a later override or commented line can't fool the test
+  if "${run[@]}" export config -c "/usr/share/$beat/$beat.yml" --strict.perms=false 2>&1 | grep -A1 -E '^  dashboards:$' | grep -qE '^    enabled: false$'; then
+    echo "ok   ${beat}_yml: dashboards disabled"
+  else
+    echo "FAIL ${beat}_yml: setup.dashboards.enabled must be false (Beat 9 exits otherwise)"; fail=1
+  fi
+  # `test config` does not validate auditd audit_rules
+  out=$("${run[@]}" test config -c "/usr/share/$beat/$beat.yml" --strict.perms=false 2>&1)
+  if grep -q 'Config OK' <<<"$out"; then echo "ok   ${beat}_yml: Config OK"; else echo "FAIL ${beat}_yml: $beat test config"; echo "$out" | tail -10; fail=1; fi
+done
 exit $fail

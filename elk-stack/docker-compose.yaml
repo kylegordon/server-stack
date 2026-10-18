@@ -468,6 +468,93 @@ configs:
           - index: "logs-docker-default"
             when.has_fields: ["container.id"]
 
+  auditbeat_yml:
+    content: |
+      auditbeat.modules:
+
+      # Check the file integrity of the following folders.
+      - module: file_integrity
+        paths:
+        - /bin
+        - /usr/bin
+        - /sbin
+        - /usr/sbin
+        - /etc
+
+      # Collect Linux kernel events.
+      - module: auditd
+        resolve_ids: true
+        failure_mode: silent
+        backlog_limit: 8196
+        rate_limit: 0
+        include_raw_message: false
+        include_warnings: false
+        audit_rules: |
+          ## Things that affect identity
+          -w /etc/group -p wa -k identity
+          -w /etc/passwd -p wa -k identity
+          -w /etc/gshadow -p wa -k identity
+          -w /etc/shadow -p wa -k identity
+          -w /etc/security/opasswd -p wa -k identity
+          ## Log permission errors
+          -a always,exit -F arch=b64 -S open,creat,truncate,ftruncate,openat,open_by_handle_at -F exit=-EPERM -k access
+          ## Log processes that call the `socket` system call
+          -a always,exit -F arch=b64 -S socket -F a0=2 -k socket
+          -a always,exit -F arch=b64 -S socket -F a0=10 -k socket
+          ## The purpose of this rule is to detect when an admin may be abusing power
+          ## by looking in user's home dir.
+          -a always,exit -F dir=/home -F uid=0 -F auid>=1000 -F auid!=4294967295 -C auid!=obj_uid -F key=power-abuse
+          ## log all executed processes
+          #-a always,exit -S execve
+          ## All elevation of privileges is logged
+          -a always,exit -F arch=b64 -S setuid -F a0=0 -F exe=/usr/bin/su -F key=elevated-privs
+          -a always,exit -F arch=b32 -S setuid -F a0=0 -F exe=/usr/bin/su -F key=elevated-privs
+          -a always,exit -F arch=b64 -S setresuid -F a0=0 -F exe=/usr/bin/sudo -F key=elevated-privs
+          -a always,exit -F arch=b32 -S setresuid -F a0=0 -F exe=/usr/bin/sudo -F key=elevated-privs
+          -a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -F key=elevated-privs
+          -a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 -F key=elevated-privs
+
+      processors:
+      - add_docker_metadata: ~
+
+      monitoring.enabled: true
+
+      output.elasticsearch:
+        hosts: ["es01", "es02"]
+
+      logging.to_files: false
+
+      setup:
+        kibana.host: "kibana:5601"
+        # Kibana hides its version from unauthenticated callers, so loading dashboards makes Auditbeat 9 exit at startup
+        dashboards.enabled: false
+
+  metricbeat_yml:
+    content: |
+      metricbeat.autodiscover:
+
+      metricbeat.config.modules:
+        path: $${path.config}/modules.d/*.yml
+        reload.enabled: false
+
+      processors:
+      - add_cloud_metadata:
+
+      output.elasticsearch:
+        hosts: ['es01:9200', 'es02:9200']
+        protocol: "http"
+
+      setup.kibana:
+        host: "http://kibana:5601"
+        protocol: "http"
+
+      xpack.monitoring.enabled: true
+
+      # Kibana hides its version from unauthenticated callers, so loading dashboards makes Metricbeat 9 exit at startup
+      setup.dashboards.enabled: false
+
+      monitoring.enabled: true
+
 
 services:
 
@@ -597,11 +684,9 @@ services:
       - AUDIT_READ
     command: auditbeat -e --strict.perms=false
     pid: "host" # Set the required permissions with pid and cap_add for Auditbeat
-    volumes:
-      - type: bind
-        source: /docker/auditbeat/config/auditbeat.yml
+    configs:
+      - source: auditbeat_yml
         target: /usr/share/auditbeat/auditbeat.yml
-        read_only: true
     healthcheck:
       test: auditbeat test config
       interval: 30s
@@ -778,11 +863,10 @@ services:
     # environment:
     #   ELASTICSEARCH_HOSTS: '["http://es01:9200","http://es02:9200"]'
     #   KIBANA_HOST: 'http://kibana01:5601'
-    volumes:
-      - type: bind
-        source: /docker/metricbeat/config/metricbeat.yml
+    configs:
+      - source: metricbeat_yml
         target: /usr/share/metricbeat/metricbeat.yml
-        read_only: true
+    volumes:
       - /proc:/hostfs/proc:ro
       - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
       - /:/hostfs:ro
