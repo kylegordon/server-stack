@@ -118,8 +118,10 @@ with `content:` (Logstash `logstash.yml`, `pipelines.yml` and the 5 pipelines; `
 `configs: file:` resolve on the *remote* host when `DOCKER_HOST=ssh://` is used, which is why
 the config is inline; no ELK service reads from `/docker` on homeauto. Keep `setup.dashboards.enabled: false` in every Beat: Kibana hides its
 version from unauthenticated callers and a Beat 9 that tries to load dashboards exits at
-startup. Validate with (local docker only; runs `logstash --config.test_and_exit` on every
-pipeline and `test config` on each Beat, plus a few content assertions on `filebeat.yml`):
+startup. Syslog senders log local time with no offset, so the Logstash date filters set
+`timezone => "Europe/London"`. Validate with (local docker only; runs
+`logstash --config.test_and_exit` on every pipeline and `test config` on each Beat, content
+assertions on `filebeat.yml`, and a stdin→stdout run of the opnsense pipeline):
 
 ```bash
 elk-stack/test-configs.sh

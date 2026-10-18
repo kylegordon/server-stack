@@ -106,6 +106,8 @@ configs:
             # Set the Logstash @timestamp field during entry into Elasticsearch
             match => [ "syslog_timestamp", "MMM dd HH:mm:ss",
             "MMM  d HH:mm:ss", "ISO8601" ]
+            # Senders log local time with no offset; the container runs in UTC
+            timezone => "Europe/London"
           }
 
           # Delete message to save space if parsing is successful
@@ -265,6 +267,8 @@ configs:
             # Set the Logstash @timestamp field during entry into Elasticsearch
             match => [ "syslog_timestamp", "MMM dd HH:mm:ss",
             "MMM  d HH:mm:ss", "ISO8601" ]
+            # Senders log local time with no offset; the container runs in UTC
+            timezone => "Europe/London"
           }
 
           # Delete message to save space if parsing is successful
@@ -301,48 +305,54 @@ configs:
             }
           }
 
-          csv {
-            source => "filterlog_payload"
-            separator => ","
-            skip_empty_columns => true
-            columns => [
-              "rule_number","subrule_number","anchor","tracker","network.interface.name",
-              "event.reason","event.action","network.direction","network.iana_number",
-              "ip.tos","ip.ecn","ip.ttl","network.id","ip.fragment_offset","ip.flags",
-              "network.transport_number","network.transport","network.bytes",
-              "source.ip","destination.ip","source.port","destination.port",
-              "network.bytes_payload","network.tcp.flags","network.tcp.seq","network.tcp.ack",
-              "network.tcp.window","network.tcp.urg","network.tcp.options"
-            ]
-          }
-
-          mutate {
-            convert => {
-              "source.port"      => "integer"
-              "destination.port" => "integer"
-              "network.bytes"    => "integer"
-              "ip.ttl"           => "integer"
-            }
-          }
-
-          mutate {
-            lowercase => [ "event.action", "network.transport", "network.direction" ]
-            gsub => [ "event.action", "block", "deny" ]
-          }
-
+          # OPNsense logs local time with no offset; the container runs in UTC
           date {
             match => [ "syslog_timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
-            timezone => "UTC"
+            timezone => "Europe/London"
             target => "@timestamp"
           }
 
-          mutate {
-            add_field => {
-              "event.kind"     => "event"
-              "event.category" => "network_traffic"
-              "event.type"     => "connection"
+          # Only IPv4 filterlog lines (9th field "4") match the columns below; everything else keeps its message as-is
+          if [process.name] == "filterlog" and [filterlog_payload] =~ /^([^,]*,){8}4,/ {
+            csv {
+              source => "filterlog_payload"
+              separator => ","
+              skip_empty_columns => true
+              columns => [
+                "rule_number","subrule_number","anchor","tracker","network.interface.name",
+                "event.reason","event.action","network.direction","network.iana_number",
+                "ip.tos","ip.ecn","ip.ttl","network.id","ip.fragment_offset","ip.flags",
+                "network.transport_number","network.transport","network.bytes",
+                "source.ip","destination.ip","source.port","destination.port",
+                "network.bytes_payload","network.tcp.flags","network.tcp.seq","network.tcp.ack",
+                "network.tcp.window","network.tcp.urg","network.tcp.options"
+              ]
             }
-            remove_field => [ "filterlog_payload", "message", "syslog_timestamp" ]
+
+            mutate {
+              convert => {
+                "source.port"      => "integer"
+                "destination.port" => "integer"
+                "network.bytes"    => "integer"
+                "ip.ttl"           => "integer"
+              }
+            }
+
+            mutate {
+              lowercase => [ "event.action", "network.transport", "network.direction" ]
+              gsub => [ "event.action", "block", "deny" ]
+            }
+
+            mutate {
+              add_field => {
+                "event.kind"     => "event"
+                "event.category" => "network_traffic"
+                "event.type"     => "connection"
+              }
+              remove_field => [ "filterlog_payload", "message", "syslog_timestamp" ]
+            }
+          } else {
+            mutate { remove_field => [ "filterlog_payload", "syslog_timestamp" ] }
           }
 
       #    # Only enrich public IPs (skip RFC1918, loopback, link-local, multicast)
