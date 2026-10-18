@@ -106,6 +106,8 @@ configs:
             # Set the Logstash @timestamp field during entry into Elasticsearch
             match => [ "syslog_timestamp", "MMM dd HH:mm:ss",
             "MMM  d HH:mm:ss", "ISO8601" ]
+            # Senders log local time with no offset; the container runs in UTC
+            timezone => "Europe/London"
           }
 
           # Delete message to save space if parsing is successful
@@ -265,6 +267,8 @@ configs:
             # Set the Logstash @timestamp field during entry into Elasticsearch
             match => [ "syslog_timestamp", "MMM dd HH:mm:ss",
             "MMM  d HH:mm:ss", "ISO8601" ]
+            # Senders log local time with no offset; the container runs in UTC
+            timezone => "Europe/London"
           }
 
           # Delete message to save space if parsing is successful
@@ -301,48 +305,54 @@ configs:
             }
           }
 
-          csv {
-            source => "filterlog_payload"
-            separator => ","
-            skip_empty_columns => true
-            columns => [
-              "rule_number","subrule_number","anchor","tracker","network.interface.name",
-              "event.reason","event.action","network.direction","network.iana_number",
-              "ip.tos","ip.ecn","ip.ttl","network.id","ip.fragment_offset","ip.flags",
-              "network.transport_number","network.transport","network.bytes",
-              "source.ip","destination.ip","source.port","destination.port",
-              "network.bytes_payload","network.tcp.flags","network.tcp.seq","network.tcp.ack",
-              "network.tcp.window","network.tcp.urg","network.tcp.options"
-            ]
-          }
-
-          mutate {
-            convert => {
-              "source.port"      => "integer"
-              "destination.port" => "integer"
-              "network.bytes"    => "integer"
-              "ip.ttl"           => "integer"
-            }
-          }
-
-          mutate {
-            lowercase => [ "event.action", "network.transport", "network.direction" ]
-            gsub => [ "event.action", "block", "deny" ]
-          }
-
+          # OPNsense logs local time with no offset; the container runs in UTC
           date {
             match => [ "syslog_timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
-            timezone => "UTC"
+            timezone => "Europe/London"
             target => "@timestamp"
           }
 
-          mutate {
-            add_field => {
-              "event.kind"     => "event"
-              "event.category" => "network_traffic"
-              "event.type"     => "connection"
+          # Only IPv4 filterlog lines (9th field "4") match the columns below; everything else keeps its message as-is
+          if [process.name] == "filterlog" and [filterlog_payload] =~ /^([^,]*,){8}4,/ {
+            csv {
+              source => "filterlog_payload"
+              separator => ","
+              skip_empty_columns => true
+              columns => [
+                "rule_number","subrule_number","anchor","tracker","network.interface.name",
+                "event.reason","event.action","network.direction","network.iana_number",
+                "ip.tos","ip.ecn","ip.ttl","network.id","ip.fragment_offset","ip.flags",
+                "network.transport_number","network.transport","network.bytes",
+                "source.ip","destination.ip","source.port","destination.port",
+                "network.bytes_payload","network.tcp.flags","network.tcp.seq","network.tcp.ack",
+                "network.tcp.window","network.tcp.urg","network.tcp.options"
+              ]
             }
-            remove_field => [ "filterlog_payload", "message", "syslog_timestamp" ]
+
+            mutate {
+              convert => {
+                "source.port"      => "integer"
+                "destination.port" => "integer"
+                "network.bytes"    => "integer"
+                "ip.ttl"           => "integer"
+              }
+            }
+
+            mutate {
+              lowercase => [ "event.action", "network.transport", "network.direction" ]
+              gsub => [ "event.action", "block", "deny" ]
+            }
+
+            mutate {
+              add_field => {
+                "event.kind"     => "event"
+                "event.category" => "network_traffic"
+                "event.type"     => "connection"
+              }
+              remove_field => [ "filterlog_payload", "message", "syslog_timestamp" ]
+            }
+          } else {
+            mutate { remove_field => [ "filterlog_payload", "syslog_timestamp" ] }
           }
 
       #    # Only enrich public IPs (skip RFC1918, loopback, link-local, multicast)
@@ -467,6 +477,93 @@ configs:
         indices:
           - index: "logs-docker-default"
             when.has_fields: ["container.id"]
+
+  auditbeat_yml:
+    content: |
+      auditbeat.modules:
+
+      # Check the file integrity of the following folders.
+      - module: file_integrity
+        paths:
+        - /bin
+        - /usr/bin
+        - /sbin
+        - /usr/sbin
+        - /etc
+
+      # Collect Linux kernel events.
+      - module: auditd
+        resolve_ids: true
+        failure_mode: silent
+        backlog_limit: 8196
+        rate_limit: 0
+        include_raw_message: false
+        include_warnings: false
+        audit_rules: |
+          ## Things that affect identity
+          -w /etc/group -p wa -k identity
+          -w /etc/passwd -p wa -k identity
+          -w /etc/gshadow -p wa -k identity
+          -w /etc/shadow -p wa -k identity
+          -w /etc/security/opasswd -p wa -k identity
+          ## Log permission errors
+          -a always,exit -F arch=b64 -S open,creat,truncate,ftruncate,openat,open_by_handle_at -F exit=-EPERM -k access
+          ## Log processes that call the `socket` system call
+          -a always,exit -F arch=b64 -S socket -F a0=2 -k socket
+          -a always,exit -F arch=b64 -S socket -F a0=10 -k socket
+          ## The purpose of this rule is to detect when an admin may be abusing power
+          ## by looking in user's home dir.
+          -a always,exit -F dir=/home -F uid=0 -F auid>=1000 -F auid!=4294967295 -C auid!=obj_uid -F key=power-abuse
+          ## log all executed processes
+          #-a always,exit -S execve
+          ## All elevation of privileges is logged
+          -a always,exit -F arch=b64 -S setuid -F a0=0 -F exe=/usr/bin/su -F key=elevated-privs
+          -a always,exit -F arch=b32 -S setuid -F a0=0 -F exe=/usr/bin/su -F key=elevated-privs
+          -a always,exit -F arch=b64 -S setresuid -F a0=0 -F exe=/usr/bin/sudo -F key=elevated-privs
+          -a always,exit -F arch=b32 -S setresuid -F a0=0 -F exe=/usr/bin/sudo -F key=elevated-privs
+          -a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -F key=elevated-privs
+          -a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 -F key=elevated-privs
+
+      processors:
+      - add_docker_metadata: ~
+
+      monitoring.enabled: true
+
+      output.elasticsearch:
+        hosts: ["es01", "es02"]
+
+      logging.to_files: false
+
+      setup:
+        kibana.host: "kibana:5601"
+        # Kibana hides its version from unauthenticated callers, so loading dashboards makes Auditbeat 9 exit at startup
+        dashboards.enabled: false
+
+  metricbeat_yml:
+    content: |
+      metricbeat.autodiscover:
+
+      metricbeat.config.modules:
+        path: $${path.config}/modules.d/*.yml
+        reload.enabled: false
+
+      processors:
+      - add_cloud_metadata:
+
+      output.elasticsearch:
+        hosts: ['es01:9200', 'es02:9200']
+        protocol: "http"
+
+      setup.kibana:
+        host: "http://kibana:5601"
+        protocol: "http"
+
+      xpack.monitoring.enabled: true
+
+      # Kibana hides its version from unauthenticated callers, so loading dashboards makes Metricbeat 9 exit at startup
+      setup.dashboards.enabled: false
+
+      monitoring.enabled: true
 
 
 services:
@@ -597,11 +694,9 @@ services:
       - AUDIT_READ
     command: auditbeat -e --strict.perms=false
     pid: "host" # Set the required permissions with pid and cap_add for Auditbeat
-    volumes:
-      - type: bind
-        source: /docker/auditbeat/config/auditbeat.yml
+    configs:
+      - source: auditbeat_yml
         target: /usr/share/auditbeat/auditbeat.yml
-        read_only: true
     healthcheck:
       test: auditbeat test config
       interval: 30s
@@ -778,11 +873,10 @@ services:
     # environment:
     #   ELASTICSEARCH_HOSTS: '["http://es01:9200","http://es02:9200"]'
     #   KIBANA_HOST: 'http://kibana01:5601'
-    volumes:
-      - type: bind
-        source: /docker/metricbeat/config/metricbeat.yml
+    configs:
+      - source: metricbeat_yml
         target: /usr/share/metricbeat/metricbeat.yml
-        read_only: true
+    volumes:
       - /proc:/hostfs/proc:ro
       - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
       - /:/hostfs:ro
