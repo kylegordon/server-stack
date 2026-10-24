@@ -35,7 +35,7 @@ Do **not** run `up.sh`, `pull.sh`, or any `docker compose up` commands unless th
 
 ## Deploying
 
-Deploy all stacks to all hosts:
+Deploy all stacks to all hosts (except the stacks with `deploy = true` in `komodo-stacks.toml`, which Komodo deploys; see Komodo below):
 ```bash
 ./up.sh
 ```
@@ -168,11 +168,13 @@ Services expose themselves to the [homepage](https://gethomepage.dev) dashboard 
 
 - `elk-stack/docker-compose.yaml:652` — remove `--environment container` flag after Elasticsearch 8.17.1/8.18.0
 - `up.sh:15` — monitoring-stack `librenms env_file environment duplication` needs review
-- Commented-out services in `up.sh`: watchtower, whatsupdocker, warpgate, selenium, ollama (incl. Open WebUI)
+- Disabled (commented-out) services in `up.sh`: watchtower, whatsupdocker, warpgate, selenium, ollama (incl. Open WebUI). Lines marked `--- Deployed by Komodo` are live under Komodo; don't re-enable them in `up.sh`.
 
 ## Komodo
 
-`komodo-stacks.toml` declares all stacks for Komodo (a container management platform). Komodo pulls from this repo and deploys stacks to the appropriate server. The `deploy = false` flag means Komodo tracks but does not auto-deploy on sync. Keep it in step with `up.sh`: every `up.sh` line (including commented-out ones whose compose file still exists) has a matching `[[stack]]` on the same server. When a stack's `name` differs from its `run_directory`, set `project_name` to the directory name: `up.sh` projects are named after the directory, and Komodo otherwise uses the stack name, so it won't recognise the running containers and a deploy would start duplicates. Stacks tagged `up-sh-only` (`komodo` itself and the `komodo-periphery-*` agents) are tracked for status only: deploy them with `up.sh`, never Stop/Destroy/Redeploy from Komodo, since that would take down the agent Komodo uses to reach the host.
+`komodo-stacks.toml` declares all stacks for Komodo (a container management platform). Komodo pulls from this repo and deploys stacks to the appropriate server. The `deploy = false` flag means Komodo tracks but does not auto-deploy on sync. Keep it in step with `up.sh`: every `up.sh` line (including commented-out ones whose compose file still exists) has a matching `[[stack]]` on the same server.
+
+Stacks with `deploy = true` are deployed by Komodo, not `up.sh`. The Komodo procedure "Sync Server-Stack" runs the sync every 5 minutes, and Komodo redeploys a stack when its files change on `master`, so merging a Renovate bump deploys it (within about an hour, Komodo's resource poll interval). To migrate a stack, in one PR: set `deploy = true`, comment out its `up.sh` line with `--- Deployed by Komodo`, and comment out its `pull.sh` line if it has one. A stack with secrets also needs Komodo secret Variables referenced as `[[STACK__KEY]]` in its `environment`; the repo is public, so only the `[[ref]]`s go in the toml. Komodo writes `environment` to `<run_directory>/.env`, so if the compose reads a different env file (e.g. `.librenms.env`), or the stack `include:`s subdirectories with their own `.env`, set `env_file_path` or rework the compose first. Once Komodo has deployed it, delete the stack's gitignored `.env` from the workstation checkout that `up.sh` uses. When a stack's `name` differs from its `run_directory`, set `project_name` to the directory name: `up.sh` projects are named after the directory, and Komodo otherwise uses the stack name, so it won't recognise the running containers and a deploy would start duplicates. Stacks tagged `up-sh-only` (`komodo` itself and the `komodo-periphery-*` agents) are tracked for status only: deploy them with `up.sh`, never Stop/Destroy/Redeploy from Komodo, since that would take down the agent Komodo uses to reach the host.
 
 ## Secrets / environment files
 

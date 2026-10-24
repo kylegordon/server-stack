@@ -17,7 +17,7 @@ docker compose -f dawarich/docker-compose.yml pull
 docker compose -f warrior/docker-compose.yaml pull
 # docker compose -f ollama/docker-compose.yaml pull
 docker compose -f komodo/docker-compose.yaml pull
-docker compose -f borg-ui/docker-compose.yaml pull
+# docker compose -f borg-ui/docker-compose.yaml pull  --- Deployed by Komodo
 docker compose -f selenium/docker-compose.yaml pull
 docker compose -f immich/docker-compose.yaml pull
 docker compose -f borgmatic-ui/docker-compose.yaml pull
