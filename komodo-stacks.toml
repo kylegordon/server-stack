@@ -360,6 +360,7 @@ server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "mdns_repeater"
+project_name = "mdns_repeater"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
@@ -371,6 +372,7 @@ server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "nginx_core"
+project_name = "nginx_core"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
@@ -431,8 +433,8 @@ file_paths = ["docker-compose.yaml"]
 
 [[stack]]
 name = "komodo"
-description = "Komodo Core + Periphery + MongoDB"
-tags = ["homeauto", "infrastructure"]
+description = "Komodo Core + Periphery + MongoDB - deploy via up.sh only; never Stop/Destroy/Redeploy from Komodo"
+tags = ["homeauto", "infrastructure", "up-sh-only"]
 deploy = false
 [stack.config]
 server = "homeauto"
@@ -628,14 +630,15 @@ file_paths = ["docker-compose.yaml"]
 
 [[stack]]
 name = "komodo-periphery-adsb"
-description = "Komodo Periphery agent for sdrpi (adsb receiver)"
-tags = ["sdrpi", "infrastructure"]
+description = "Komodo Periphery agent for sdrpi (adsb receiver) - deploy via up.sh only; never Stop/Destroy/Redeploy from Komodo"
+tags = ["sdrpi", "infrastructure", "up-sh-only"]
 deploy = false
 [stack.config]
 server = "sdrpi"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "komodo"
+project_name = "komodo"
 file_paths = ["docker-compose-sdrpi.yaml"]
 
 ##############################################
@@ -655,14 +658,15 @@ file_paths = ["docker-compose.yaml"]
 
 [[stack]]
 name = "komodo-periphery-octoprint"
-description = "Komodo Periphery agent for octolaptop (OctoPrint host)"
-tags = ["octolaptop", "infrastructure"]
+description = "Komodo Periphery agent for octolaptop (OctoPrint host) - deploy via up.sh only; never Stop/Destroy/Redeploy from Komodo"
+tags = ["octolaptop", "infrastructure", "up-sh-only"]
 deploy = false
 [stack.config]
 server = "octolaptop"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "komodo"
+project_name = "komodo"
 file_paths = ["docker-compose-octoprint.yaml"]
 
 ##############################################
@@ -679,6 +683,7 @@ server = "blackbird"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "scrutiny"
+project_name = "scrutiny"
 file_paths = ["docker-compose-blackbird.yaml"]
 
 [[stack]]
@@ -691,18 +696,20 @@ server = "blackbird"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "beszel"
+project_name = "beszel"
 file_paths = ["docker-compose-blackbird.yaml"]
 
 [[stack]]
 name = "komodo-periphery-blackbird"
-description = "Komodo Periphery agent for blackbird"
-tags = ["blackbird", "infrastructure"]
+description = "Komodo Periphery agent for blackbird - deploy via up.sh only; never Stop/Destroy/Redeploy from Komodo"
+tags = ["blackbird", "infrastructure", "up-sh-only"]
 deploy = false
 [stack.config]
 server = "blackbird"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "komodo"
+project_name = "komodo"
 file_paths = ["docker-compose-blackbird.yaml"]
 
 ##############################################
@@ -719,18 +726,20 @@ server = "littlegeek"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "beszel"
+project_name = "beszel"
 file_paths = ["docker-compose-littlegeek.yaml"]
 
 [[stack]]
 name = "komodo-periphery-littlegeek"
-description = "Komodo Periphery agent for littlegeek"
-tags = ["littlegeek", "infrastructure"]
+description = "Komodo Periphery agent for littlegeek - deploy via up.sh only; never Stop/Destroy/Redeploy from Komodo"
+tags = ["littlegeek", "infrastructure", "up-sh-only"]
 deploy = false
 [stack.config]
 server = "littlegeek"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "komodo"
+project_name = "komodo"
 file_paths = ["docker-compose-littlegeek.yaml"]
 
 ##############################################
@@ -747,18 +756,20 @@ server = "deepcore"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "beszel"
+project_name = "beszel"
 file_paths = ["docker-compose-deepcore.yaml"]
 
 [[stack]]
 name = "komodo-periphery-deepcore"
-description = "Komodo Periphery agent for deepcore"
-tags = ["deepcore", "infrastructure"]
+description = "Komodo Periphery agent for deepcore - deploy via up.sh only; never Stop/Destroy/Redeploy from Komodo"
+tags = ["deepcore", "infrastructure", "up-sh-only"]
 deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "komodo"
+project_name = "komodo"
 file_paths = ["docker-compose-deepcore.yaml"]
 
 [[stack]]
@@ -771,6 +782,7 @@ server = "deepcore"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "scrutiny"
+project_name = "scrutiny"
 file_paths = ["docker-compose-deepcore.yaml"]
 
 [[stack]]
@@ -783,6 +795,7 @@ server = "deepcore"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "traefik"
+project_name = "traefik"
 file_paths = ["docker-compose-deepcore.yaml"]
 
 [[stack]]

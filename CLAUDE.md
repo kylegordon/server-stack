@@ -172,7 +172,7 @@ Services expose themselves to the [homepage](https://gethomepage.dev) dashboard 
 
 ## Komodo
 
-`komodo-stacks.toml` declares all stacks for Komodo (a container management platform). Komodo pulls from this repo and deploys stacks to the appropriate server. The `deploy = false` flag means Komodo tracks but does not auto-deploy on sync. Keep it in step with `up.sh`: every `up.sh` line (including commented-out ones whose compose file still exists) has a matching `[[stack]]` on the same server.
+`komodo-stacks.toml` declares all stacks for Komodo (a container management platform). Komodo pulls from this repo and deploys stacks to the appropriate server. The `deploy = false` flag means Komodo tracks but does not auto-deploy on sync. Keep it in step with `up.sh`: every `up.sh` line (including commented-out ones whose compose file still exists) has a matching `[[stack]]` on the same server. When a stack's `name` differs from its `run_directory`, set `project_name` to the directory name: `up.sh` projects are named after the directory, and Komodo otherwise uses the stack name, so it won't recognise the running containers and a deploy would start duplicates. Stacks tagged `up-sh-only` (`komodo` itself and the `komodo-periphery-*` agents) are tracked for status only: deploy them with `up.sh`, never Stop/Destroy/Redeploy from Komodo, since that would take down the agent Komodo uses to reach the host.
 
 ## Secrets / environment files
 
