@@ -5,12 +5,13 @@
 # This file declares all Docker Compose stacks managed by Komodo.
 # It is intended for use with a Komodo ResourceSync pointing at:
 #   repo = "kylegordon/server-stack"
+#   branch = "master"
 #   resource_path = ["komodo-stacks.toml"]
 #
 # Servers referenced here must be added to Komodo before syncing:
 #   homeauto   - 172.24.32.13  (primary, runs Komodo Core)
-#   adsb       - 172.24.32.11  (ADS-B receiver)
-#   octoprint  - 172.24.32.18  (OctoPrint host)
+#   sdrpi      - 172.24.32.11  (ADS-B receiver)
+#   octolaptop - 172.24.32.18  (OctoPrint host)
 #   blackbird  - 172.24.32.5   (NFS storage server)
 #   littlegeek - 100.92.153.11 (secondary/laptop)
 #   deepcore   - 100.98.130.51 (public-facing server)
@@ -24,12 +25,25 @@
 ##############################################
 
 [[stack]]
+name = "network-stack"
+description = "Creates the shared traefik_proxy and homeautomation networks"
+tags = ["homeauto", "infrastructure"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "network-stack"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
 name = "core-stack"
 tags = ["homeauto", "infrastructure"]
 deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "core-stack"
 file_paths = ["docker-compose.yaml"]
 
@@ -40,7 +54,19 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "traefik"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "infisical"
+tags = ["homeauto", "infrastructure"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "infisical"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
@@ -50,17 +76,19 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "unifi"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
 name = "ha-stack"
-description = "Home Assistant and dependencies (double-take, frigate, node-red, predbat, givtcp, esphome, zigbee2mqtt, eclipse-mosquitto)"
+description = "Home Assistant and dependencies (home-assistant, double-take, frigate, node-red, givtcp, esphome, zigbee2mqtt, eclipse-mosquitto, matter-server, predbat)"
 tags = ["homeauto", "home-automation"]
 deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "ha-stack"
 file_paths = ["docker-compose.yaml"]
 
@@ -71,6 +99,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "piper"
 file_paths = ["docker-compose.yaml"]
 
@@ -81,6 +110,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "whisper"
 file_paths = ["docker-compose.yaml"]
 
@@ -91,6 +121,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "eplzones"
 file_paths = ["docker-compose.yaml"]
 
@@ -101,6 +132,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "paperless"
 file_paths = ["docker-compose.yaml"]
 
@@ -111,18 +143,85 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "grafana"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
-name = "media-stack"
-description = "Media stack (Sonarr, Radarr, Calibre, Jellyfin, NZBGet, Hydra, Music Assistant)"
+name = "hydra"
 tags = ["homeauto", "media"]
 deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
-run_directory = "media-stack"
+branch = "master"
+run_directory = "hydra"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "nzbget"
+tags = ["homeauto", "media"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "nzbget"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "calibre"
+tags = ["homeauto", "media"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "calibre"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "sonarr"
+tags = ["homeauto", "media"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "sonarr"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "radarr"
+tags = ["homeauto", "media"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "radarr"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "recyclarr"
+tags = ["homeauto", "media"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "recyclarr"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "music-assistant"
+tags = ["homeauto", "media"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "music-assistant"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
@@ -133,6 +232,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "monitoring-stack"
 file_paths = ["docker-compose.yaml"]
 
@@ -144,6 +244,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "elk-stack"
 file_paths = ["docker-compose.yaml"]
 
@@ -154,8 +255,9 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "dawarich"
-file_paths = ["docker-compose.yml"]
+file_paths = ["docker-compose.yaml"]
 
 [[stack]]
 name = "warrior"
@@ -165,8 +267,9 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
-run_directory = "."
-file_paths = ["warrior.yaml"]
+branch = "master"
+run_directory = "warrior"
+file_paths = ["docker-compose.yaml"]
 
 # ollama (incl. Open WebUI) is currently disabled in up.sh
 [[stack]]
@@ -176,6 +279,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "ollama"
 file_paths = ["docker-compose.yaml"]
 
@@ -186,6 +290,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "homepage"
 file_paths = ["docker-compose.yaml"]
 
@@ -197,18 +302,8 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "peanut"
-file_paths = ["docker-compose.yaml"]
-
-# miniflux is currently disabled in up.sh
-[[stack]]
-name = "miniflux"
-tags = ["homeauto", "utilities"]
-deploy = false
-[stack.config]
-server = "homeauto"
-repo = "kylegordon/server-stack"
-run_directory = "miniflux"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
@@ -218,6 +313,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "scrutiny"
 file_paths = ["docker-compose.yaml"]
 
@@ -229,18 +325,8 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "ebusd"
-file_paths = ["docker-compose.yaml"]
-
-# watchtower is currently disabled in up.sh
-[[stack]]
-name = "watchtower"
-tags = ["homeauto", "infrastructure"]
-deploy = false
-[stack.config]
-server = "homeauto"
-repo = "kylegordon/server-stack"
-run_directory = "watchtower"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
@@ -250,6 +336,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "uptime-kuma"
 file_paths = ["docker-compose.yaml"]
 
@@ -260,6 +347,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "influxdb"
 file_paths = ["docker-compose.yaml"]
 
@@ -270,6 +358,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "mdns_repeater"
 file_paths = ["docker-compose.yaml"]
 
@@ -280,6 +369,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "nginx_core"
 file_paths = ["docker-compose.yaml"]
 
@@ -290,6 +380,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "homebox"
 file_paths = ["docker-compose.yaml"]
 
@@ -300,17 +391,8 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "matter-hub"
-file_paths = ["docker-compose.yaml"]
-
-[[stack]]
-name = "whatsupdocker"
-tags = ["homeauto", "infrastructure"]
-deploy = false
-[stack.config]
-server = "homeauto"
-repo = "kylegordon/server-stack"
-run_directory = "whatsupdocker"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
@@ -321,6 +403,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "beszel"
 file_paths = ["docker-compose.yaml"]
 
@@ -331,7 +414,19 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "photoprism"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "immich"
+tags = ["homeauto", "media"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "immich"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
@@ -342,6 +437,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "komodo"
 file_paths = ["docker-compose.yaml"]
 
@@ -353,6 +449,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "warpgate"
 file_paths = ["docker-compose.yaml"]
 
@@ -364,7 +461,42 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "netalertx"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "borg-ui"
+tags = ["homeauto", "utilities"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "borg-ui"
+file_paths = ["docker-compose.yaml"]
+
+# selenium is currently disabled in up.sh
+[[stack]]
+name = "selenium"
+tags = ["homeauto", "utilities"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "selenium"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "nautobot"
+tags = ["homeauto", "infrastructure"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "nautobot"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
@@ -374,6 +506,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "opensky"
 file_paths = ["docker-compose.yaml"]
 
@@ -384,6 +517,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "piaware"
 file_paths = ["docker-compose.yaml"]
 
@@ -394,6 +528,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "planefinder"
 file_paths = ["docker-compose.yaml"]
 
@@ -405,6 +540,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "fr24feed"
 file_paths = ["docker-compose.yaml"]
 
@@ -415,7 +551,19 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "phpmyadmin"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "pgadmin"
+tags = ["homeauto", "utilities"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "pgadmin"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
@@ -425,7 +573,19 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "forgejo"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "evcc"
+tags = ["homeauto", "home-automation"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "evcc"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
@@ -436,7 +596,19 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "home-energy-manager"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "borgmatic-ui"
+tags = ["homeauto", "utilities"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "borgmatic-ui"
 file_paths = ["docker-compose.yaml"]
 
 ##############################################
@@ -446,10 +618,11 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "ultrafeeder"
 tags = ["sdrpi", "adsb"]
-deploy = true
+deploy = false
 [stack.config]
 server = "sdrpi"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "ultrafeeder"
 file_paths = ["docker-compose.yaml"]
 
@@ -457,10 +630,11 @@ file_paths = ["docker-compose.yaml"]
 name = "komodo-periphery-adsb"
 description = "Komodo Periphery agent for sdrpi (adsb receiver)"
 tags = ["sdrpi", "infrastructure"]
-deploy = true
+deploy = false
 [stack.config]
 server = "sdrpi"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "komodo"
 file_paths = ["docker-compose-sdrpi.yaml"]
 
@@ -475,6 +649,7 @@ deploy = false
 [stack.config]
 server = "octolaptop"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "octoprint"
 file_paths = ["docker-compose.yaml"]
 
@@ -482,10 +657,11 @@ file_paths = ["docker-compose.yaml"]
 name = "komodo-periphery-octoprint"
 description = "Komodo Periphery agent for octolaptop (OctoPrint host)"
 tags = ["octolaptop", "infrastructure"]
-deploy = true
+deploy = false
 [stack.config]
 server = "octolaptop"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "komodo"
 file_paths = ["docker-compose-octoprint.yaml"]
 
@@ -501,6 +677,7 @@ deploy = false
 [stack.config]
 server = "blackbird"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "scrutiny"
 file_paths = ["docker-compose-blackbird.yaml"]
 
@@ -512,6 +689,7 @@ deploy = false
 [stack.config]
 server = "blackbird"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "beszel"
 file_paths = ["docker-compose-blackbird.yaml"]
 
@@ -519,10 +697,11 @@ file_paths = ["docker-compose-blackbird.yaml"]
 name = "komodo-periphery-blackbird"
 description = "Komodo Periphery agent for blackbird"
 tags = ["blackbird", "infrastructure"]
-deploy = true
+deploy = false
 [stack.config]
 server = "blackbird"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "komodo"
 file_paths = ["docker-compose-blackbird.yaml"]
 
@@ -538,6 +717,7 @@ deploy = false
 [stack.config]
 server = "littlegeek"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "beszel"
 file_paths = ["docker-compose-littlegeek.yaml"]
 
@@ -545,10 +725,11 @@ file_paths = ["docker-compose-littlegeek.yaml"]
 name = "komodo-periphery-littlegeek"
 description = "Komodo Periphery agent for littlegeek"
 tags = ["littlegeek", "infrastructure"]
-deploy = true
+deploy = false
 [stack.config]
 server = "littlegeek"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "komodo"
 file_paths = ["docker-compose-littlegeek.yaml"]
 
@@ -564,6 +745,7 @@ deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "beszel"
 file_paths = ["docker-compose-deepcore.yaml"]
 
@@ -571,10 +753,11 @@ file_paths = ["docker-compose-deepcore.yaml"]
 name = "komodo-periphery-deepcore"
 description = "Komodo Periphery agent for deepcore"
 tags = ["deepcore", "infrastructure"]
-deploy = true
+deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "komodo"
 file_paths = ["docker-compose-deepcore.yaml"]
 
@@ -586,6 +769,7 @@ deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "scrutiny"
 file_paths = ["docker-compose-deepcore.yaml"]
 
@@ -597,6 +781,7 @@ deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "traefik"
 file_paths = ["docker-compose-deepcore.yaml"]
 
@@ -607,6 +792,7 @@ deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "wallabag"
 file_paths = ["docker-compose.yaml"]
 
@@ -617,7 +803,19 @@ deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "rss"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "karakeep"
+tags = ["deepcore", "utilities"]
+deploy = false
+[stack.config]
+server = "deepcore"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "karakeep"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
@@ -627,16 +825,17 @@ deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "social-stack"
 file_paths = ["docker-compose.yaml"]
 
-# obsidian-sync is currently disabled in up.sh
-# [[stack]]
-# name = "obsidian-sync"
-# tags = ["deepcore", "utilities"]
-# deploy = false
-# [stack.config]
-# server = "deepcore"
-# repo = "kylegordon/server-stack"
-# run_directory = "obsidian-sync"
-# file_paths = ["docker-compose.yaml"]
+[[stack]]
+name = "obsidian-sync"
+tags = ["deepcore", "utilities"]
+deploy = false
+[stack.config]
+server = "deepcore"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "obsidian-sync"
+file_paths = ["docker-compose.yaml"]
