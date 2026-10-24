@@ -378,13 +378,16 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "homebox"
 tags = ["homeauto", "utilities"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "homebox"
 file_paths = ["docker-compose.yaml"]
+environment = """
+HBOX_AUTH_API_KEY_PEPPER=[[HOMEBOX__HBOX_AUTH_API_KEY_PEPPER]]
+"""
 
 [[stack]]
 name = "matter-hub"
