@@ -24,7 +24,7 @@ docker compose -f elk-stack/docker-compose.yaml up -d
 docker compose -f dawarich/docker-compose.yaml up -d
 docker compose -f warrior/docker-compose.yaml up -d
 # docker compose -f ollama/docker-compose.yaml up -d  --- Ollama/Open WebUI disabled - unused ---
-docker compose -f homepage/docker-compose.yaml up -d
+# docker compose -f homepage/docker-compose.yaml up -d --- Deployed by Komodo
 docker compose -f peanut/docker-compose.yaml up -d
 docker compose -f scrutiny/docker-compose.yaml up -d
 docker compose -f ebusd/docker-compose.yaml up -d
@@ -42,7 +42,7 @@ docker compose -f immich/docker-compose.yaml up -d
 docker compose -f komodo/docker-compose.yaml up -d  # Komodo Core + Periphery + MongoDB
 # docker compose -f warpgate/docker-compose.yaml up -d  --- Warpgate disabled - unlikely to be of use ---
 docker compose -f netalertx/docker-compose.yaml up -d  # NetAlertX - network monitoring and alerting tool
-docker compose -f borg-ui/docker-compose.yaml up -d
+# docker compose -f borg-ui/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f selenium/docker-compose.yaml up -d
 docker compose -f nautobot/docker-compose.yaml up -d
 docker compose -f forgejo/docker-compose.yaml up -d

@@ -286,7 +286,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "homepage"
 tags = ["homeauto", "infrastructure"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -470,7 +470,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "borg-ui"
 tags = ["homeauto", "utilities"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
