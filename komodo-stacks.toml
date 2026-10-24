@@ -5,6 +5,7 @@
 # This file declares all Docker Compose stacks managed by Komodo.
 # It is intended for use with a Komodo ResourceSync pointing at:
 #   repo = "kylegordon/server-stack"
+#   branch = "master"
 #   resource_path = ["komodo-stacks.toml"]
 #
 # Servers referenced here must be added to Komodo before syncing:
@@ -31,6 +32,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "network-stack"
 file_paths = ["docker-compose.yaml"]
 
@@ -41,6 +43,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "core-stack"
 file_paths = ["docker-compose.yaml"]
 
@@ -51,6 +54,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "traefik"
 file_paths = ["docker-compose.yaml"]
 
@@ -61,6 +65,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "infisical"
 file_paths = ["docker-compose.yaml"]
 
@@ -71,6 +76,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "unifi"
 file_paths = ["docker-compose.yaml"]
 
@@ -82,6 +88,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "ha-stack"
 file_paths = ["docker-compose.yaml"]
 
@@ -92,6 +99,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "piper"
 file_paths = ["docker-compose.yaml"]
 
@@ -102,6 +110,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "whisper"
 file_paths = ["docker-compose.yaml"]
 
@@ -112,6 +121,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "eplzones"
 file_paths = ["docker-compose.yaml"]
 
@@ -122,6 +132,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "paperless"
 file_paths = ["docker-compose.yaml"]
 
@@ -132,6 +143,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "grafana"
 file_paths = ["docker-compose.yaml"]
 
@@ -142,6 +154,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "hydra"
 file_paths = ["docker-compose.yaml"]
 
@@ -152,6 +165,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "nzbget"
 file_paths = ["docker-compose.yaml"]
 
@@ -162,6 +176,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "calibre"
 file_paths = ["docker-compose.yaml"]
 
@@ -172,6 +187,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "sonarr"
 file_paths = ["docker-compose.yaml"]
 
@@ -182,6 +198,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "radarr"
 file_paths = ["docker-compose.yaml"]
 
@@ -192,6 +209,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "recyclarr"
 file_paths = ["docker-compose.yaml"]
 
@@ -202,6 +220,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "music-assistant"
 file_paths = ["docker-compose.yaml"]
 
@@ -213,6 +232,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "monitoring-stack"
 file_paths = ["docker-compose.yaml"]
 
@@ -224,6 +244,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "elk-stack"
 file_paths = ["docker-compose.yaml"]
 
@@ -234,6 +255,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "dawarich"
 file_paths = ["docker-compose.yaml"]
 
@@ -245,6 +267,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "warrior"
 file_paths = ["docker-compose.yaml"]
 
@@ -256,6 +279,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "ollama"
 file_paths = ["docker-compose.yaml"]
 
@@ -266,6 +290,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "homepage"
 file_paths = ["docker-compose.yaml"]
 
@@ -277,6 +302,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "peanut"
 file_paths = ["docker-compose.yaml"]
 
@@ -287,6 +313,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "scrutiny"
 file_paths = ["docker-compose.yaml"]
 
@@ -298,6 +325,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "ebusd"
 file_paths = ["docker-compose.yaml"]
 
@@ -308,6 +336,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "uptime-kuma"
 file_paths = ["docker-compose.yaml"]
 
@@ -318,6 +347,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "influxdb"
 file_paths = ["docker-compose.yaml"]
 
@@ -328,6 +358,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "mdns_repeater"
 file_paths = ["docker-compose.yaml"]
 
@@ -338,6 +369,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "nginx_core"
 file_paths = ["docker-compose.yaml"]
 
@@ -348,6 +380,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "homebox"
 file_paths = ["docker-compose.yaml"]
 
@@ -358,6 +391,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "matter-hub"
 file_paths = ["docker-compose.yaml"]
 
@@ -369,6 +403,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "beszel"
 file_paths = ["docker-compose.yaml"]
 
@@ -379,6 +414,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "photoprism"
 file_paths = ["docker-compose.yaml"]
 
@@ -389,6 +425,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "immich"
 file_paths = ["docker-compose.yaml"]
 
@@ -400,6 +437,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "komodo"
 file_paths = ["docker-compose.yaml"]
 
@@ -411,6 +449,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "warpgate"
 file_paths = ["docker-compose.yaml"]
 
@@ -422,6 +461,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "netalertx"
 file_paths = ["docker-compose.yaml"]
 
@@ -432,6 +472,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "borg-ui"
 file_paths = ["docker-compose.yaml"]
 
@@ -443,6 +484,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "selenium"
 file_paths = ["docker-compose.yaml"]
 
@@ -453,6 +495,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "nautobot"
 file_paths = ["docker-compose.yaml"]
 
@@ -463,6 +506,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "opensky"
 file_paths = ["docker-compose.yaml"]
 
@@ -473,6 +517,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "piaware"
 file_paths = ["docker-compose.yaml"]
 
@@ -483,6 +528,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "planefinder"
 file_paths = ["docker-compose.yaml"]
 
@@ -494,6 +540,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "fr24feed"
 file_paths = ["docker-compose.yaml"]
 
@@ -504,6 +551,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "phpmyadmin"
 file_paths = ["docker-compose.yaml"]
 
@@ -514,6 +562,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "pgadmin"
 file_paths = ["docker-compose.yaml"]
 
@@ -524,6 +573,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "forgejo"
 file_paths = ["docker-compose.yaml"]
 
@@ -534,6 +584,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "evcc"
 file_paths = ["docker-compose.yaml"]
 
@@ -545,6 +596,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "home-energy-manager"
 file_paths = ["docker-compose.yaml"]
 
@@ -555,6 +607,7 @@ deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "borgmatic-ui"
 file_paths = ["docker-compose.yaml"]
 
@@ -569,6 +622,7 @@ deploy = false
 [stack.config]
 server = "sdrpi"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "ultrafeeder"
 file_paths = ["docker-compose.yaml"]
 
@@ -580,6 +634,7 @@ deploy = false
 [stack.config]
 server = "sdrpi"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "komodo"
 file_paths = ["docker-compose-sdrpi.yaml"]
 
@@ -594,6 +649,7 @@ deploy = false
 [stack.config]
 server = "octolaptop"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "octoprint"
 file_paths = ["docker-compose.yaml"]
 
@@ -605,6 +661,7 @@ deploy = false
 [stack.config]
 server = "octolaptop"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "komodo"
 file_paths = ["docker-compose-octoprint.yaml"]
 
@@ -620,6 +677,7 @@ deploy = false
 [stack.config]
 server = "blackbird"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "scrutiny"
 file_paths = ["docker-compose-blackbird.yaml"]
 
@@ -631,6 +689,7 @@ deploy = false
 [stack.config]
 server = "blackbird"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "beszel"
 file_paths = ["docker-compose-blackbird.yaml"]
 
@@ -642,6 +701,7 @@ deploy = false
 [stack.config]
 server = "blackbird"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "komodo"
 file_paths = ["docker-compose-blackbird.yaml"]
 
@@ -657,6 +717,7 @@ deploy = false
 [stack.config]
 server = "littlegeek"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "beszel"
 file_paths = ["docker-compose-littlegeek.yaml"]
 
@@ -668,6 +729,7 @@ deploy = false
 [stack.config]
 server = "littlegeek"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "komodo"
 file_paths = ["docker-compose-littlegeek.yaml"]
 
@@ -683,6 +745,7 @@ deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "beszel"
 file_paths = ["docker-compose-deepcore.yaml"]
 
@@ -694,6 +757,7 @@ deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "komodo"
 file_paths = ["docker-compose-deepcore.yaml"]
 
@@ -705,6 +769,7 @@ deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "scrutiny"
 file_paths = ["docker-compose-deepcore.yaml"]
 
@@ -716,6 +781,7 @@ deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "traefik"
 file_paths = ["docker-compose-deepcore.yaml"]
 
@@ -726,6 +792,7 @@ deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "wallabag"
 file_paths = ["docker-compose.yaml"]
 
@@ -736,6 +803,7 @@ deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "rss"
 file_paths = ["docker-compose.yaml"]
 
@@ -746,6 +814,7 @@ deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "karakeep"
 file_paths = ["docker-compose.yaml"]
 
@@ -756,6 +825,7 @@ deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "social-stack"
 file_paths = ["docker-compose.yaml"]
 
@@ -766,5 +836,6 @@ deploy = false
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
+branch = "master"
 run_directory = "obsidian-sync"
 file_paths = ["docker-compose.yaml"]
