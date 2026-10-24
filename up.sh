@@ -8,7 +8,7 @@ docker compose -f infisical/docker-compose.yaml up -d
 docker compose -f unifi/docker-compose.yaml up -d
 docker compose -f ha-stack/docker-compose.yaml up -d
 docker compose -f piper/docker-compose.yaml up -d
-docker compose -f whisper/docker-compose.yaml up -d
+# docker compose -f whisper/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f eplzones/docker-compose.yaml up -d
 docker compose -f paperless/docker-compose.yaml up -d
 docker compose -f grafana/docker-compose.yaml up -d
@@ -22,17 +22,17 @@ docker compose -f music-assistant/docker-compose.yaml up -d
 docker compose -f monitoring-stack/docker-compose.yaml up -d  # needs librenms env_file environemt duplication looked at
 docker compose -f elk-stack/docker-compose.yaml up -d
 docker compose -f dawarich/docker-compose.yaml up -d
-docker compose -f warrior/docker-compose.yaml up -d
+# docker compose -f warrior/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f ollama/docker-compose.yaml up -d  --- Ollama/Open WebUI disabled - unused ---
 # docker compose -f homepage/docker-compose.yaml up -d --- Deployed by Komodo
-docker compose -f peanut/docker-compose.yaml up -d
+# docker compose -f peanut/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f scrutiny/docker-compose.yaml up -d
 docker compose -f ebusd/docker-compose.yaml up -d
 # docker compose -f watchtower/docker-compose.yaml up -d
-docker compose -f uptime-kuma/docker-compose.yaml up -d
+# docker compose -f uptime-kuma/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f influxdb/docker-compose.yaml up -d
 docker compose -f mdns_repeater/docker-compose.yaml up -d
-docker compose -f nginx_core/docker-compose.yaml up -d
+# docker compose -f nginx_core/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f homebox/docker-compose.yaml up -d
 docker compose -f matter-hub/docker-compose.yaml up -d
 # docker compose -f whatsupdocker/docker-compose.yaml up -d
@@ -46,8 +46,8 @@ docker compose -f netalertx/docker-compose.yaml up -d  # NetAlertX - network mon
 # docker compose -f selenium/docker-compose.yaml up -d
 docker compose -f nautobot/docker-compose.yaml up -d
 docker compose -f forgejo/docker-compose.yaml up -d
-docker compose -f evcc/docker-compose.yaml up -d
-docker compose -f home-energy-manager/docker-compose.yaml up -d
+# docker compose -f evcc/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f home-energy-manager/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f borgmatic-ui/docker-compose.yaml up -d
 
 docker compose -f opensky/docker-compose.yaml up -d
@@ -56,7 +56,7 @@ docker compose -f planefinder/docker-compose.yaml up -d
 docker compose -f fr24feed/docker-compose.yaml up -d
 
 ### PHPMyAdmin and PGAdmin need access to other services' networks
-docker compose -f phpmyadmin/docker-compose.yaml up -d
+# docker compose -f phpmyadmin/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f pgadmin/docker-compose.yaml up -d
 
 echo "----- Deploying to ADS-B receiver (172.24.32.11) -----"
