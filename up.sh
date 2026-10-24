@@ -33,7 +33,7 @@ docker compose -f ebusd/docker-compose.yaml up -d
 docker compose -f influxdb/docker-compose.yaml up -d
 docker compose -f mdns_repeater/docker-compose.yaml up -d
 # docker compose -f nginx_core/docker-compose.yaml up -d  --- Deployed by Komodo
-docker compose -f homebox/docker-compose.yaml up -d
+# docker compose -f homebox/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f matter-hub/docker-compose.yaml up -d
 # docker compose -f whatsupdocker/docker-compose.yaml up -d
 docker compose -f beszel/docker-compose.yaml up -d
