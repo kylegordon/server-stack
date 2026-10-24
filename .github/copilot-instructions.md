@@ -13,9 +13,9 @@ This is a **Docker Compose-based home server infrastructure** repository contain
 
 ### Directory Structure
 - **Root level**: Each directory represents a self-contained service with its own `docker-compose.yaml`
-- **Key services**: `traefik/` (reverse proxy), `ha-stack/` (Home Assistant + dependencies), `media-stack/` (Sonarr/Radarr/Jellyfin), `elk-stack/` (logging), `monitoring-stack/` (LibreNMS/Grafana)
+- **Key services**: `traefik/` (reverse proxy), `ha-stack/` (Home Assistant + dependencies), `elk-stack/` (logging), `monitoring-stack/` (LibreNMS/Grafana)
 - **Deployment scripts**: `up.sh` (deploys all services), `pull.sh` (pulls latest images)
-- **Config files**: `renovate.json` (dependency updates), `warrior.yaml` (standalone compose)
+- **Config files**: `renovate.json` (dependency updates), `komodo-stacks.toml` (Komodo stack declarations, kept in step with `up.sh`)
 
 ### Storage Architecture
 **All volumes use NFS4 mounts** pointing to `172.24.32.5:/srv/nfs4/docker_nfs/<service>/` or `/media/Tank/` paths. This is critical for understanding volume configuration.
@@ -33,8 +33,7 @@ Three deployment targets controlled via `DOCKER_HOST` environment variable:
 
 ### Service Dependencies (include: directive)
 Several compose files use `include:` to depend on other services:
-- `ha-stack/docker-compose.yaml` includes: double-take, frigate, node-red, predbat, givtcp, esphome, zigbee2mqtt, eclipse-mosquitto
-- `media-stack/docker-compose.yaml` includes: sonarr, radarr, calibre, jellyfin, nzbget, hydra, music-assistant
+- `ha-stack/docker-compose.yaml` includes: home-assistant, double-take, frigate, node-red, givtcp, esphome, zigbee2mqtt, eclipse-mosquitto, matter-server, predbat
 
 ## Build & Validation Instructions
 
@@ -49,7 +48,7 @@ docker compose -f <path>/docker-compose.yaml config --quiet
 **Example validation workflow**:
 ```bash
 # Validate a single service
-docker compose -f warrior.yaml config --quiet && echo "Valid"
+docker compose -f warrior/docker-compose.yaml config --quiet && echo "Valid"
 
 # Validate a stack with includes (will warn about missing .env files)
 docker compose -f ha-stack/docker-compose.yaml config --quiet
@@ -62,7 +61,7 @@ for f in */docker-compose.yaml; do docker compose -f "$f" config --quiet 2>&1 | 
 
 **Many services require `.env` files** but these are gitignored (see `.gitignore`). The repository includes:
 - `traefik/traefik.env.example` - Shows required format for AWS Route53 + Let's Encrypt
-- Services commonly needing `.env`: traefik, frigate, grafana, miniflux, monitoring-stack, elk-stack, eplzones, fr24feed, ebusd, karakeep, matter-hub, mdns_repeater
+- Services commonly needing `.env`: traefik, frigate, grafana, monitoring-stack, elk-stack, eplzones, fr24feed, ebusd, karakeep, matter-hub, mdns_repeater
 
 **When modifying services with `env_file:` directive**, validation will fail without the `.env` file present. This is expected behavior - the service owner maintains these files separately.
 
@@ -168,7 +167,7 @@ Services visible on homepage dashboard include:
 ### TODO Items
 - `elk-stack/docker-compose.yaml:45` - Contains TODO comment about removing `--environment container` flag after Elasticsearch 8.17.1/8.18.0
 - `up.sh:15` - monitoring-stack has note: "needs librenms env_file environment duplication looked at"
-- Several services are commented out in `up.sh`: miniflux, watchtower, warpgate, obsidian-sync
+- Several services are commented out in `up.sh`: watchtower, whatsupdocker, warpgate, selenium, ollama
 
 ### Compose Config Validation Quirks
 - **Missing .env files generate warnings but are not errors** - exit code is still 0

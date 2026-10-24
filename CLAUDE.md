@@ -70,7 +70,6 @@ Pull images without restarting:
 Some directories are umbrella compose files that `include:` several individual service directories:
 
 - **`ha-stack`** — Home Assistant and tightly coupled services (Frigate, Node-RED, double-take, GivTCP, ESPHome, Zigbee2MQTT, Mosquitto, Matter Server, Predbat)
-- **`media-stack`** — Sonarr, Radarr, Calibre, Jellyfin, nzbget, Hydra, Music Assistant
 - **`monitoring-stack`**, **`elk-stack`**, **`social-stack`**, **`lemmy-stack`** — similar groupings
 
 ### NFS volumes
@@ -169,11 +168,11 @@ Services expose themselves to the [homepage](https://gethomepage.dev) dashboard 
 
 - `elk-stack/docker-compose.yaml:652` — remove `--environment container` flag after Elasticsearch 8.17.1/8.18.0
 - `up.sh:15` — monitoring-stack `librenms env_file environment duplication` needs review
-- Commented-out services in `up.sh`: miniflux, watchtower, warpgate, ollama (incl. Open WebUI)
+- Commented-out services in `up.sh`: watchtower, whatsupdocker, warpgate, selenium, ollama (incl. Open WebUI)
 
 ## Komodo
 
-`komodo-stacks.toml` declares all stacks for Komodo (a container management platform). Komodo pulls from this repo and deploys stacks to the appropriate server. The `deploy = false` flag means Komodo tracks but does not auto-deploy on sync.
+`komodo-stacks.toml` declares all stacks for Komodo (a container management platform). Komodo pulls from this repo and deploys stacks to the appropriate server. The `deploy = false` flag means Komodo tracks but does not auto-deploy on sync. Keep it in step with `up.sh`: every `up.sh` line (including commented-out ones whose compose file still exists) has a matching `[[stack]]` on the same server.
 
 ## Secrets / environment files
 
