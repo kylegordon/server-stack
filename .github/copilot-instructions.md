@@ -15,7 +15,7 @@ This is a **Docker Compose-based home server infrastructure** repository contain
 - **Root level**: Each directory represents a self-contained service with its own `docker-compose.yaml`
 - **Key services**: `traefik/` (reverse proxy), `ha-stack/` (Home Assistant + dependencies), `elk-stack/` (logging), `monitoring-stack/` (LibreNMS/Grafana)
 - **Deployment scripts**: `up.sh` (deploys all services), `pull.sh` (pulls latest images)
-- **Config files**: `renovate.json` (dependency updates), `komodo-stacks.toml` (Komodo stack declarations, kept in step with `up.sh`)
+- **Config files**: `renovate.json` (dependency updates), `komodo-stacks.toml` (Komodo stack declarations, kept in step with `up.sh`; stacks with `deploy = true` are deployed by Komodo and their `up.sh`/`pull.sh` lines are commented out with `--- Deployed by Komodo`)
 
 ### Storage Architecture
 **All volumes use NFS4 mounts** pointing to `172.24.32.5:/srv/nfs4/docker_nfs/<service>/` or `/media/Tank/` paths. This is critical for understanding volume configuration.
@@ -187,7 +187,7 @@ Services visible on homepage dashboard include:
 3. **Use NFS4 volumes**: Follow existing patterns for volume mounts pointing to 172.24.32.5
 4. **Add appropriate labels**: Traefik routing, Watchtower updates, Homepage dashboard
 5. **Consider deployment host**: Determine if service belongs on homeauto, blackbird, or deepcore
-6. **Update deployment scripts if needed**: Add to `up.sh` and `pull.sh` in the correct host section
+6. **Update deployment scripts if needed**: Add to `up.sh` and `pull.sh` in the correct host section, and add a matching `[[stack]]` to `komodo-stacks.toml` (see the Komodo section in `CLAUDE.md`)
 
 ### File Naming Conventions
 - Primary compose files: `docker-compose.yaml`
