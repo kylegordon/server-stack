@@ -237,7 +237,7 @@ services:
     #     - '3001:3001'
     networks:
       - traefik_proxy
-    image: openspeedtest/latest:v2.0.6
+    image: openspeedtest/latest:v2.0.8
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/"]
       start_period: 60s
