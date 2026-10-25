@@ -402,15 +402,19 @@ file_paths = ["docker-compose.yaml"]
 
 [[stack]]
 name = "beszel"
-description = "Beszel agent - homeauto"
+description = "Beszel hub and agent - homeauto"
 tags = ["homeauto", "monitoring"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "beszel"
 file_paths = ["docker-compose.yaml"]
+environment = """
+HOMEAUTO_KEY=[[BESZEL__HOMEAUTO_KEY]]
+HOMEAUTO_TOKEN=[[BESZEL__HOMEAUTO_TOKEN]]
+"""
 
 [[stack]]
 name = "photoprism"
@@ -693,7 +697,7 @@ file_paths = ["docker-compose-blackbird.yaml"]
 name = "beszel-blackbird"
 description = "Beszel agent - blackbird"
 tags = ["blackbird", "monitoring"]
-deploy = false
+deploy = true
 [stack.config]
 server = "blackbird"
 repo = "kylegordon/server-stack"
@@ -701,6 +705,10 @@ branch = "master"
 run_directory = "beszel"
 project_name = "beszel"
 file_paths = ["docker-compose-blackbird.yaml"]
+environment = """
+BLACKBIRD_KEY=[[BESZEL__BLACKBIRD_KEY]]
+BLACKBIRD_TOKEN=[[BESZEL__BLACKBIRD_TOKEN]]
+"""
 
 [[stack]]
 name = "komodo-periphery-blackbird"
@@ -723,7 +731,7 @@ file_paths = ["docker-compose-blackbird.yaml"]
 name = "beszel-littlegeek"
 description = "Beszel agent - littlegeek"
 tags = ["littlegeek", "monitoring"]
-deploy = false
+deploy = true
 [stack.config]
 server = "littlegeek"
 repo = "kylegordon/server-stack"
@@ -731,6 +739,10 @@ branch = "master"
 run_directory = "beszel"
 project_name = "beszel"
 file_paths = ["docker-compose-littlegeek.yaml"]
+environment = """
+LITTLEGEEK_KEY=[[BESZEL__LITTLEGEEK_KEY]]
+LITTLEGEEK_TOKEN=[[BESZEL__LITTLEGEEK_TOKEN]]
+"""
 
 [[stack]]
 name = "komodo-periphery-littlegeek"
@@ -753,7 +765,7 @@ file_paths = ["docker-compose-littlegeek.yaml"]
 name = "beszel-deepcore"
 description = "Beszel agent - deepcore"
 tags = ["deepcore", "monitoring"]
-deploy = false
+deploy = true
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
@@ -761,6 +773,10 @@ branch = "master"
 run_directory = "beszel"
 project_name = "beszel"
 file_paths = ["docker-compose-deepcore.yaml"]
+environment = """
+DEEPCORE_KEY=[[BESZEL__DEEPCORE_KEY]]
+DEEPCORE_TOKEN=[[BESZEL__DEEPCORE_TOKEN]]
+"""
 
 [[stack]]
 name = "komodo-periphery-deepcore"
