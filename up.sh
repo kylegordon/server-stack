@@ -41,7 +41,7 @@ docker compose -f photoprism/docker-compose.yaml up -d
 docker compose -f immich/docker-compose.yaml up -d
 docker compose -f komodo/docker-compose.yaml up -d  # Komodo Core + Periphery + MongoDB
 # docker compose -f warpgate/docker-compose.yaml up -d  --- Warpgate disabled - unlikely to be of use ---
-docker compose -f netalertx/docker-compose.yaml up -d  # NetAlertX - network monitoring and alerting tool
+# docker compose -f netalertx/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f borg-ui/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f selenium/docker-compose.yaml up -d
 docker compose -f nautobot/docker-compose.yaml up -d
@@ -89,7 +89,7 @@ docker compose -f komodo/docker-compose-deepcore.yaml up -d  # Komodo Periphery 
 docker compose -f scrutiny/docker-compose-deepcore.yaml up -d
 docker compose -f traefik/docker-compose-deepcore.yaml up -d
 docker compose -f wallabag/docker-compose.yaml up -d
-docker compose -f rss/docker-compose.yaml up -d
+# docker compose -f rss/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f karakeep/docker-compose.yaml up -d
 docker compose -f social-stack/docker-compose.yaml up -d
 docker compose -f obsidian-sync/docker-compose.yaml up -d

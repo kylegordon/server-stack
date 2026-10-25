@@ -40,6 +40,6 @@ export DOCKER_HOST=ssh://bagpuss@deepcore.glasgownet.com
 echo "Pulling deepcore stacks"
 docker compose -f traefik/docker-compose-deepcore.yaml pull
 docker compose -f social-stack/docker-compose.yaml pull
-docker compose -f rss/docker-compose.yaml pull
+# docker compose -f rss/docker-compose.yaml pull  --- Deployed by Komodo
 docker compose -f obsidian-sync/docker-compose.yaml pull
 docker compose -f wallabag/docker-compose.yaml pull
