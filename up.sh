@@ -9,7 +9,7 @@ docker compose -f unifi/docker-compose.yaml up -d
 docker compose -f ha-stack/docker-compose.yaml up -d
 docker compose -f piper/docker-compose.yaml up -d
 # docker compose -f whisper/docker-compose.yaml up -d  --- Deployed by Komodo
-docker compose -f eplzones/docker-compose.yaml up -d
+# docker compose -f eplzones/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f paperless/docker-compose.yaml up -d
 docker compose -f grafana/docker-compose.yaml up -d
 docker compose -f hydra/docker-compose.yaml up -d
@@ -34,7 +34,7 @@ docker compose -f influxdb/docker-compose.yaml up -d
 docker compose -f mdns_repeater/docker-compose.yaml up -d
 # docker compose -f nginx_core/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f homebox/docker-compose.yaml up -d  --- Deployed by Komodo
-docker compose -f matter-hub/docker-compose.yaml up -d
+# docker compose -f matter-hub/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f whatsupdocker/docker-compose.yaml up -d
 # docker compose -f beszel/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f photoprism/docker-compose.yaml up -d
@@ -57,7 +57,7 @@ docker compose -f fr24feed/docker-compose.yaml up -d
 
 ### PHPMyAdmin and PGAdmin need access to other services' networks
 # docker compose -f phpmyadmin/docker-compose.yaml up -d  --- Deployed by Komodo
-docker compose -f pgadmin/docker-compose.yaml up -d
+# docker compose -f pgadmin/docker-compose.yaml up -d  --- Deployed by Komodo
 
 echo "----- Deploying to ADS-B receiver (172.24.32.11) -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.11

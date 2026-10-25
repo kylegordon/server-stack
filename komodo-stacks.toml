@@ -117,13 +117,17 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "eplzones"
 tags = ["homeauto", "utilities"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "eplzones"
 file_paths = ["docker-compose.yaml"]
+environment = """
+HA_BASE_URL=[[EPLZONES__HA_BASE_URL]]
+HA_LONG_LIVED_TOKEN=[[EPLZONES__HA_LONG_LIVED_TOKEN]]
+"""
 
 [[stack]]
 name = "paperless"
@@ -392,13 +396,19 @@ HBOX_AUTH_API_KEY_PEPPER=[[HOMEBOX__HBOX_AUTH_API_KEY_PEPPER]]
 [[stack]]
 name = "matter-hub"
 tags = ["homeauto", "home-automation"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "matter-hub"
 file_paths = ["docker-compose.yaml"]
+environment = """
+HAMH_HOME_ASSISTANT_URL=[[MATTER_HUB__HAMH_HOME_ASSISTANT_URL]]
+HAMH_HOME_ASSISTANT_ACCESS_TOKEN=[[MATTER_HUB__HAMH_HOME_ASSISTANT_ACCESS_TOKEN]]
+HAMH_LOG_LEVEL=[[MATTER_HUB__HAMH_LOG_LEVEL]]
+HAMH_HTTP_PORT=[[MATTER_HUB__HAMH_HTTP_PORT]]
+"""
 
 [[stack]]
 name = "beszel"
@@ -567,13 +577,19 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "pgadmin"
 tags = ["homeauto", "utilities"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "pgadmin"
 file_paths = ["docker-compose.yaml"]
+environment = """
+PGADMIN_DEFAULT_EMAIL=[[PGADMIN__PGADMIN_DEFAULT_EMAIL]]
+PGADMIN_DEFAULT_PASSWORD=[[PGADMIN__PGADMIN_DEFAULT_PASSWORD]]
+PGADMIN_CONFIG_SERVER_MODE=[[PGADMIN__PGADMIN_CONFIG_SERVER_MODE]]
+PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=[[PGADMIN__PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED]]
+"""
 
 [[stack]]
 name = "forgejo"
