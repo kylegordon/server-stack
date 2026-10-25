@@ -476,7 +476,7 @@ file_paths = ["docker-compose.yaml"]
 name = "netalertx"
 description = "NetAlertX - network monitoring and alerting"
 tags = ["homeauto", "monitoring"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -847,13 +847,19 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "rss"
 tags = ["deepcore", "utilities"]
-deploy = false
+deploy = true
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "rss"
 file_paths = ["docker-compose.yaml"]
+environment = """
+BASE_URL=[[RSS__BASE_URL]]
+ADMIN_EMAIL=[[RSS__ADMIN_EMAIL]]
+ADMIN_PASSWORD=[[RSS__ADMIN_PASSWORD]]
+ADMIN_API_PASSWORD=[[RSS__ADMIN_API_PASSWORD]]
+"""
 
 [[stack]]
 name = "karakeep"
