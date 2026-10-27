@@ -61,13 +61,22 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "infisical"
 tags = ["homeauto", "infrastructure"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "infisical"
 file_paths = ["docker-compose.yaml"]
+environment = """
+POSTGRES_USER=[[INFISICAL__POSTGRES_USER]]
+POSTGRES_PASSWORD=[[INFISICAL__POSTGRES_PASSWORD]]
+DB_CONNECTION_URI=[[INFISICAL__DB_CONNECTION_URI]]
+REDIS_URL=[[INFISICAL__REDIS_URL]]
+ENCRYPTION_KEY=[[INFISICAL__ENCRYPTION_KEY]]
+AUTH_SECRET=[[INFISICAL__AUTH_SECRET]]
+SITE_URL=[[INFISICAL__SITE_URL]]
+"""
 
 [[stack]]
 name = "unifi"
