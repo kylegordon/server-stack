@@ -39,7 +39,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "core-stack"
 tags = ["homeauto", "infrastructure"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -183,7 +183,7 @@ GF_AUTH_GENERIC_OAUTH_USE_PKCE=[[GRAFANA__GF_AUTH_GENERIC_OAUTH_USE_PKCE]]
 [[stack]]
 name = "hydra"
 tags = ["homeauto", "media"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -194,7 +194,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "nzbget"
 tags = ["homeauto", "media"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -205,7 +205,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "calibre"
 tags = ["homeauto", "media"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -216,7 +216,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "sonarr"
 tags = ["homeauto", "media"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -227,7 +227,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "radarr"
 tags = ["homeauto", "media"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -238,7 +238,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "recyclarr"
 tags = ["homeauto", "media"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -249,7 +249,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "music-assistant"
 tags = ["homeauto", "media"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -342,7 +342,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "scrutiny"
 tags = ["homeauto", "monitoring"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -376,7 +376,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "influxdb"
 tags = ["homeauto", "monitoring"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -733,7 +733,7 @@ file_paths = ["docker-compose-octoprint.yaml"]
 name = "scrutiny-blackbird"
 description = "Scrutiny disk monitoring - blackbird"
 tags = ["blackbird", "monitoring"]
-deploy = false
+deploy = true
 [stack.config]
 server = "blackbird"
 repo = "kylegordon/server-stack"
@@ -844,7 +844,7 @@ file_paths = ["docker-compose-deepcore.yaml"]
 name = "scrutiny-deepcore"
 description = "Scrutiny disk monitoring - deepcore"
 tags = ["deepcore", "monitoring"]
-deploy = false
+deploy = true
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
