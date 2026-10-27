@@ -11,7 +11,7 @@ docker compose -f piper/docker-compose.yaml up -d
 # docker compose -f whisper/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f eplzones/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f paperless/docker-compose.yaml up -d
-docker compose -f grafana/docker-compose.yaml up -d
+# docker compose -f grafana/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f hydra/docker-compose.yaml up -d
 docker compose -f nzbget/docker-compose.yaml up -d
 docker compose -f calibre/docker-compose.yaml up -d
