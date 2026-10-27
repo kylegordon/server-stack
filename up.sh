@@ -1,7 +1,7 @@
 echo "----- Deploying to homeauto -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.13
 
-docker compose -f core-stack/docker-compose.yaml up -d
+# docker compose -f core-stack/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f network-stack/docker-compose.yaml up -d  # creates shared traefik_proxy + homeautomation networks
 docker compose -f traefik/docker-compose.yaml up -d
 # docker compose -f infisical/docker-compose.yaml up -d  --- Deployed by Komodo
@@ -12,13 +12,13 @@ docker compose -f piper/docker-compose.yaml up -d
 # docker compose -f eplzones/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f paperless/docker-compose.yaml up -d
 # docker compose -f grafana/docker-compose.yaml up -d  --- Deployed by Komodo
-docker compose -f hydra/docker-compose.yaml up -d
-docker compose -f nzbget/docker-compose.yaml up -d
-docker compose -f calibre/docker-compose.yaml up -d
-docker compose -f sonarr/docker-compose.yaml up -d
-docker compose -f radarr/docker-compose.yaml up -d
-docker compose -f recyclarr/docker-compose.yaml up -d
-docker compose -f music-assistant/docker-compose.yaml up -d
+# docker compose -f hydra/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f nzbget/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f calibre/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f sonarr/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f radarr/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f recyclarr/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f music-assistant/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f monitoring-stack/docker-compose.yaml up -d  # needs librenms env_file environemt duplication looked at
 docker compose -f elk-stack/docker-compose.yaml up -d
 docker compose -f dawarich/docker-compose.yaml up -d
@@ -26,11 +26,11 @@ docker compose -f dawarich/docker-compose.yaml up -d
 # docker compose -f ollama/docker-compose.yaml up -d  --- Ollama/Open WebUI disabled - unused ---
 # docker compose -f homepage/docker-compose.yaml up -d --- Deployed by Komodo
 # docker compose -f peanut/docker-compose.yaml up -d  --- Deployed by Komodo
-docker compose -f scrutiny/docker-compose.yaml up -d
+# docker compose -f scrutiny/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f ebusd/docker-compose.yaml up -d
 # docker compose -f watchtower/docker-compose.yaml up -d
 # docker compose -f uptime-kuma/docker-compose.yaml up -d  --- Deployed by Komodo
-docker compose -f influxdb/docker-compose.yaml up -d
+# docker compose -f influxdb/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f mdns_repeater/docker-compose.yaml up -d
 # docker compose -f nginx_core/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f homebox/docker-compose.yaml up -d  --- Deployed by Komodo
@@ -71,7 +71,7 @@ docker compose -f komodo/docker-compose-octoprint.yaml up -d  # Komodo Periphery
 
 echo "----- Deploying to Blackbird -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.5
-docker compose -f scrutiny/docker-compose-blackbird.yaml up -d
+# docker compose -f scrutiny/docker-compose-blackbird.yaml up -d  --- Deployed by Komodo
 # docker compose -f beszel/docker-compose-blackbird.yaml up -d  --- Deployed by Komodo
 docker compose -f komodo/docker-compose-blackbird.yaml up -d  # Komodo Periphery agent
 
@@ -86,7 +86,7 @@ echo "----- Deploying to Deepcore -----"
 export DOCKER_HOST=ssh://bagpuss@100.98.130.51
 # docker compose -f beszel/docker-compose-deepcore.yaml up -d  --- Deployed by Komodo
 docker compose -f komodo/docker-compose-deepcore.yaml up -d  # Komodo Periphery agent
-docker compose -f scrutiny/docker-compose-deepcore.yaml up -d
+# docker compose -f scrutiny/docker-compose-deepcore.yaml up -d  --- Deployed by Komodo
 docker compose -f traefik/docker-compose-deepcore.yaml up -d
 docker compose -f wallabag/docker-compose.yaml up -d
 # docker compose -f rss/docker-compose.yaml up -d  --- Deployed by Komodo
