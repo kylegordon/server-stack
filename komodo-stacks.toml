@@ -104,13 +104,24 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "piper"
 tags = ["homeauto", "home-automation"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "piper"
 file_paths = ["docker-compose.yaml"]
+environment = """
+PUID=[[PIPER__PUID]]
+PGID=[[PIPER__PGID]]
+TZ=[[PIPER__TZ]]
+PIPER_VOICE=[[PIPER__PIPER_VOICE]]
+PIPER_LENGTH=[[PIPER__PIPER_LENGTH]]
+PIPER_NOISE=[[PIPER__PIPER_NOISE]]
+PIPER_NOISEW=[[PIPER__PIPER_NOISEW]]
+PIPER_SPEAKER=[[PIPER__PIPER_SPEAKER]]
+PIPER_PROCS=[[PIPER__PIPER_PROCS]]
+"""
 
 [[stack]]
 name = "whisper"
