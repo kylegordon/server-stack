@@ -1,7 +1,7 @@
 networks:
   traefik_proxy:
     external: true
-    name: traefik_traefik_proxy
+    name: traefik_proxy
   recyclarr:
     name: recyclarr
 
@@ -17,6 +17,7 @@ services:
   recyclarr:
     image: ghcr.io/recyclarr/recyclarr:8.8.0
     container_name: recyclarr
+    restart: unless-stopped
     user: 1000:1000
     networks:
       - recyclarr
