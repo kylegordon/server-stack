@@ -37,7 +37,7 @@ docker compose -f mdns_repeater/docker-compose.yaml up -d
 # docker compose -f matter-hub/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f whatsupdocker/docker-compose.yaml up -d
 # docker compose -f beszel/docker-compose.yaml up -d  --- Deployed by Komodo
-docker compose -f photoprism/docker-compose.yaml up -d
+# docker compose -f photoprism/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f immich/docker-compose.yaml up -d
 docker compose -f komodo/docker-compose.yaml up -d  # Komodo Core + Periphery + MongoDB
 # docker compose -f warpgate/docker-compose.yaml up -d  --- Warpgate disabled - unlikely to be of use ---
