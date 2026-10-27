@@ -387,13 +387,23 @@ file_paths = ["docker-compose.yaml"]
 name = "ebusd"
 description = "eBUS daemon for heating system communication"
 tags = ["homeauto", "home-automation"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "ebusd"
 file_paths = ["docker-compose.yaml"]
+environment = """
+EBUSD_DEVICE=[[EBUSD__EBUSD_DEVICE]]
+EBUSD_CONFIGPATH=[[EBUSD__EBUSD_CONFIGPATH]]
+EBUSD_MQTTHOST=[[EBUSD__EBUSD_MQTTHOST]]
+EBUSD_MQTTPORT=[[EBUSD__EBUSD_MQTTPORT]]
+EBUSD_MQTTTOPIC=[[EBUSD__EBUSD_MQTTTOPIC]]
+EBUSD_MQTTINT=[[EBUSD__EBUSD_MQTTINT]]
+EBUSD_MQTTJSON=[[EBUSD__EBUSD_MQTTJSON]]
+EBUSD_HTTPPORT=[[EBUSD__EBUSD_HTTPPORT]]
+"""
 
 [[stack]]
 name = "uptime-kuma"
