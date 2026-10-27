@@ -594,13 +594,17 @@ PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=[[PGADMIN__PGADMIN_CONFIG_MASTER_PASSWOR
 [[stack]]
 name = "forgejo"
 tags = ["homeauto", "infrastructure"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "forgejo"
 file_paths = ["docker-compose.yaml"]
+environment = """
+POSTGRES_USER=[[FORGEJO__POSTGRES_USER]]
+POSTGRES_PASSWORD=[[FORGEJO__POSTGRES_PASSWORD]]
+"""
 
 [[stack]]
 name = "evcc"

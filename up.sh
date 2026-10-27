@@ -45,7 +45,7 @@ docker compose -f komodo/docker-compose.yaml up -d  # Komodo Core + Periphery + 
 # docker compose -f borg-ui/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f selenium/docker-compose.yaml up -d
 docker compose -f nautobot/docker-compose.yaml up -d
-docker compose -f forgejo/docker-compose.yaml up -d
+# docker compose -f forgejo/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f evcc/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f home-energy-manager/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f borgmatic-ui/docker-compose.yaml up -d
