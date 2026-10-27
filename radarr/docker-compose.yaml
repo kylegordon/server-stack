@@ -24,7 +24,6 @@ services:
     restart: unless-stopped
     networks:
       - traefik_proxy
-      # - recyclarr
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik_proxy

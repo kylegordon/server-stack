@@ -17,7 +17,6 @@ docker compose -f nzbget/docker-compose.yaml up -d
 docker compose -f calibre/docker-compose.yaml up -d
 docker compose -f sonarr/docker-compose.yaml up -d
 docker compose -f radarr/docker-compose.yaml up -d
-docker compose -f recyclarr/docker-compose.yaml up -d
 docker compose -f music-assistant/docker-compose.yaml up -d
 docker compose -f monitoring-stack/docker-compose.yaml up -d  # needs librenms env_file environemt duplication looked at
 docker compose -f elk-stack/docker-compose.yaml up -d

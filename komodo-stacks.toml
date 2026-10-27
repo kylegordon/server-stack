@@ -207,17 +207,6 @@ run_directory = "radarr"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
-name = "recyclarr"
-tags = ["homeauto", "media"]
-deploy = false
-[stack.config]
-server = "homeauto"
-repo = "kylegordon/server-stack"
-branch = "master"
-run_directory = "recyclarr"
-file_paths = ["docker-compose.yaml"]
-
-[[stack]]
 name = "music-assistant"
 tags = ["homeauto", "media"]
 deploy = false
