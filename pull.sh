@@ -10,7 +10,7 @@ docker compose -f ha-stack/docker-compose.yaml pull
 echo "Pulling media stack"
 docker compose -f media-stack/docker-compose.yaml pull
 echo "Pulling elk stack"
-docker compose -f elk-stack/docker-compose.yaml pull
+# docker compose -f elk-stack/docker-compose.yaml pull  --- Deployed by Komodo
 echo "Pulling monitoring stack"
 docker compose -f monitoring-stack/docker-compose.yaml pull
 docker compose -f dawarich/docker-compose.yml pull
