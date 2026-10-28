@@ -629,13 +629,23 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "opensky"
 tags = ["homeauto", "adsb"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "opensky"
 file_paths = ["docker-compose.yaml"]
+environment = """
+LATITUDE=[[OPENSKY__LATITUDE]]
+LONGITUDE=[[OPENSKY__LONGITUDE]]
+ALTITUDE_METERS=[[OPENSKY__ALTITUDE_METERS]]
+BEASTHOST=[[OPENSKY__BEASTHOST]]
+BEASTPORT=[[OPENSKY__BEASTPORT]]
+TZ=[[OPENSKY__TZ]]
+OPENSKY_USERNAME=[[OPENSKY__OPENSKY_USERNAME]]
+OPENSKY_SERIAL=[[OPENSKY__OPENSKY_SERIAL]]
+"""
 
 [[stack]]
 name = "piaware"
