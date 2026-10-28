@@ -661,13 +661,21 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "planefinder"
 tags = ["homeauto", "adsb"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "planefinder"
 file_paths = ["docker-compose.yaml"]
+environment = """
+LATITUDE=[[PLANEFINDER__LATITUDE]]
+LONGITUDE=[[PLANEFINDER__LONGITUDE]]
+BEASTHOST=[[PLANEFINDER__BEASTHOST]]
+BEASTPORT=[[PLANEFINDER__BEASTPORT]]
+TZ=[[PLANEFINDER__TZ]]
+PLANEFINDER_KEY=[[PLANEFINDER__PLANEFINDER_KEY]]
+"""
 
 [[stack]]
 name = "fr24feed"
