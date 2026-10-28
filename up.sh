@@ -90,6 +90,6 @@ docker compose -f komodo/docker-compose-deepcore.yaml up -d  # Komodo Periphery 
 docker compose -f traefik/docker-compose-deepcore.yaml up -d
 docker compose -f wallabag/docker-compose.yaml up -d
 # docker compose -f rss/docker-compose.yaml up -d  --- Deployed by Komodo
-docker compose -f karakeep/docker-compose.yaml up -d
+# docker compose -f karakeep/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f social-stack/docker-compose.yaml up -d
 docker compose -f obsidian-sync/docker-compose.yaml up -d

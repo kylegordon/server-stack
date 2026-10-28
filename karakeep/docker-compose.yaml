@@ -8,7 +8,7 @@ networks:
 
 services:
   web:
-    image: ghcr.io/karakeep-app/karakeep:${KARAKEEP_VERSION:-release}
+    image: ghcr.io/karakeep-app/karakeep:0.30.0
     container_name: karakeep
     restart: unless-stopped
     networks:

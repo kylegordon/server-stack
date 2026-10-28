@@ -976,13 +976,26 @@ ADMIN_API_PASSWORD=[[RSS__ADMIN_API_PASSWORD]]
 [[stack]]
 name = "karakeep"
 tags = ["deepcore", "utilities"]
-deploy = false
+deploy = true
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "karakeep"
 file_paths = ["docker-compose.yaml"]
+environment = """
+DATA_DIR=[[KARAKEEP__DATA_DIR]]
+DB_WAL_MODE=[[KARAKEEP__DB_WAL_MODE]]
+MEILI_ADDR=[[KARAKEEP__MEILI_ADDR]]
+MEILI_MASTER_KEY=[[KARAKEEP__MEILI_MASTER_KEY]]
+NEXTAUTH_URL=[[KARAKEEP__NEXTAUTH_URL]]
+NEXTAUTH_SECRET=[[KARAKEEP__NEXTAUTH_SECRET]]
+DISABLE_SIGNUPS=[[KARAKEEP__DISABLE_SIGNUPS]]
+OPENAI_BASE_URL=[[KARAKEEP__OPENAI_BASE_URL]]
+OPENAI_API_KEY=[[KARAKEEP__OPENAI_API_KEY]]
+INFERENCE_TEXT_MODEL=[[KARAKEEP__INFERENCE_TEXT_MODEL]]
+INFERENCE_IMAGE_MODEL=[[KARAKEEP__INFERENCE_IMAGE_MODEL]]
+"""
 
 [[stack]]
 name = "social-stack"
