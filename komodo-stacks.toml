@@ -315,13 +315,18 @@ file_paths = ["docker-compose.yaml"]
 name = "elk-stack"
 description = "Elasticsearch, Logstash, Kibana"
 tags = ["homeauto", "logging"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "elk-stack"
 file_paths = ["docker-compose.yaml"]
+environment = """
+XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=[[ELK_STACK__XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY]]
+XPACK_REPORTING_ENCRYPTIONKEY=[[ELK_STACK__XPACK_REPORTING_ENCRYPTIONKEY]]
+XPACK_SECURITY_ENCRYPTIONKEY=[[ELK_STACK__XPACK_SECURITY_ENCRYPTIONKEY]]
+"""
 
 [[stack]]
 name = "dawarich"

@@ -20,7 +20,7 @@ docker compose -f ha-stack/docker-compose.yaml up -d
 # docker compose -f recyclarr/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f music-assistant/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f monitoring-stack/docker-compose.yaml up -d  # needs librenms env_file environemt duplication looked at
-docker compose -f elk-stack/docker-compose.yaml up -d
+# docker compose -f elk-stack/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f dawarich/docker-compose.yaml up -d
 # docker compose -f warrior/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f ollama/docker-compose.yaml up -d  --- Ollama/Open WebUI disabled - unused ---
