@@ -663,13 +663,19 @@ file_paths = ["docker-compose.yaml"]
 name = "fr24feed"
 description = "Flightradar24 feeder"
 tags = ["homeauto", "adsb"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "fr24feed"
 file_paths = ["docker-compose.yaml"]
+environment = """
+BEASTHOST=[[FR24FEED__BEASTHOST]]
+BEASTPORT=[[FR24FEED__BEASTPORT]]
+FR24KEY=[[FR24FEED__FR24KEY]]
+TZ=[[FR24FEED__TZ]]
+"""
 
 [[stack]]
 name = "phpmyadmin"
