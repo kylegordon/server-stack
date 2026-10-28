@@ -51,7 +51,7 @@ docker compose -f nautobot/docker-compose.yaml up -d
 docker compose -f borgmatic-ui/docker-compose.yaml up -d
 
 # docker compose -f opensky/docker-compose.yaml up -d  --- Deployed by Komodo
-docker compose -f piaware/docker-compose.yaml up -d
+# docker compose -f piaware/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f planefinder/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f fr24feed/docker-compose.yaml up -d  --- Deployed by Komodo
 
