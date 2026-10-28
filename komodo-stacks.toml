@@ -659,13 +659,21 @@ OPENSKY_SERIAL=[[OPENSKY__OPENSKY_SERIAL]]
 [[stack]]
 name = "piaware"
 tags = ["homeauto", "adsb"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "piaware"
 file_paths = ["docker-compose.yaml"]
+environment = """
+LATITUDE=[[PIAWARE__LATITUDE]]
+LONGITUDE=[[PIAWARE__LONGITUDE]]
+BEASTHOST=[[PIAWARE__BEASTHOST]]
+BEASTPORT=[[PIAWARE__BEASTPORT]]
+PIAWARE_FEEDERID=[[PIAWARE__PIAWARE_FEEDERID]]
+TZ=[[PIAWARE__TZ]]
+"""
 
 [[stack]]
 name = "planefinder"
