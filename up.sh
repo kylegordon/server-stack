@@ -5,7 +5,7 @@ export DOCKER_HOST=ssh://bagpuss@172.24.32.13
 docker compose -f network-stack/docker-compose.yaml up -d  # creates shared traefik_proxy + homeautomation networks
 docker compose -f traefik/docker-compose.yaml up -d
 # docker compose -f infisical/docker-compose.yaml up -d  --- Deployed by Komodo
-docker compose -f unifi/docker-compose.yaml up -d
+# docker compose -f unifi/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f ha-stack/docker-compose.yaml up -d
 # docker compose -f piper/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f whisper/docker-compose.yaml up -d  --- Deployed by Komodo

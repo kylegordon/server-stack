@@ -81,13 +81,22 @@ SITE_URL=[[INFISICAL__SITE_URL]]
 [[stack]]
 name = "unifi"
 tags = ["homeauto", "infrastructure"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "unifi"
 file_paths = ["docker-compose.yaml"]
+environment = """
+PUID=[[UNIFI__PUID]]
+PGID=[[UNIFI__PGID]]
+MONGO_USER=[[UNIFI__MONGO_USER]]
+MONGO_PASS=[[UNIFI__MONGO_PASS]]
+MONGO_HOST=[[UNIFI__MONGO_HOST]]
+MONGO_PORT=[[UNIFI__MONGO_PORT]]
+MONGO_DBNAME=[[UNIFI__MONGO_DBNAME]]
+"""
 
 [[stack]]
 name = "ha-stack"
