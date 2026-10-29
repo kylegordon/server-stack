@@ -158,6 +158,8 @@ Services expose themselves to the [homepage](https://gethomepage.dev) dashboard 
 
 `.github/workflows/gitguardian.yaml` runs GitGuardian secret scanning on every push and PR. Failures block merge — never commit credentials or tokens.
 
+`.github/workflows/validate-compose.yaml` runs `docker compose config` on every compose file. `.env` and `env_file` paths are stubbed empty first. Files referenced by `komodo-stacks.toml` must exist and pass with no errors; other files may fail only on missing runtime resources (undefined networks/volumes, missing files).
+
 ## File naming conventions
 
 - Primary: `docker-compose.yaml`
