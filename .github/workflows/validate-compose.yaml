@@ -45,10 +45,26 @@ jobs:
           # problems with the compose YAML itself.
           RUNTIME_ONLY_PATTERN="undefined (network|volume)|no such file or directory|open .*: no such file"
 
+          # Compose files Komodo deploys (komodo-stacks.toml) get no runtime masking:
+          # they must resolve on their own, networks and volumes included.
+          ENTRYPOINT_LIST=$(python3 .github/scripts/list_komodo_entrypoints.py) || {
+            echo "ERROR: could not list Komodo entrypoints from komodo-stacks.toml"
+            exit 1
+          }
+          # 1 = listed, 2 = validated; any left at 1 after the loop is a failure.
+          declare -A ENTRYPOINTS
+          while IFS= read -r ep; do
+            ENTRYPOINTS["$ep"]=1
+          done <<< "$ENTRYPOINT_LIST"
+
           validate_file() {
             local f="$1"
             local output
             local rc
+
+            if [ -n "${ENTRYPOINTS[$f]}" ]; then
+              ENTRYPOINTS["$f"]=2
+            fi
 
             output=$(docker compose -f "$f" config --quiet 2>&1)
             rc=$?
@@ -56,6 +72,12 @@ jobs:
             if [ "$rc" -eq 0 ]; then
               echo "✅  $f"
               return 0
+            fi
+
+            if [ -n "${ENTRYPOINTS[$f]}" ]; then
+              echo "❌  $f  (Komodo entrypoint, strict)"
+              echo "$output" | sed 's/^/    /'
+              return 1
             fi
 
             # Strip pure warnings (unset variables etc.) from the output so we can
@@ -81,6 +103,13 @@ jobs:
           while IFS= read -r f; do
             validate_file "$f" || FAILED=$((FAILED + 1))
           done < <(find . -name "docker-compose*.yaml" | sort)
+
+          for ep in "${!ENTRYPOINTS[@]}"; do
+            if [ "${ENTRYPOINTS[$ep]}" != 2 ]; then
+              echo "❌  $ep  (listed in komodo-stacks.toml but not found as a docker-compose*.yaml file)"
+              FAILED=$((FAILED + 1))
+            fi
+          done
 
           echo ""
           if [ "$FAILED" -gt 0 ]; then
