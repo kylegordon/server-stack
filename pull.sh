@@ -6,7 +6,16 @@ docker compose -f traefik/docker-compose.yaml pull
 echo "Pulling Infisical stack"
 # docker compose -f infisical/docker-compose.yaml pull  --- Deployed by Komodo
 echo "Pulling HA stack"
-docker compose -f ha-stack/docker-compose.yaml pull
+# docker compose -f eclipse-mosquitto/docker-compose.yaml pull  --- Deployed by Komodo
+# docker compose -f zigbee2mqtt/docker-compose.yaml pull  --- Deployed by Komodo
+# docker compose -f matter-server/docker-compose.yaml pull  --- Deployed by Komodo
+# docker compose -f home-assistant/docker-compose.yaml pull  --- Deployed by Komodo
+# docker compose -f frigate/docker-compose.yaml pull  --- Deployed by Komodo
+# docker compose -f double-take/docker-compose.yaml pull  --- Deployed by Komodo
+# docker compose -f node-red/docker-compose.yaml pull  --- Deployed by Komodo
+# docker compose -f givtcp/docker-compose.yaml pull  --- Deployed by Komodo
+# docker compose -f predbat/docker-compose.yaml pull  --- Deployed by Komodo
+# docker compose -f esphome/docker-compose.yaml pull  --- Deployed by Komodo
 echo "Pulling media stack"
 docker compose -f media-stack/docker-compose.yaml pull
 echo "Pulling elk stack"

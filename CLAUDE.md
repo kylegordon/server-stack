@@ -69,7 +69,6 @@ Pull images without restarting:
 
 Some directories are umbrella compose files that `include:` several individual service directories:
 
-- **`ha-stack`** — Home Assistant and tightly coupled services (Frigate, Node-RED, double-take, GivTCP, ESPHome, Zigbee2MQTT, Mosquitto, Matter Server, Predbat)
 - **`monitoring-stack`**, **`elk-stack`**, **`social-stack`**, **`lemmy-stack`** — similar groupings
 
 ### NFS volumes

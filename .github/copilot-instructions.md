@@ -13,7 +13,7 @@ This is a **Docker Compose-based home server infrastructure** repository contain
 
 ### Directory Structure
 - **Root level**: Each directory represents a self-contained service with its own `docker-compose.yaml`
-- **Key services**: `traefik/` (reverse proxy), `ha-stack/` (Home Assistant + dependencies), `elk-stack/` (logging), `monitoring-stack/` (LibreNMS/Grafana)
+- **Key services**: `traefik/` (reverse proxy), `home-assistant/` (Home Assistant), `elk-stack/` (logging), `monitoring-stack/` (LibreNMS/Grafana)
 - **Deployment scripts**: `up.sh` (deploys all services), `pull.sh` (pulls latest images)
 - **Config files**: `renovate.json` (dependency updates), `komodo-stacks.toml` (Komodo stack declarations, kept in step with `up.sh`; stacks with `deploy = true` are deployed by Komodo and their `up.sh`/`pull.sh` lines are commented out with `--- Deployed by Komodo`)
 
@@ -31,10 +31,6 @@ Three deployment targets controlled via `DOCKER_HOST` environment variable:
 2. **blackbird** (172.24.32.5) - NFS storage server with scrutiny/beszel
 3. **deepcore** (deepcore.glasgownet.com) - Public-facing services (Traefik, social-stack, RSS)
 
-### Service Dependencies (include: directive)
-Several compose files use `include:` to depend on other services:
-- `ha-stack/docker-compose.yaml` includes: home-assistant, double-take, frigate, node-red, givtcp, esphome, zigbee2mqtt, eclipse-mosquitto, matter-server, predbat
-
 ## Build & Validation Instructions
 
 ### Validating Docker Compose Files
@@ -51,7 +47,7 @@ docker compose -f <path>/docker-compose.yaml config --quiet
 docker compose -f warrior/docker-compose.yaml config --quiet && echo "Valid"
 
 # Validate a stack with includes (will warn about missing .env files)
-docker compose -f ha-stack/docker-compose.yaml config --quiet
+docker compose -f monitoring-stack/docker-compose.yaml config --quiet
 
 # Validate multiple files
 for f in */docker-compose.yaml; do docker compose -f "$f" config --quiet 2>&1 | grep -i error && echo "Error in $f"; done
@@ -77,7 +73,6 @@ export DOCKER_HOST=ssh://bagpuss@172.24.32.13
 # 2. Deploy services in specific order (dependencies first)
 docker compose -f core-stack/docker-compose.yaml up -d
 docker compose -f traefik/docker-compose.yaml up -d
-docker compose -f ha-stack/docker-compose.yaml up -d
 # ... continues for all services
 
 # 3. Switch hosts for secondary deployments
@@ -85,7 +80,7 @@ export DOCKER_HOST=ssh://bagpuss@172.24.32.5
 docker compose -f scrutiny/docker-compose-blackbird.yaml up -d
 ```
 
-**Deployment order matters**: core-stack → traefik → unifi → ha-stack are deployed first due to network dependencies. DNS is now handled by Unbound on the OPNsense cluster.
+**Deployment order matters**: core-stack → traefik → unifi are deployed first due to network dependencies. DNS is now handled by Unbound on the OPNsense cluster.
 
 ### Image Update Workflow (from `pull.sh`)
 ```bash

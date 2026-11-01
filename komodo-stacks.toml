@@ -99,15 +99,116 @@ MONGO_DBNAME=[[UNIFI__MONGO_DBNAME]]
 """
 
 [[stack]]
-name = "ha-stack"
-description = "Home Assistant and dependencies (home-assistant, double-take, frigate, node-red, givtcp, esphome, zigbee2mqtt, eclipse-mosquitto, matter-server, predbat)"
+name = "eclipse-mosquitto"
 tags = ["homeauto", "home-automation"]
 deploy = false
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
-run_directory = "ha-stack"
+run_directory = "eclipse-mosquitto"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "zigbee2mqtt"
+tags = ["homeauto", "home-automation"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "zigbee2mqtt"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "matter-server"
+tags = ["homeauto", "home-automation"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "matter-server"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "home-assistant"
+tags = ["homeauto", "home-automation"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "home-assistant"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "frigate"
+tags = ["homeauto", "home-automation"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "frigate"
+file_paths = ["docker-compose.yaml"]
+environment = """
+FRIGATE_RTSP_PASSWORD=[[FRIGATE__FRIGATE_RTSP_PASSWORD]]
+"""
+
+[[stack]]
+name = "double-take"
+tags = ["homeauto", "home-automation"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "double-take"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "node-red"
+tags = ["homeauto", "home-automation"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "node-red"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "givtcp"
+tags = ["homeauto", "home-automation"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "givtcp"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "predbat"
+tags = ["homeauto", "home-automation"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "predbat"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "esphome"
+tags = ["homeauto", "home-automation"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "esphome"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]

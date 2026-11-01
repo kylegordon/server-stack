@@ -6,7 +6,16 @@ docker compose -f network-stack/docker-compose.yaml up -d  # creates shared trae
 docker compose -f traefik/docker-compose.yaml up -d
 # docker compose -f infisical/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f unifi/docker-compose.yaml up -d  --- Deployed by Komodo
-docker compose -f ha-stack/docker-compose.yaml up -d
+# docker compose -f eclipse-mosquitto/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f zigbee2mqtt/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f matter-server/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f home-assistant/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f frigate/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f double-take/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f node-red/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f givtcp/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f predbat/docker-compose.yaml up -d  --- Deployed by Komodo
+# docker compose -f esphome/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f piper/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f whisper/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f eplzones/docker-compose.yaml up -d  --- Deployed by Komodo
