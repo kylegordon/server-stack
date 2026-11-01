@@ -1,3 +1,6 @@
+include:
+  - ../common/networks.yaml
+
 volumes:
   predbat_config:
     driver: local
@@ -18,11 +21,6 @@ services:
     networks:
       - traefik_proxy
       - homeautomation
-    depends_on:
-      GivTCP:
-          condition: service_started
-      home-assistant:
-          condition: service_healthy
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik_proxy

@@ -1,3 +1,6 @@
+include:
+  - ../common/networks.yaml
+
 volumes:
   frigate_config:
     driver: local
@@ -29,9 +32,6 @@ services:
     networks:
       - traefik_proxy
       - homeautomation
-    depends_on:
-      eclipse-mosquitto:
-          condition: service_started
     image: ghcr.io/blakeblackshear/frigate:0.18.2
     devices:
         - /dev/dri
