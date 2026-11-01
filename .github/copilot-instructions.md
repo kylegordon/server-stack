@@ -171,7 +171,7 @@ Services visible on homepage dashboard include:
 
 ### Renovate Dependency Management
 - Renovate bot automatically updates Docker image versions
-- `getmeili/meilisearch` updates are disabled (see `renovate.json`)
+- `getmeili/meilisearch` and `britkat/giv_tcp-ma` updates are disabled (see `renovate.json`)
 - Minor/patch updates auto-merge, major updates require manual approval
 
 ## Making Changes

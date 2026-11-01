@@ -30,7 +30,8 @@
     },
     {
       "matchPackageNames": [
-        "getmeili/meilisearch"
+        "getmeili/meilisearch",
+        "britkat/giv_tcp-ma"
       ],
       "enabled": false
     }
