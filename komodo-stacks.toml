@@ -101,7 +101,7 @@ MONGO_DBNAME=[[UNIFI__MONGO_DBNAME]]
 [[stack]]
 name = "eclipse-mosquitto"
 tags = ["homeauto", "home-automation"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -112,7 +112,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "zigbee2mqtt"
 tags = ["homeauto", "home-automation"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -123,7 +123,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "matter-server"
 tags = ["homeauto", "home-automation"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -134,7 +134,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "home-assistant"
 tags = ["homeauto", "home-automation"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -145,7 +145,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "frigate"
 tags = ["homeauto", "home-automation"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -159,7 +159,7 @@ FRIGATE_RTSP_PASSWORD=[[FRIGATE__FRIGATE_RTSP_PASSWORD]]
 [[stack]]
 name = "double-take"
 tags = ["homeauto", "home-automation"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -170,7 +170,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "node-red"
 tags = ["homeauto", "home-automation"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -181,7 +181,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "givtcp"
 tags = ["homeauto", "home-automation"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -192,7 +192,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "predbat"
 tags = ["homeauto", "home-automation"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
@@ -203,7 +203,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "esphome"
 tags = ["homeauto", "home-automation"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
