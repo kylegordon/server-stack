@@ -170,8 +170,25 @@ services:
     entrypoint: sidekiq-entrypoint.sh
     command: ['sidekiq']
     restart: on-failure
-    env_file:
-      - .sidekiq.env
+    # Komodo writes one .env per stack, so sidekiq takes its keys from it
+    # explicitly; SIDEKIQ_* hold the values that differ from the web app's.
+    environment:
+      - "APPLICATION_HOST=${SIDEKIQ_APPLICATION_HOST}"
+      - "APPLICATION_HOSTS=${SIDEKIQ_APPLICATION_HOSTS}"
+      - "APPLICATION_PROTOCOL=${APPLICATION_PROTOCOL}"
+      - "BACKGROUND_PROCESSING_CONCURRENCY=${SIDEKIQ_BACKGROUND_PROCESSING_CONCURRENCY}"
+      - "DATABASE_HOST=${DATABASE_HOST}"
+      - "DATABASE_NAME=${DATABASE_NAME}"
+      - "DATABASE_PASSWORD=${DATABASE_PASSWORD}"
+      - "DATABASE_USERNAME=${DATABASE_USERNAME}"
+      - "DISTANCE_UNIT=${DISTANCE_UNIT}"
+      - "PHOTON_API_HOST=${PHOTON_API_HOST}"
+      - "PHOTON_API_USE_HTTPS=${PHOTON_API_USE_HTTPS}"
+      - "PROMETHEUS_EXPORTER_ENABLED=${PROMETHEUS_EXPORTER_ENABLED}"
+      - "PROMETHEUS_EXPORTER_HOST=${SIDEKIQ_PROMETHEUS_EXPORTER_HOST}"
+      - "PROMETHEUS_EXPORTER_PORT=${PROMETHEUS_EXPORTER_PORT}"
+      - "RAILS_ENV=${RAILS_ENV}"
+      - "REDIS_URL=${REDIS_URL}"
     logging:
       driver: "json-file"
       options:
