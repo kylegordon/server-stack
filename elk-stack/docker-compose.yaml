@@ -612,7 +612,7 @@ services:
       - homepage.description=ELK - ElasticHQ
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:9.5.5
+    image: docker.elastic.co/logstash/logstash:9.5.6
     container_name: logstash
     restart: unless-stopped
     configs:
