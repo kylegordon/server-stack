@@ -2,7 +2,7 @@ export DOCKER_HOST=ssh://bagpuss@172.24.32.13
 echo "Pulling core stack"
 # docker compose -f core-stack/docker-compose.yaml pull  --- Deployed by Komodo
 echo "Pulling Traefik stack"
-docker compose -f traefik/docker-compose.yaml pull
+# docker compose -f traefik/docker-compose.yaml pull  --- Deployed by Komodo
 echo "Pulling Infisical stack"
 # docker compose -f infisical/docker-compose.yaml pull  --- Deployed by Komodo
 echo "Pulling HA stack"
@@ -47,7 +47,7 @@ docker compose -f komodo/docker-compose-blackbird.yaml pull
 
 export DOCKER_HOST=ssh://bagpuss@deepcore.glasgownet.com
 echo "Pulling deepcore stacks"
-docker compose -f traefik/docker-compose-deepcore.yaml pull
+# docker compose -f traefik/docker-compose-deepcore.yaml pull  --- Deployed by Komodo
 docker compose -f social-stack/docker-compose.yaml pull
 # docker compose -f rss/docker-compose.yaml pull  --- Deployed by Komodo
 docker compose -f obsidian-sync/docker-compose.yaml pull

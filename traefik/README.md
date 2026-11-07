@@ -173,7 +173,7 @@ and spot-check that the existing sites still serve their own certificates.
 
 ## Environment variables
 
-Copy `traefik.env.example` to `.env` and fill in real values before deploying:
+On homeauto, Komodo writes `.env` from its `TRAEFIK__*` Variables. For a manual recovery deploy, copy `traefik.env.example` to `.env` and fill in real values first:
 
 | Variable | Host | Description |
 |---|---|---|
@@ -202,11 +202,7 @@ export DOCKER_HOST=ssh://bagpuss@deepcore.glasgownet.com
 docker compose -f traefik/docker-compose-deepcore.yaml up -d
 ```
 
-Or deploy both as part of the full stack:
-
-```bash
-./up.sh
-```
+Normally Komodo deploys both (stacks `traefik` and `traefik-deepcore` in `komodo-stacks.toml`), including Renovate bumps once merged. Use the commands above only to recover when Komodo can't, for example when a broken Traefik has taken down the Komodo web UI. Komodo writes `traefik/.env` on each host from its `TRAEFIK__*` Variables (deepcore gets only `LETSENCRYPT_EMAIL`); the local `traefik/.env` is only for that manual recovery.
 
 ## Storage
 

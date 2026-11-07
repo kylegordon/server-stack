@@ -3,7 +3,7 @@ export DOCKER_HOST=ssh://bagpuss@172.24.32.13
 
 # docker compose -f core-stack/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f network-stack/docker-compose.yaml up -d  # creates shared traefik_proxy + homeautomation networks
-docker compose -f traefik/docker-compose.yaml up -d
+# docker compose -f traefik/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f infisical/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f unifi/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f eclipse-mosquitto/docker-compose.yaml up -d  --- Deployed by Komodo
@@ -96,7 +96,7 @@ export DOCKER_HOST=ssh://bagpuss@100.98.130.51
 # docker compose -f beszel/docker-compose-deepcore.yaml up -d  --- Deployed by Komodo
 docker compose -f komodo/docker-compose-deepcore.yaml up -d  # Komodo Periphery agent
 # docker compose -f scrutiny/docker-compose-deepcore.yaml up -d  --- Deployed by Komodo
-docker compose -f traefik/docker-compose-deepcore.yaml up -d
+# docker compose -f traefik/docker-compose-deepcore.yaml up -d  --- Deployed by Komodo
 # docker compose -f wallabag/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f rss/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f karakeep/docker-compose.yaml up -d  --- Deployed by Komodo
