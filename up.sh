@@ -30,7 +30,7 @@ docker compose -f traefik/docker-compose.yaml up -d
 # docker compose -f music-assistant/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f monitoring-stack/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f elk-stack/docker-compose.yaml up -d  --- Deployed by Komodo
-docker compose -f dawarich/docker-compose.yaml up -d
+# docker compose -f dawarich/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f warrior/docker-compose.yaml up -d  --- Deployed by Komodo
 # docker compose -f ollama/docker-compose.yaml up -d  --- Ollama/Open WebUI disabled - unused ---
 # docker compose -f homepage/docker-compose.yaml up -d --- Deployed by Komodo
