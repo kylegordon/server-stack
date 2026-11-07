@@ -69,7 +69,7 @@ services:
       - "librenms_data:/data"
       - "librenms_logs:/opt/librenms/storage/logs/"
     env_file:
-      - .librenms.env
+      - .env
     environment:
       - "TZ=${TZ}"
       - "PUID=${PUID}"
@@ -117,7 +117,7 @@ services:
       - "librenms_data:/data"
       - "librenms_logs:/opt/librenms/storage/logs/"
     env_file:
-      - .librenms.env
+      - .env
     environment:
       - "TZ=${TZ}"
       - "PUID=${PUID}"
@@ -156,7 +156,7 @@ services:
   #     - "DB_TIMEOUT=30"
   #     - "SIDECAR_CRON=1"
   #   env_file:
-  #     - .librenms.env
+  #     - .env
   #   restart: always
 
   syslog-ng:
@@ -188,7 +188,7 @@ services:
       - "DB_TIMEOUT=30"
       - "SIDECAR_SYSLOGNG=1"
     env_file:
-      - .librenms.env
+      - .env
     restart: unless-stopped
     labels:
       - traefik.enable=false
@@ -199,7 +199,7 @@ services:
     networks:
       - monitoring
     env_file:
-      - .librenms.env
+      - .env
     # environment:
     #   - "TZ=${TZ}"
     restart: unless-stopped
@@ -215,7 +215,7 @@ services:
       - librenms_rrd:/data/db/
       - librenms_rrd_journal:/data/journal
     env_file:
-      - .librenms.env
+      - .env
     # environment:
     #   - "TZ=${TZ}"
     #   - "PUID=${PUID}"
