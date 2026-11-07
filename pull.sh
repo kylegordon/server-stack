@@ -33,7 +33,7 @@ docker compose -f borgmatic-ui/docker-compose.yaml pull
 
 export DOCKER_HOST=ssh://bagpuss@172.24.32.11
 echo "Pulling ultrafeeder stack"
-docker compose -f ultrafeeder/docker-compose.yaml pull
+# docker compose -f ultrafeeder/docker-compose.yaml pull  --- Deployed by Komodo
 docker compose -f komodo/docker-compose-sdrpi.yaml pull
 
 export DOCKER_HOST=ssh://bagpuss@172.24.32.18
