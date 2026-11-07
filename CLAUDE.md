@@ -43,7 +43,7 @@ Deploy all stacks to all hosts (except the stacks with `deploy = true` in `komod
 Deploy a single stack (example):
 ```bash
 export DOCKER_HOST=ssh://bagpuss@172.24.32.13
-docker compose -f traefik/docker-compose.yaml up -d
+docker compose -f network-stack/docker-compose.yaml up -d
 ```
 
 Pull images without restarting:
@@ -58,7 +58,7 @@ Pull images without restarting:
 ### Shared infrastructure (deploy first)
 
 1. **`network-stack`** — creates the `traefik_proxy` and `homeautomation` Docker networks. A keepalive container holds these networks so they survive stack restarts. All other stacks reference these networks as external.
-2. **`traefik`** — reverse proxy and TLS termination for all HTTPS services (see `traefik/README.md`).
+2. **`traefik`** — reverse proxy and TLS termination for all HTTPS services (see `traefik/README.md`). Deployed by Komodo (stacks `traefik` and `traefik-deepcore`), so its Renovate bumps deploy unattended. Komodo reaches each Periphery agent directly on port 8120, not through Traefik, so it can still redeploy a broken Traefik; only the Komodo web UI depends on it. If that UI is down, recover from the workstation checkout (it has `traefik/.env`) with `DOCKER_HOST` set as in `up.sh`, using `traefik/docker-compose.yaml` (homeauto) or `traefik/docker-compose-deepcore.yaml` (deepcore); see `traefik/README.md`.
 3. **`core-stack`** — infrastructure services (TFTP, Authelia placeholder, Meshtastic).
 
 ### Common includes

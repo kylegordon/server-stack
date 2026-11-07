@@ -65,14 +65,15 @@ for f in */docker-compose.yaml; do docker compose -f "$f" config --quiet 2>&1 | 
 
 **Do NOT run deployment commands** unless specifically instructed by the user. The deployment scripts use SSH to remote Docker hosts which won't work in the sandbox environment.
 
-Deployment sequence (from `up.sh`):
+Stacks with `deploy = true` in `komodo-stacks.toml` (including traefik and core-stack) are deployed by Komodo, not `up.sh`; their `up.sh`/`pull.sh` lines are commented `--- Deployed by Komodo`. See the Komodo section in `CLAUDE.md`.
+
+Deployment sequence for the remaining stacks (from `up.sh`):
 ```bash
 # 1. Set target host
 export DOCKER_HOST=ssh://bagpuss@172.24.32.13
 
 # 2. Deploy services in specific order (dependencies first)
-docker compose -f core-stack/docker-compose.yaml up -d
-docker compose -f traefik/docker-compose.yaml up -d
+docker compose -f network-stack/docker-compose.yaml up -d
 # ... continues for all services
 
 # 3. Switch hosts for secondary deployments
@@ -80,13 +81,12 @@ export DOCKER_HOST=ssh://bagpuss@172.24.32.5
 docker compose -f scrutiny/docker-compose-blackbird.yaml up -d
 ```
 
-**Deployment order matters**: core-stack → traefik → unifi are deployed first due to network dependencies. DNS is now handled by Unbound on the OPNsense cluster.
+**Deployment order matters**: network-stack (still on `up.sh`) creates the shared `traefik_proxy` and `homeautomation` networks, so it must exist before Komodo deploys traefik or any other stack. DNS is now handled by Unbound on the OPNsense cluster.
 
 ### Image Update Workflow (from `pull.sh`)
 ```bash
 export DOCKER_HOST=ssh://bagpuss@172.24.32.13
-docker compose -f core-stack/docker-compose.yaml pull
-docker compose -f traefik/docker-compose.yaml pull
+docker compose -f komodo/docker-compose.yaml pull
 # ... continues for all stacks
 ```
 

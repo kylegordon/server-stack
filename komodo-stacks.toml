@@ -50,13 +50,22 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "traefik"
 tags = ["homeauto", "infrastructure"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "traefik"
 file_paths = ["docker-compose.yaml"]
+environment = """
+LETSENCRYPT_EMAIL=[[TRAEFIK__LETSENCRYPT_EMAIL]]
+AWS_ACCESS_KEY_ID=[[TRAEFIK__AWS_ACCESS_KEY_ID]]
+AWS_SECRET_ACCESS_KEY=[[TRAEFIK__AWS_SECRET_ACCESS_KEY]]
+AWS_REGION=[[TRAEFIK__AWS_REGION]]
+AWS_HOSTED_ZONE_ID=[[TRAEFIK__AWS_HOSTED_ZONE_ID]]
+DOMAIN=[[TRAEFIK__DOMAIN]]
+CERT_RESOLVER=[[TRAEFIK__CERT_RESOLVER]]
+"""
 
 [[stack]]
 name = "infisical"
@@ -1149,7 +1158,7 @@ file_paths = ["docker-compose-deepcore.yaml"]
 name = "traefik-deepcore"
 description = "Traefik reverse proxy - deepcore"
 tags = ["deepcore", "infrastructure"]
-deploy = false
+deploy = true
 [stack.config]
 server = "deepcore"
 repo = "kylegordon/server-stack"
@@ -1157,6 +1166,9 @@ branch = "master"
 run_directory = "traefik"
 project_name = "traefik"
 file_paths = ["docker-compose-deepcore.yaml"]
+environment = """
+LETSENCRYPT_EMAIL=[[TRAEFIK__LETSENCRYPT_EMAIL]]
+"""
 
 [[stack]]
 name = "wallabag"
