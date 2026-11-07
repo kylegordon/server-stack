@@ -738,13 +738,18 @@ TDARR_PGID=[[PHOTOPRISM__TDARR_PGID]]
 [[stack]]
 name = "immich"
 tags = ["homeauto", "media"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "immich"
 file_paths = ["docker-compose.yaml"]
+environment = """
+DB_PASSWORD=[[IMMICH__DB_PASSWORD]]
+DB_USERNAME=[[IMMICH__DB_USERNAME]]
+DB_DATABASE_NAME=[[IMMICH__DB_DATABASE_NAME]]
+"""
 
 [[stack]]
 name = "komodo"
