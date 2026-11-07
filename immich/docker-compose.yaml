@@ -40,7 +40,7 @@ volumes:
     driver_opts:
       type: nfs4
       o: addr=172.24.32.5,ro  # Read-only access. Immich needs read access to the photos, but doesn't need write access.
-      device: ":/srv/nfs4/home/bagpuss/Phone_Pictures/"
+      device: ":/srv/nfs4/home/bagpuss/Phone Pictures/"
 
 services:
   immich_server:
