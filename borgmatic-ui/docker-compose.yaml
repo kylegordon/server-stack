@@ -26,8 +26,13 @@ services:
     volumes:
       - borgmatic_ui_config:/app/config
       - borgmatic_ui_data:/app/data
-      - /:/host:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Backup sources: homeauto's own config only (/home and the volumes are NFS
+      # from blackbird). No docker.sock, so database discovery won't work.
+      - /etc:/host/etc:ro
+      - /docker:/host/docker:ro
+      - /usr/local:/host/usr/local:ro
+      - /opt:/host/opt:ro
+      - /var/spool/cron:/host/var/spool/cron:ro
     environment:
       - NODE_ENV=production
     labels:
