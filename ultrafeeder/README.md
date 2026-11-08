@@ -44,7 +44,7 @@ sudo modprobe -r dvb_usb_rtl28xxu rtl2832
 
 ### 2. Configure Environment Variables
 
-Copy the example environment file and edit it with your details:
+Komodo builds the stack's `.env` from the `ULTRAFEEDER__*` Variables, so change a value by editing its Variable in Komodo and redeploying. `MULTIFEEDER_UUID`, `ADSB_SDR_SERIAL`, `ADSB_SDR_PPM` and `FEEDER_HEYWHATSTHAT_*` have no Variable yet; see [Deploy](#4-deploy) to add one. The local `.env` steps apply only to a manual recovery deploy:
 
 ```bash
 cp .env.example .env
@@ -82,14 +82,11 @@ Look for a line like: `Serial number: 00001090`
 
 ### 4. Deploy
 
-The service is automatically deployed via the main deployment script:
+Komodo deploys the `ultrafeeder` stack (`komodo-stacks.toml`) on sdrpi, with its environment from the `ULTRAFEEDER__*` Variables. Once Komodo has deployed it successfully, merged changes (including Renovate bumps) deploy automatically. After sdrpi is re-enabled in Komodo (or rebuilt), press Deploy on `ultrafeeder` once and check for a successful Deploy Update.
 
-```bash
-# From the repository root
-./up.sh
-```
+`ADSB_SDR_SERIAL`, `ADSB_SDR_PPM`, `MULTIFEEDER_UUID` and the `FEEDER_HEYWHATSTHAT_*` keys are not set in Komodo; to set one, add a Variable and a matching line in the stack's `environment`, not `.env`.
 
-Or deploy just ultrafeeder:
+To deploy by hand (recovery only; the local `ultrafeeder/.env` may be stale, so prefer Deploy in Komodo):
 
 ```bash
 docker compose -f ultrafeeder/docker-compose.yaml up -d
@@ -133,7 +130,7 @@ Ultrafeeder uses NFS4 volumes for persistent storage:
 ### No aircraft visible
 1. Verify antenna is properly connected
 2. Check signal quality in the web interface
-3. Ensure SDR serial number is correct in .env
+3. Ensure the SDR serial number is correct (`ADSB_SDR_SERIAL`; see [Deploy](#4-deploy) for setting it in Komodo)
 4. Try adjusting `ADSB_SDR_PPM` if you know your dongle's frequency offset
 
 ### Device permission issues
