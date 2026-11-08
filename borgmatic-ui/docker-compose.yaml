@@ -2,6 +2,32 @@
 include:
   - ../common/networks.yaml
 
+# Database stack networks, so borgmatic can dump each DB over TCP using its
+# container name as hostname (same pattern as pgadmin/phpmyadmin). Postgres and
+# MariaDB only: the image has no Mongo client tools.
+networks:
+  nautobot_net:
+    external: true
+    name: nautobot_nautobot
+  infisical_net:
+    external: true
+    name: infisical_infisical
+  immich_net:
+    external: true
+    name: immich_immich
+  dawarich_net:
+    external: true
+    name: dawarich_dawarich
+  forgejo_net:
+    external: true
+    name: forgejo_forgejo
+  paperless_net:
+    external: true
+    name: paperless_paperless
+  photoprism_net:
+    external: true
+    name: photoprism_photoprism
+
 volumes:
   borgmatic_ui_config:
     driver: local
@@ -23,11 +49,20 @@ services:
     restart: unless-stopped
     networks:
       - traefik_proxy
+      - nautobot_net
+      - infisical_net
+      - immich_net
+      - dawarich_net
+      - forgejo_net
+      - paperless_net
+      - photoprism_net
     volumes:
       - borgmatic_ui_config:/app/config
       - borgmatic_ui_data:/app/data
       # Backup sources: homeauto's own config only (/home and the volumes are NFS
-      # from blackbird). No docker.sock, so database discovery won't work.
+      # from blackbird). No docker.sock: discovery won't work, so add DBs by hand
+      # in the wizard (hostname = unique DB container/service name, e.g.
+      # nautobot-postgres, paperless_db; not shared names like "db").
       - /etc:/host/etc:ro
       - /docker:/host/docker:ro
       - /usr/local:/host/usr/local:ro
