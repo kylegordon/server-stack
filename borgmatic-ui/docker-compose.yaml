@@ -43,7 +43,7 @@ services:
       - traefik.http.routers.borgmatic-ui.tls.certresolver=letsencrypt
       - traefik.http.services.borgmatic-ui.loadbalancer.server.port=8000
       - traefik.http.services.borgmatic-ui.loadbalancer.healthcheck.port=8000
-      - traefik.http.services.borgmatic-ui.loadbalancer.healthcheck.path=/
+      - traefik.http.services.borgmatic-ui.loadbalancer.healthcheck.path=/api/health
       - homepage.group=Storage
       - homepage.icon=mdi-backup-restore
       - homepage.name=Borgmatic UI

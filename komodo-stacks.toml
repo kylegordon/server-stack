@@ -982,7 +982,7 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "borgmatic-ui"
 tags = ["homeauto", "utilities"]
-deploy = false
+deploy = true
 [stack.config]
 server = "homeauto"
 repo = "kylegordon/server-stack"
