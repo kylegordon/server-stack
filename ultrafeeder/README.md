@@ -44,7 +44,7 @@ sudo modprobe -r dvb_usb_rtl28xxu rtl2832
 
 ### 2. Configure Environment Variables
 
-Copy the example environment file and edit it with your details:
+Komodo builds the stack's `.env` from the `ULTRAFEEDER__*` Variables, so change a value by editing its Variable in Komodo and redeploying. `MULTIFEEDER_UUID`, `ADSB_SDR_SERIAL`, `ADSB_SDR_PPM` and `FEEDER_HEYWHATSTHAT_*` have no Variable yet; see [Deploy](#4-deploy) to add one. The local `.env` steps apply only to a manual recovery deploy:
 
 ```bash
 cp .env.example .env
@@ -130,7 +130,7 @@ Ultrafeeder uses NFS4 volumes for persistent storage:
 ### No aircraft visible
 1. Verify antenna is properly connected
 2. Check signal quality in the web interface
-3. Ensure SDR serial number is correct in .env
+3. Ensure the SDR serial number is correct (`ADSB_SDR_SERIAL`; see [Deploy](#4-deploy) for setting it in Komodo)
 4. Try adjusting `ADSB_SDR_PPM` if you know your dongle's frequency offset
 
 ### Device permission issues
