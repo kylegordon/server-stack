@@ -126,7 +126,9 @@ elk-stack/test-configs.sh
 ```
 
 Container logs land in `logs-docker-default` with `container.name` (GELF via Logstash,
-json-file via Filebeat).
+json-file via Filebeat). blackbird has no syslog daemon; `filebeat/docker-compose-blackbird.yaml`
+ships its journal (syslog facilities the system module covers) with the Filebeat system module straight to Elasticsearch (`filebeat-*`,
+`event.dataset` `system.syslog` / `system.auth`).
 
 Request logging/tracing: Traefik exports OTLP access logs and traces to apm-server. Every
 access-log doc in `logs-apm.app.traefik-*` carries `trace.id`. Secrets are redacted and a 30-day

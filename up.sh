@@ -82,6 +82,7 @@ echo "----- Deploying to Blackbird -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.5
 # docker compose -f scrutiny/docker-compose-blackbird.yaml up -d  --- Deployed by Komodo
 # docker compose -f beszel/docker-compose-blackbird.yaml up -d  --- Deployed by Komodo
+# docker compose -f filebeat/docker-compose-blackbird.yaml up -d  --- Deployed by Komodo
 docker compose -f komodo/docker-compose-blackbird.yaml up -d  # Komodo Periphery agent
 
 echo "----- Deploying to LittleGeek -----"
