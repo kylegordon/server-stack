@@ -2,3 +2,6 @@
 .env
 *.env
 !*.env.example
+
+# Retired stack, kept locally but no longer in the repo
+/lemmy-stack/

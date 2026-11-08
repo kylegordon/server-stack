@@ -69,7 +69,7 @@ Pull images without restarting:
 
 Some directories are umbrella compose files that `include:` several individual service directories:
 
-- **`monitoring-stack`**, **`elk-stack`**, **`social-stack`**, **`lemmy-stack`** — similar groupings
+- **`monitoring-stack`**, **`elk-stack`** and **`social-stack`** — similar groupings
 
 ### NFS volumes
 
