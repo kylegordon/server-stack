@@ -127,8 +127,7 @@ elk-stack/test-configs.sh
 
 Container logs land in `logs-docker-default` with `container.name` (GELF via Logstash,
 json-file via Filebeat). Remote hosts ship GELF to `udp://172.24.32.13:12201` per service
-(`logging:` block). Host syslog goes to homeauto port 514 (published from Logstash's 5514);
-on blackbird this is rsyslog `/etc/rsyslog.d/90-logstash.conf`, host config outside this repo.
+(`logging:` block).
 
 Request logging/tracing: Traefik exports OTLP access logs and traces to apm-server. Every
 access-log doc in `logs-apm.app.traefik-*` carries `trace.id`. Secrets are redacted and a 30-day
