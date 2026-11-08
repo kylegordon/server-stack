@@ -8,6 +8,11 @@ services:
       - SYS_RAWIO
       - SYS_ADMIN #optional, but required for NVME
     restart: unless-stopped
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
     volumes:
       - '/run/udev:/run/udev:ro'
     environment:

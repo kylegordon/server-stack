@@ -9,6 +9,11 @@ services:
     image: henrygd/beszel-agent:0.21.1-alpine
     container_name: beszel-agent
     restart: unless-stopped
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
     network_mode: host
     cap_add:
       - SYS_RAWIO
