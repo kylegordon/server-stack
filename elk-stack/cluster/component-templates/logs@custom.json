@@ -1,0 +1,1 @@
+{"template":{"settings":{"index.number_of_replicas":0}},"_meta":{"description":"es01 and es02 share one disk: no replicas (server-stack elk-stack/cluster)"}}

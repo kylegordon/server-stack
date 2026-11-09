@@ -139,6 +139,13 @@ ILM applies via `elk-stack/apm-custom/` (`apply.sh`, `test.sh`, `service-map.sh`
 `service-map.sh` after adding or removing routed services. Grafana, Kibana and Nautobot join
 traces via OTLP env vars. Details: `elk-stack/apm-custom/README.md`.
 
+es01 and es02 share one disk (the `Tank-Elasticsearch` LV on blackbird, NFS), so indices run with
+0 replicas (ES/Kibana system indices excepted, ~1 GB): `elk-stack/cluster/apply.sh` puts
+`logs@custom`, `metrics@custom` and `traces@custom` component templates plus a legacy template for
+the daily `.monitoring-*-7-*` indices, and each Beat sets
+`setup.template.settings.index.number_of_replicas: 0` (applies when a new Beat version loads its
+template). Above 99% disk ES blocks writes (429s) and UDP log senders lose data.
+
 Kibana dashboards `Home lab: host system logs` and `Home lab: container logs` are code in
 `elk-stack/kibana-dashboards/` (`gen.py`, imported by `apply.sh` with overwrite). Change them there,
 not in the Kibana UI. Details: `elk-stack/kibana-dashboards/README.md`.

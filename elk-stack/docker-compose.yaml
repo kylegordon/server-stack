@@ -479,6 +479,8 @@ configs:
 
       # Kibana hides its version from unauthenticated callers, so loading dashboards makes Filebeat 9 exit at startup
       setup.dashboards.enabled: false
+      # es01 and es02 share one disk, so replicas add no safety and double disk use
+      setup.template.settings.index.number_of_replicas: 0
 
       monitoring.enabled: true
 
@@ -549,6 +551,8 @@ configs:
         kibana.host: "kibana:5601"
         # Kibana hides its version from unauthenticated callers, so loading dashboards makes Auditbeat 9 exit at startup
         dashboards.enabled: false
+        # es01 and es02 share one disk, so replicas add no safety and double disk use
+        template.settings.index.number_of_replicas: 0
 
   metricbeat_yml:
     content: |
@@ -573,6 +577,8 @@ configs:
 
       # Kibana hides its version from unauthenticated callers, so loading dashboards makes Metricbeat 9 exit at startup
       setup.dashboards.enabled: false
+      # es01 and es02 share one disk, so replicas add no safety and double disk use
+      setup.template.settings.index.number_of_replicas: 0
 
       monitoring.enabled: true
 
