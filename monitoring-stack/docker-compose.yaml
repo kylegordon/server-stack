@@ -41,6 +41,14 @@ volumes:
       o: addr=172.24.32.5,nolock,soft,rw
       device: ":/srv/nfs4/docker_nfs/smokeping/data/"
 
+configs:
+  # The image's syslog-ng replaces each message's hostname with the sender IP, and homeauto's
+  # own messages arrive from a Docker address. Keep the hostname so LibreNMS matches devices
+  # by hostname/sysName instead. Loaded via the image's @include "/data/syslog-ng/*.conf".
+  librenms_syslog_keep_hostname:
+    content: |
+      options { keep_hostname(yes); };
+
 networks:
   monitoring:
     # driver: overlay
@@ -168,15 +176,17 @@ services:
       - librenms
     networks:
       - monitoring
-    # ports:
-    #   - target: 514
-    #     published: 514
-    #     protocol: tcp
-    #   - target: 514
-    #     published: 514
-    #     protocol: udp
+    # Host 514 belongs to Logstash, so LibreNMS syslog is on 1514, LAN address only.
+    # Senders: homeauto rsyslog (TCP) and the OPNsense firewalls, RFC3164 format. LibreNMS
+    # stores a message only if its hostname matches a device's hostname or sysName.
+    ports:
+      - "172.24.32.13:1514:514/tcp"
+      - "172.24.32.13:1514:514/udp"
     volumes:
       - "librenms_data:/data"
+    configs:
+      - source: librenms_syslog_keep_hostname
+        target: /data/syslog-ng/keep-hostname.conf
     environment:
       - "TZ=${TZ}"
       - "PUID=${PUID}"
