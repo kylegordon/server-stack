@@ -19,7 +19,7 @@ volumes:
 
 services:
   home-assistant:
-    image: homeassistant/home-assistant:2026.11.0
+    image: homeassistant/home-assistant:2026.11.1
     container_name: home-assistant
     restart: unless-stopped
     # privileged: true
