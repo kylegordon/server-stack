@@ -24,5 +24,10 @@ services:
       # Timezone
       TZ: ${TZ:-Europe/London}
     restart: unless-stopped
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
     labels:
       - komodo.skip=

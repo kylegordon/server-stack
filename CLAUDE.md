@@ -126,7 +126,8 @@ elk-stack/test-configs.sh
 ```
 
 Container logs land in `logs-docker-default` with `container.name` (GELF via Logstash,
-json-file via Filebeat). blackbird has no syslog daemon; `filebeat/docker-compose-blackbird.yaml`
+json-file via Filebeat). Remote hosts ship GELF to `udp://172.24.32.13:12201` per service
+(`logging:` block). blackbird has no syslog daemon; `filebeat/docker-compose-blackbird.yaml`
 ships its journal (syslog facilities the system module covers) with the Filebeat system module straight to Elasticsearch (`filebeat-*`,
 `event.dataset` `system.syslog` / `system.auth`).
 
