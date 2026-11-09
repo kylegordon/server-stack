@@ -127,9 +127,11 @@ elk-stack/test-configs.sh
 
 Container logs land in `logs-docker-default` with `container.name` (GELF via Logstash,
 json-file via Filebeat). Remote hosts ship GELF to `udp://172.24.32.13:12201` per service
-(`logging:` block). blackbird has no syslog daemon; `filebeat/docker-compose-blackbird.yaml`
-ships its journal (syslog facilities the system module covers) with the Filebeat system module straight to Elasticsearch (`filebeat-*`,
-`event.dataset` `system.syslog` / `system.auth`).
+(`logging:` block). Host system logs come from the journal via the Filebeat system module,
+straight to Elasticsearch (`filebeat-*`, `event.dataset` `system.syslog` / `system.auth`, only the
+syslog facilities the module covers): homeauto's `filebeat` in `elk-stack`, and
+`filebeat/docker-compose-blackbird.yaml` on blackbird (which has no syslog daemon). Each Filebeat
+keeps its registry in a `filebeat_data` volume; losing it re-ships the whole journal.
 
 Request logging/tracing: Traefik exports OTLP access logs and traces to apm-server. Every
 access-log doc in `logs-apm.app.traefik-*` carries `trace.id`. Secrets are redacted and a 30-day
