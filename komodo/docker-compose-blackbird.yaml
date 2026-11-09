@@ -7,6 +7,13 @@ services:
     image: ghcr.io/moghtech/komodo-periphery:2.3.4
     container_name: komodo-periphery-blackbird
     init: true
+    # Reading host processes through /proc needs ptrace read access: docker-default denies it
+    # (~87k kernel audit lines/day) and without SYS_PTRACE the kernel still refuses it silently.
+    # Same as octoprint; the docker.sock mount already makes this container root-equivalent.
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor=unconfined
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/proc
