@@ -4,6 +4,7 @@
 #  2. filebeat_yml has the expected content and passes `filebeat test config`.
 #  3. auditbeat_yml and metricbeat_yml resolve to dashboards disabled and pass `test config`.
 #  4. The opnsense pipeline parses only filterlog as firewall CSV and converts local time to UTC.
+#  5. filebeat/docker-compose-blackbird.yaml resolves to the journald system module and passes `test config`.
 # Needs local docker only; the inline configs in the compose file are the source of truth.
 set -uo pipefail
 cd "$(dirname "$0")/.."
@@ -96,4 +97,15 @@ for beat in auditbeat metricbeat; do
   out=$("${run[@]}" test config -c "/usr/share/$beat/$beat.yml" --strict.perms=false 2>&1)
   if grep -q 'Config OK' <<<"$out"; then echo "ok   ${beat}_yml: Config OK"; else echo "FAIL ${beat}_yml: $beat test config"; echo "$out" | tail -10; fail=1; fi
 done
+
+# --- filebeat on blackbird (journald via the system module) ---
+bb=$(docker compose -f filebeat/docker-compose-blackbird.yaml config --format json) || exit 1
+bbf="$tmp/filebeat-blackbird.yml"
+jq -j '.configs.filebeat_blackbird_yml.content' <<<"$bb" | sed 's/\$\$/$/g' >"$bbf"
+for want in 'use_journald: true' 'setup.dashboards.enabled: false'; do
+  grep -qF -- "$want" "$bbf" && echo "ok   filebeat_blackbird_yml contains $want" || { echo "FAIL filebeat_blackbird_yml: missing $want"; fail=1; }
+done
+chmod 600 "$bbf"
+out=$(docker run --rm --user root -v "$bbf:/usr/share/filebeat/filebeat.yml:ro" "$(jq -r '.services.filebeat.image' <<<"$bb")" test config -c /usr/share/filebeat/filebeat.yml --strict.perms=false 2>&1)
+if grep -q 'Config OK' <<<"$out"; then echo "ok   filebeat_blackbird_yml: Config OK"; else echo "FAIL filebeat_blackbird_yml: filebeat test config"; echo "$out" | tail -10; fail=1; fi
 exit $fail

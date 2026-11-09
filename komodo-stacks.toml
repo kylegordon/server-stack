@@ -1106,6 +1106,19 @@ BLACKBIRD_TOKEN=[[BESZEL__BLACKBIRD_TOKEN]]
 """
 
 [[stack]]
+name = "filebeat-blackbird"
+description = "Filebeat journald shipper - blackbird"
+tags = ["blackbird", "monitoring"]
+deploy = true
+[stack.config]
+server = "blackbird"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "filebeat"
+project_name = "filebeat"
+file_paths = ["docker-compose-blackbird.yaml"]
+
+[[stack]]
 name = "komodo-periphery-blackbird"
 description = "Komodo Periphery agent for blackbird - deploy via up.sh only; never Stop/Destroy/Redeploy from Komodo"
 tags = ["blackbird", "infrastructure", "up-sh-only"]

@@ -1,0 +1,52 @@
+---
+# Ships blackbird's systemd journal to Elasticsearch on homeauto with the Filebeat
+# system module (Elastic's recommended route for journald-only hosts). Blackbird has no
+# syslog daemon. Container logs go separately via GELF in each service's `logging:` block.
+
+configs:
+  filebeat_blackbird_yml:
+    content: |+
+      filebeat.modules:
+        # The module filters by syslog facility: syslog reads 0-3, 5-9, 11, 12, 15 and auth
+        # reads 4 and 10. Facilities 13, 14, local0-7 and entries with no facility are not
+        # shipped; blackbird had none of those in the 7 days before 2026-11-08.
+        - module: system
+          syslog:
+            enabled: true
+            var.use_journald: true
+          auth:
+            enabled: true
+            var.use_journald: true
+
+      # Kibana hides its version from unauthenticated callers, so loading dashboards makes Filebeat 9 exit at startup
+      setup.dashboards.enabled: false
+
+      output.elasticsearch:
+        hosts: ["172.24.32.13:9200"]
+
+volumes:
+  filebeat_data:
+
+services:
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:9.5.6
+    container_name: filebeat-blackbird
+    hostname: blackbird
+    restart: unless-stopped
+    user: root # To read the journal
+    configs:
+      - source: filebeat_blackbird_yml
+        target: /usr/share/filebeat/filebeat.yml
+    volumes:
+      # Journal read position, so a restart resumes instead of re-reading or skipping
+      - filebeat_data:/usr/share/filebeat/data
+      - /var/log/journal:/var/log/journal:ro
+      - /run/log/journal:/run/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+    labels:
+      - traefik.enable=false
