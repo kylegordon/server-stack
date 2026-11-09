@@ -34,6 +34,13 @@
         "britkat/giv_tcp-ma"
       ],
       "enabled": false
+    },
+    {
+      "description": "A redeploy restarts OctoPrint and kills any running print; merge its bumps by hand between prints",
+      "matchPackageNames": [
+        "octoprint/octoprint"
+      ],
+      "automerge": false
     }
   ]
 }

@@ -7,15 +7,13 @@ I've successfully implemented proper secret management across your Docker Compos
 ### New .env Files Created:
 
 1. **`frontend/.traefik.env`** - Traefik/AWS credentials
-2. **`lemmy-stack/.lemmy.env`** - Lemmy database and API credentials  
-3. **`obsidian-sync/.obsidian.env`** - CouchDB credentials
-4. **`ollama/.ollama.env`** - Ollama WebUI configuration and secrets
-5. **`elk-stack/.elk.env`** - Elasticsearch cluster configuration
+2. **`obsidian-sync/.obsidian.env`** - CouchDB credentials
+3. **`ollama/.ollama.env`** - Ollama WebUI configuration and secrets
+4. **`elk-stack/.elk.env`** - Elasticsearch cluster configuration
 
 ### .env.example Templates Created:
 
 - **`.traefik.env.example`** - Template for Traefik configuration
-- **`.lemmy.env.example`** - Template for Lemmy setup
 - **`.obsidian.env.example`** - Template for Obsidian sync
 - **`.ollama.env.example`** - Template for Ollama WebUI
 - **`.elk.env.example`** - Template for ELK stack
@@ -23,7 +21,6 @@ I've successfully implemented proper secret management across your Docker Compos
 ### Docker Compose Files Updated:
 
 - **`frontend/docker-compose.yaml`** - Now uses `.traefik.env`
-- **`lemmy-stack/docker-compose.yml`** - Now uses `.lemmy.env` 
 - **`obsidian-sync/docker-compose.yaml`** - Now uses `.obsidian.env`
 - **`ollama/docker-compose.yaml`** - Now uses `.ollama.env`
 - **`elk-stack/docker-compose.yaml`** - Prepared for `.elk.env` (security disabled for now)
@@ -66,7 +63,6 @@ Your deployment scripts need updating:
 1. **Copy the `.env.example` to the actual `.env` file:**
    ```bash
    cp frontend/.traefik.env.example frontend/.traefik.env
-   cp lemmy-stack/.lemmy.env.example lemmy-stack/.lemmy.env
    # ... etc for each service
    ```
 
@@ -85,7 +81,6 @@ Your deployment scripts need updating:
 | File | Status | Action Needed |
 |------|--------|---------------|
 | `frontend/.traefik.env` | ⚠️ Contains exposed AWS creds | **REVOKE & REGENERATE** |
-| `lemmy-stack/.lemmy.env` | ✅ Secure placeholder | Generate real passwords |
 | `obsidian-sync/.obsidian.env` | ✅ Secure placeholder | Generate real passwords |
 | `ollama/.ollama.env` | ✅ Secure placeholder | Generate real passwords |
 | `elk-stack/.elk.env` | ✅ Ready for security | Enable when ready |

@@ -997,13 +997,38 @@ file_paths = ["docker-compose.yaml"]
 [[stack]]
 name = "ultrafeeder"
 tags = ["sdrpi", "adsb"]
-deploy = false
+deploy = true
 [stack.config]
 server = "sdrpi"
 repo = "kylegordon/server-stack"
 branch = "master"
 run_directory = "ultrafeeder"
 file_paths = ["docker-compose.yaml"]
+environment = """
+SSHUSER=[[ULTRAFEEDER__SSHUSER]]
+MAINHOST=[[ULTRAFEEDER__MAINHOST]]
+SDRHOST=[[ULTRAFEEDER__SDRHOST]]
+NFSHOST=[[ULTRAFEEDER__NFSHOST]]
+LATITUDE=[[ULTRAFEEDER__LATITUDE]]
+LONGITUDE=[[ULTRAFEEDER__LONGITUDE]]
+ALTITUDE_METERS=[[ULTRAFEEDER__ALTITUDE_METERS]]
+FEEDER_LAT=[[ULTRAFEEDER__FEEDER_LAT]]
+ALTITUDE_FEET=[[ULTRAFEEDER__ALTITUDE_FEET]]
+FEEDER_LONG=[[ULTRAFEEDER__FEEDER_LONG]]
+FEEDER_ALT_M=[[ULTRAFEEDER__FEEDER_ALT_M]]
+FEEDER_ALTITUDE_FEET=[[ULTRAFEEDER__FEEDER_ALTITUDE_FEET]]
+TZ=[[ULTRAFEEDER__TZ]]
+FEEDER_TZ=[[ULTRAFEEDER__FEEDER_TZ]]
+FEEDER_NAME=[[ULTRAFEEDER__FEEDER_NAME]]
+BEASTHOST=[[ULTRAFEEDER__BEASTHOST]]
+BEASTPORT=[[ULTRAFEEDER__BEASTPORT]]
+RBFEEDER_KEY=[[ULTRAFEEDER__RBFEEDER_KEY]]
+INFLUXDBURL=[[ULTRAFEEDER__INFLUXDBURL]]
+INFLUXDB_V2=[[ULTRAFEEDER__INFLUXDB_V2]]
+INFLUXDB_V2_BUCKET=[[ULTRAFEEDER__INFLUXDB_V2_BUCKET]]
+INFLUXDB_V2_ORG=[[ULTRAFEEDER__INFLUXDB_V2_ORG]]
+INFLUXDB_V2_TOKEN=[[ULTRAFEEDER__INFLUXDB_V2_TOKEN]]
+"""
 
 [[stack]]
 name = "komodo-periphery-adsb"
@@ -1079,6 +1104,19 @@ environment = """
 BLACKBIRD_KEY=[[BESZEL__BLACKBIRD_KEY]]
 BLACKBIRD_TOKEN=[[BESZEL__BLACKBIRD_TOKEN]]
 """
+
+[[stack]]
+name = "filebeat-blackbird"
+description = "Filebeat journald shipper - blackbird"
+tags = ["blackbird", "monitoring"]
+deploy = true
+[stack.config]
+server = "blackbird"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "filebeat"
+project_name = "filebeat"
+file_paths = ["docker-compose-blackbird.yaml"]
 
 [[stack]]
 name = "komodo-periphery-blackbird"

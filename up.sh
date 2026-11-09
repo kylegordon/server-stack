@@ -70,18 +70,19 @@ docker compose -f borgmatic-ui/docker-compose.yaml up -d
 
 echo "----- Deploying to ADS-B receiver (172.24.32.11) -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.11
-docker compose -f ultrafeeder/docker-compose.yaml up -d
+# docker compose -f ultrafeeder/docker-compose.yaml up -d  --- Deployed by Komodo
 docker compose -f komodo/docker-compose-sdrpi.yaml up -d  # Komodo Periphery agent
 
 echo "----- Deploying to OctoPrint (172.24.32.18) -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.18
-docker compose -f octoprint/docker-compose.yaml up -d
+# docker compose -f octoprint/docker-compose.yaml up -d  --- Deploy by hand in Komodo, between prints
 docker compose -f komodo/docker-compose-octoprint.yaml up -d  # Komodo Periphery agent
 
 echo "----- Deploying to Blackbird -----"
 export DOCKER_HOST=ssh://bagpuss@172.24.32.5
 # docker compose -f scrutiny/docker-compose-blackbird.yaml up -d  --- Deployed by Komodo
 # docker compose -f beszel/docker-compose-blackbird.yaml up -d  --- Deployed by Komodo
+# docker compose -f filebeat/docker-compose-blackbird.yaml up -d  --- Deployed by Komodo
 docker compose -f komodo/docker-compose-blackbird.yaml up -d  # Komodo Periphery agent
 
 echo "----- Deploying to LittleGeek -----"
