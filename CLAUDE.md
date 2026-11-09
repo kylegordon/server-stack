@@ -132,6 +132,12 @@ straight to Elasticsearch (`filebeat-*`, `event.dataset` `system.syslog` / `syst
 syslog facilities the module covers): homeauto's `filebeat` in `elk-stack`, and
 `filebeat/docker-compose-blackbird.yaml` on blackbird (which has no syslog daemon). Each Filebeat
 keeps its registry in a `filebeat_data` volume; losing it re-ships the whole journal.
+LibreNMS gets syslog separately on homeauto `172.24.32.13:1514` (the `librenms_syslog` syslog-ng
+sidecar in `monitoring-stack`; host 514 is Logstash's). homeauto's rsyslog and the OPNsense
+firewalls send there in RFC3164 format. syslog-ng keeps each message's hostname (inline config
+`librenms_syslog_keep_hostname`); LibreNMS stores a message only if that hostname matches a
+device's hostname or sysName, and drops the rest without logging (opnsense-ha-2 and opnsense-vpn
+are not devices). blackbird has no syslog daemon, so it is not in LibreNMS syslog.
 
 Request logging/tracing: Traefik exports OTLP access logs and traces to apm-server. Every
 access-log doc in `logs-apm.app.traefik-*` carries `trace.id`. Secrets are redacted and a 30-day
