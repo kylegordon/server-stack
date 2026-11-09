@@ -137,6 +137,10 @@ ILM applies via `elk-stack/apm-custom/` (`apply.sh`, `test.sh`, `service-map.sh`
 `service-map.sh` after adding or removing routed services. Grafana, Kibana and Nautobot join
 traces via OTLP env vars. Details: `elk-stack/apm-custom/README.md`.
 
+Kibana dashboards `Home lab: host system logs` and `Home lab: container logs` are code in
+`elk-stack/kibana-dashboards/` (`gen.py`, imported by `apply.sh` with overwrite). Change them there,
+not in the Kibana UI. Details: `elk-stack/kibana-dashboards/README.md`.
+
 ### Watchtower auto-updates
 
 Most services opt in to Watchtower image auto-updates:
