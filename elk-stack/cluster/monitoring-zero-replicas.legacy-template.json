@@ -1,0 +1,1 @@
+{"index_patterns":[".monitoring-es-7-*",".monitoring-kibana-7-*",".monitoring-beats-7-*",".monitoring-logstash-7-*"],"order":100,"settings":{"index.auto_expand_replicas":false,"index.number_of_replicas":0}}
