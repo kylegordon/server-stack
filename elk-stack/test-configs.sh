@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Check the inline Logstash and Beats configs in elk-stack/docker-compose.yaml.
 #  1. Every pipeline passes `logstash --config.test_and_exit`.
-#  2. filebeat_yml has the expected content and passes `filebeat test config`.
+#  2. filebeat_yml has the expected content (incl. journald system module), passes `filebeat test config`,
+#     and the filebeat service has its journal mounts, registry volume and hostname.
 #  3. auditbeat_yml and metricbeat_yml resolve to dashboards disabled and pass `test config`.
 #  4. The opnsense pipeline parses only filterlog as firewall CSV and converts local time to UTC.
 #  5. filebeat/docker-compose-blackbird.yaml resolves to the journald system module and passes `test config`.
@@ -72,9 +73,18 @@ else echo "FAIL opnsense: IPv6 filterlog line: $v6"; fail=1; fi
 fb="$tmp/filebeat.yml"
 jq -j '.configs.filebeat_yml.content' <<<"$rendered" | sed 's/\$\$/$/g' >"$fb"
 if [ ! -s "$fb" ]; then echo "FAIL filebeat_yml: missing"; exit 1; fi
-for want in '/var/lib/docker/containers/*/*-json.log' 'add_docker_metadata' 'logs-docker-default' 'target: "json"'; do
+for want in '/var/lib/docker/containers/*/*-json.log' 'add_docker_metadata' 'logs-docker-default' 'target: "json"' 'use_journald: true' 'input.type: journald'; do
   grep -qF -- "$want" "$fb" && echo "ok   filebeat_yml contains $want" || { echo "FAIL filebeat_yml: missing $want"; fail=1; }
 done
+# The journal replaced /var/log/syslog (never mounted into the container)
+if grep -qF -- '/var/log/syslog' "$fb"; then echo "FAIL filebeat_yml: still reads /var/log/syslog"; fail=1; else echo "ok   filebeat_yml has no /var/log/syslog input"; fi
+[ "$(grep -cF -- 'use_journald: true' "$fb")" = 2 ] && echo "ok   filebeat_yml: journald on syslog and auth" || { echo "FAIL filebeat_yml: use_journald not on both filesets"; fail=1; }
+# Service wiring test config cannot see: journal mounts, registry volume, hostname
+for tgt in /usr/share/filebeat/data /var/log/journal /run/log/journal /etc/machine-id; do
+  jq -e --arg t "$tgt" '[.services.filebeat.volumes[].target] | index($t)' <<<"$rendered" >/dev/null \
+    && echo "ok   filebeat mounts $tgt" || { echo "FAIL filebeat: no mount at $tgt"; fail=1; }
+done
+jq -e '.services.filebeat.hostname == "homeauto"' <<<"$rendered" >/dev/null && echo "ok   filebeat hostname homeauto" || { echo "FAIL filebeat: hostname not homeauto"; fail=1; }
 chmod 600 "$fb"
 out=$(docker run --rm --user root -v "$fb:/usr/share/filebeat/filebeat.yml:ro" "$FB_IMAGE" test config -c /usr/share/filebeat/filebeat.yml --strict.perms=false 2>&1)
 if grep -q 'Config OK' <<<"$out"; then echo "ok   filebeat_yml: Config OK"; else echo "FAIL filebeat_yml: filebeat test config"; echo "$out" | tail -10; fail=1; fi

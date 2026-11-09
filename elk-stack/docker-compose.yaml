@@ -4,6 +4,9 @@ include:
 
 volumes:
 
+  # Filebeat registry: journald cursor and container log offsets survive a recreate
+  filebeat_data:
+
   logstash_config:
     driver: local
     driver_opts:
@@ -405,13 +408,6 @@ configs:
         detect_sequence_reset: true
 
       - type: filestream
-        id: syslog-ingest
-        take_over:
-          enabled: true
-        paths:
-          - /var/log/syslog
-
-      - type: filestream
         id: apache2-ingest
         take_over:
           enabled: true
@@ -450,13 +446,28 @@ configs:
 
       processors:
         # decode the log field (sub JSON document) if JSON encoded, then maps it's fields to elasticsearch fields
-        # (not for container events, which are decoded under json.* by their input)
+        # (not for container events, which are decoded under json.* by their input, nor for
+        # journald events, where a JSON message would overwrite ECS fields)
       - decode_json_fields:
-          when.not.has_fields: ["container.id"]
+          when.not.or:
+            - has_fields: ["container.id"]
+            - equals:
+                input.type: journald
           fields: ["log", "message"]
           target: ""
           # overwrite existing target elasticsearch fields while decoding json fields
           overwrite_keys: true
+
+      # homeauto's journal via the system module (facilities: syslog 0-3, 5-9, 11, 12, 15;
+      # auth 4, 10). Module events use their own ingest pipeline and the default filebeat-* index.
+      filebeat.modules:
+        - module: system
+          syslog:
+            enabled: true
+            var.use_journald: true
+          auth:
+            enabled: true
+            var.use_journald: true
 
       filebeat.config.modules:
         path: $${path.config}/modules.d/*.yml
@@ -657,15 +668,20 @@ services:
   filebeat:
     image: docker.elastic.co/beats/filebeat:9.5.6
     container_name: filebeat
+    hostname: homeauto
     restart: unless-stopped
-    user: root #To read the docker socket
+    user: root # To read the docker socket and the journal
     command: ["--environment", "container"]  #TODO: Remove after 8.17.1/8.18.0
     configs:
       - source: filebeat_yml
         target: /usr/share/filebeat/filebeat.yml
     volumes:
+      - filebeat_data:/usr/share/filebeat/data
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log/journal:/var/log/journal:ro
+      - /run/log/journal:/run/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
     # healthcheck:
     #   test: filebeat test config
     #   interval: 30s
