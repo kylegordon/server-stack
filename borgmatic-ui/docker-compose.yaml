@@ -27,6 +27,9 @@ networks:
   photoprism_net:
     external: true
     name: photoprism_photoprism
+  # Private network for this stack's own Redis. internal: no outside access.
+  borgmatic_ui_redis:
+    internal: true
 
 volumes:
   borgmatic_ui_config:
@@ -43,11 +46,32 @@ volumes:
       device: ":/srv/nfs4/docker_nfs/borgmatic-ui/data/"
 
 services:
+  # Archive-listing cache only (24h TTL keys), so no volume: losing it on
+  # restart just means a cold cache. Without its own Redis, borgmatic-ui falls
+  # back to hostname `redis`, which on dawarich_net is dawarich's Redis.
+  borgmatic-ui-redis:
+    image: docker.io/library/redis:8.10.3-alpine
+    container_name: borgmatic-ui-redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 100mb --maxmemory-policy allkeys-lru --save "" --appendonly no
+    networks:
+      - borgmatic_ui_redis
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.24.32.13:12201"
+        tag: "{{.Name}}"
+
   borgmatic-ui:
     image: ghcr.io/speedbitsinfinitytools/borgmatic-ui:1.0.70
     container_name: borgmatic-ui
     restart: unless-stopped
+    depends_on:
+      - borgmatic-ui-redis
     networks:
+      - borgmatic_ui_redis
       - traefik_proxy
       - nautobot_net
       - infisical_net
@@ -70,6 +94,9 @@ services:
       - /var/spool/cron:/host/var/spool/cron:ro
     environment:
       - NODE_ENV=production
+      # Explicit host: the default `redis` resolves to dawarich's Redis.
+      - REDIS_HOST=borgmatic-ui-redis
+      - REDIS_PORT=6379
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik_proxy
