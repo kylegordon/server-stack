@@ -44,9 +44,13 @@ services:
       - homepage.name=Sonarr
       - homepage.href=https://tv.viewpoint.house
       - homepage.description=TV Show Mangement
-    # environment:
+    environment:
       # - PUID=200
       # - PGID=200
+      # Trust Traefik's X-Forwarded-For so "disabled for local addresses" sees
+      # the real client instead of forcing a login. 172.21.0.0/16 is the
+      # Docker-assigned traefik_proxy subnet (not pinned); update if recreated.
+      - SONARR__SERVER__TRUSTEDNETWORKS=172.21.0.0/16
     volumes:
       - sonarr_config:/config
       - complete:/complete
