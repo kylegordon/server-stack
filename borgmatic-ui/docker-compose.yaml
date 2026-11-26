@@ -65,7 +65,7 @@ services:
         tag: "{{.Name}}"
 
   borgmatic-ui:
-    image: ghcr.io/speedbitsinfinitytools/borgmatic-ui:1.0.70
+    image: ghcr.io/speedbitsinfinitytools/borgmatic-ui:1.0.72
     container_name: borgmatic-ui
     restart: unless-stopped
     depends_on:
