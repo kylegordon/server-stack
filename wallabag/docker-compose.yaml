@@ -1,7 +1,7 @@
 ---
 services:
   wallabag:
-    image: wallabag/wallabag:2.6.18
+    image: wallabag/wallabag:2.6.19
     restart: unless-stopped
     networks:
       - wallabag
