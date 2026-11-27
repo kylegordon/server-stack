@@ -15,7 +15,7 @@ This is a **Docker Compose-based home server infrastructure** repository contain
 - **Root level**: Each directory represents a self-contained service with its own `docker-compose.yaml`
 - **Key services**: `traefik/` (reverse proxy), `home-assistant/` (Home Assistant), `elk-stack/` (logging), `monitoring-stack/` (LibreNMS/Grafana)
 - **Deployment scripts**: `up.sh` (deploys all services), `pull.sh` (pulls latest images)
-- **Config files**: `renovate.json` (dependency updates), `komodo-stacks.toml` (Komodo stack declarations, kept in step with `up.sh`; stacks with `deploy = true` are deployed by Komodo and their `up.sh`/`pull.sh` lines are commented out with `--- Deployed by Komodo`)
+- **Config files**: `renovate.json` (dependency updates), `komodo-stacks.toml` (Komodo stack declarations, one `[[stack]]` per compose file; stacks with `deploy = true` are deployed by Komodo and are not in `up.sh`/`pull.sh`)
 
 ### Storage Architecture
 **All volumes use NFS4 mounts** pointing to `172.24.32.5:/srv/nfs4/docker_nfs/<service>/` or `/media/Tank/` paths. This is critical for understanding volume configuration.
@@ -65,7 +65,7 @@ for f in */docker-compose.yaml; do docker compose -f "$f" config --quiet 2>&1 | 
 
 **Do NOT run deployment commands** unless specifically instructed by the user. The deployment scripts use SSH to remote Docker hosts which won't work in the sandbox environment.
 
-Stacks with `deploy = true` in `komodo-stacks.toml` (including traefik and core-stack) are deployed by Komodo, not `up.sh`; their `up.sh`/`pull.sh` lines are commented `--- Deployed by Komodo`. See the Komodo section in `CLAUDE.md`.
+Stacks with `deploy = true` in `komodo-stacks.toml` (including traefik and core-stack) are deployed by Komodo and are not in `up.sh`/`pull.sh`. See the Komodo section in `CLAUDE.md`.
 
 Deployment sequence for the remaining stacks (from `up.sh`):
 ```bash
@@ -78,7 +78,7 @@ docker compose -f network-stack/docker-compose.yaml up -d
 
 # 3. Switch hosts for secondary deployments
 export DOCKER_HOST=ssh://bagpuss@172.24.32.5
-docker compose -f scrutiny/docker-compose-blackbird.yaml up -d
+docker compose -f komodo/docker-compose-blackbird.yaml up -d
 ```
 
 **Deployment order matters**: network-stack (still on `up.sh`) creates the shared `traefik_proxy` and `homeautomation` networks, so it must exist before Komodo deploys traefik or any other stack. DNS is now handled by Unbound on the OPNsense cluster.
@@ -161,7 +161,7 @@ Services visible on homepage dashboard include:
 
 ### TODO Items
 - `elk-stack/docker-compose.yaml:45` - Contains TODO comment about removing `--environment container` flag after Elasticsearch 8.17.1/8.18.0
-- Several services are commented out in `up.sh`: watchtower, whatsupdocker, warpgate, selenium, ollama
+- Disabled services (not in `up.sh`, `deploy = false`): warpgate, selenium, ollama
 
 ### Compose Config Validation Quirks
 - **Missing .env files generate warnings but are not errors** - exit code is still 0
