@@ -776,6 +776,19 @@ run_directory = "warpgate"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
+name = "actual-server"
+description = "Actual budgeting app"
+tags = ["homeauto", "utilities"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "actual_server"
+project_name = "actual_server"
+file_paths = ["docker-compose.yaml"]
+
+[[stack]]
 name = "netalertx"
 description = "NetAlertX - network monitoring and alerting"
 tags = ["homeauto", "monitoring"]
