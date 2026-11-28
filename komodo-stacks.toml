@@ -730,9 +730,6 @@ PHOTOPRISM_MYSQL_ROOT_PASSWORD=[[PHOTOPRISM__PHOTOPRISM_MYSQL_ROOT_PASSWORD]]
 PHOTOPRISM_MYSQL_DATABASE=[[PHOTOPRISM__PHOTOPRISM_MYSQL_DATABASE]]
 PHOTOPRISM_MYSQL_USER=[[PHOTOPRISM__PHOTOPRISM_MYSQL_USER]]
 PHOTOPRISM_MYSQL_PASSWORD=[[PHOTOPRISM__PHOTOPRISM_MYSQL_PASSWORD]]
-OMBI_MYSQL_ROOT_PASSWORD=[[PHOTOPRISM__OMBI_MYSQL_ROOT_PASSWORD]]
-TDARR_PUID=[[PHOTOPRISM__TDARR_PUID]]
-TDARR_PGID=[[PHOTOPRISM__TDARR_PGID]]
 """
 
 [[stack]]
@@ -787,6 +784,22 @@ branch = "master"
 run_directory = "actual_server"
 project_name = "actual_server"
 file_paths = ["docker-compose.yaml"]
+
+[[stack]]
+name = "tdarr"
+description = "Tdarr transcoding server and node"
+tags = ["homeauto", "media"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "tdarr"
+file_paths = ["docker-compose.yaml"]
+environment = """
+TDARR_PUID=[[TDARR__PUID]]
+TDARR_PGID=[[TDARR__PGID]]
+"""
 
 [[stack]]
 name = "netalertx"

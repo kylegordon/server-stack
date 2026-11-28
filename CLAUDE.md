@@ -190,7 +190,7 @@ Services expose themselves to the [homepage](https://gethomepage.dev) dashboard 
 ## Known TODOs in the codebase
 
 - `elk-stack/docker-compose.yaml:652` — remove `--environment container` flag after Elasticsearch 8.17.1/8.18.0
-- Disabled services (not in `up.sh`, `deploy = false` in `komodo-stacks.toml`): warpgate, selenium, ollama (incl. Open WebUI), actual_server. Stacks deployed by Komodo are not in `up.sh`; don't add them back.
+- Disabled services (not in `up.sh`, `deploy = false` in `komodo-stacks.toml`): warpgate, selenium, ollama (incl. Open WebUI), actual_server, tdarr. Stacks deployed by Komodo are not in `up.sh`; don't add them back.
 
 ## Komodo
 
