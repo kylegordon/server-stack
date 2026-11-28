@@ -3,7 +3,7 @@
 networks:
   traefik_proxy:
     external: true
-    name: traefik_traefik_proxy
+    name: traefik_proxy
 
 volumes:
   actual_data:
