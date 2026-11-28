@@ -789,6 +789,22 @@ project_name = "actual_server"
 file_paths = ["docker-compose.yaml"]
 
 [[stack]]
+name = "tdarr"
+description = "Tdarr transcoding server and node"
+tags = ["homeauto", "media"]
+deploy = false
+[stack.config]
+server = "homeauto"
+repo = "kylegordon/server-stack"
+branch = "master"
+run_directory = "tdarr"
+file_paths = ["docker-compose.yaml"]
+environment = """
+TDARR_PUID=[[PHOTOPRISM__TDARR_PUID]]
+TDARR_PGID=[[PHOTOPRISM__TDARR_PGID]]
+"""
+
+[[stack]]
 name = "netalertx"
 description = "NetAlertX - network monitoring and alerting"
 tags = ["homeauto", "monitoring"]

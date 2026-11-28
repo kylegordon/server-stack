@@ -161,7 +161,7 @@ Services visible on homepage dashboard include:
 
 ### TODO Items
 - `elk-stack/docker-compose.yaml:45` - Contains TODO comment about removing `--environment container` flag after Elasticsearch 8.17.1/8.18.0
-- Disabled services (not in `up.sh`, `deploy = false`): warpgate, selenium, ollama, actual_server
+- Disabled services (not in `up.sh`, `deploy = false`): warpgate, selenium, ollama, actual_server, tdarr
 
 ### Compose Config Validation Quirks
 - **Missing .env files generate warnings but are not errors** - exit code is still 0
